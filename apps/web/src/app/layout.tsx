@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, IBM_Plex_Sans_Arabic } from "next/font/google";
 import "../index.css";
-import Providers from "@/components/providers";
-import Header from "@/components/header";
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
+import {NextIntlClientProvider} from 'next-intl';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,30 +14,39 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
+  variable: "--font-ibm-plex-sans-arabic",
+  subsets: ["arabic"],
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
+});
+
 export const metadata: Metadata = {
   title: "qaddam",
   description: "qaddam",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: Readonly<{
+  params
+}: {
   children: React.ReactNode;
-}>) {
+  params: Promise<{locale: string}>;
+}) {
+  const {locale} = await params;
+
   return (
     <ConvexAuthNextjsServerProvider>
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Providers>
-          <div className="grid grid-rows-[auto_1fr] h-svh">
-            <Header />
-            {children}
-          </div>
-        </Providers>
-      </body>
-    </html>
+      <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} suppressHydrationWarning>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} ${ibmPlexSansArabic.variable} antialiased`}
+        >
+          <NextIntlClientProvider>
+            <div className="grid grid-rows-[auto_1fr] h-svh">
+              {children}
+            </div>
+          </NextIntlClientProvider>
+        </body>
+      </html>
     </ConvexAuthNextjsServerProvider>
   );
 }
