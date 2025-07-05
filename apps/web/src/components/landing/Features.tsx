@@ -8,67 +8,62 @@ const Features = () => {
   
   const features = [
     {
-      Icon: Target,
-      name: t('features.items.resume_analysis.title'),
+      icon: <Target className="h-6 w-6" />,
+      title: t('features.items.resume_analysis.title'),
       description: t('features.items.resume_analysis.description'),
+      className: "col-span-3 lg:col-span-1",
       href: "#",
       cta: t('features.cta'),
-      className: "col-span-3 lg:col-span-1",
-      background: null,
     },
     {
-      Icon: TrendingUp,
-      name: t('features.items.job_matching.title'),
+      icon: <TrendingUp className="h-6 w-6" />,
+      title: t('features.items.job_matching.title'),
       description: t('features.items.job_matching.description'),
+      className: "col-span-3 lg:col-span-2",
       href: "#",
       cta: t('features.cta'),
-      className: "col-span-3 lg:col-span-2",
-      background: null,
     },
     {
-      Icon: FileText,
-      name: t('features.items.resume_optimization.title'),
+      icon: <FileText className="h-6 w-6" />,
+      title: t('features.items.resume_optimization.title'),
       description: t('features.items.resume_optimization.description'),
+      className: "col-span-3 lg:col-span-2",
       href: "#",
       cta: t('features.cta'),
-      className: "col-span-3 lg:col-span-2",
-      background: null,
     },
     {
-      Icon: Search,
-      name: t('features.items.job_search.title'),
+      icon: <Search className="h-6 w-6" />,
+      title: t('features.items.job_search.title'),
       description: t('features.items.job_search.description'),
+      className: "col-span-3 lg:col-span-1",
       href: "#",
       cta: t('features.cta'),
-      className: "col-span-3 lg:col-span-1",
       background: (
         <FlickeringGrid
-        className="absolute inset-0 z-0 size-full opacity-20"
-        squareSize={4}
-        gridGap={6}
-        color="#000"
-        maxOpacity={0.3}
-        flickerChance={0.1}
-      />
+          className="absolute inset-0 z-0 size-full opacity-20"
+          squareSize={4}
+          gridGap={6}
+          color="#000"
+          maxOpacity={0.3}
+          flickerChance={0.1}
+        />
       ),
     },
     {
-      Icon: Globe,
-      name: t('features.items.language_support.title'),
+      icon: <Globe className="h-6 w-6" />,
+      title: t('features.items.language_support.title'),
       description: t('features.items.language_support.description'),
+      className: "col-span-3 lg:col-span-1",
       href: "#",
       cta: t('features.cta'),
-      className: "col-span-3 lg:col-span-1",
-      background: null,
     },
     {
-      Icon: Bookmark,
-      name: t('features.items.job_tracking.title'),
+      icon: <Bookmark className="h-6 w-6" />,
+      title: t('features.items.job_tracking.title'),
       description: t('features.items.job_tracking.description'),
+      className: "col-span-3 lg:col-span-2",
       href: "#",
       cta: t('features.cta'),
-      className: "col-span-3 lg:col-span-2",
-      background: null,
     }
   ];
 
