@@ -95,5 +95,33 @@
       },
       "copyright": "© 2025 Qaddam.cv. All rights reserved."
     }
+  },
+  "sidebar": {
+    "menu": "Menu",
+    "more": "More",
+    "dashboard": "Dashboard",
+    "jobs": "Jobs",
+    "profile": "Profile",
+    "settings": "Settings",
+    "applications": "My Applications"
+  },
+  "auth": {
+    "sign_in": "Sign In",
+    "continue_with_google": "Continue with Google",
+    "welcome": "Welcome to Qaddam",
+    "terms_text": "By continuing, you agree to our",
+    "terms_of_service": "Terms of Service",
+    "privacy_policy": "Privacy Policy",
+    "and": "and",
+    "copyright": "© 2025 Qaddam. All rights reserved.",
+    "taglines": {
+      "intelligence_precision": "🧠 Intelligence + Precision",
+      "apply_right": "Apply right. We handle the rest.",
+      "smart_resume": "Smart resume. Smart results.",
+      "ai_smart": "AI smart. Real jobs.",
+      "forget_random": "Forget random applying. This is your path.",
+      "no_search": "No need to search. We recommend the best.",
+      "profile_ready": "Your profile's ready. The opportunities are waiting."
+    }
   }
 }
