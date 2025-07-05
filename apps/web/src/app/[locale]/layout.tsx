@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, IBM_Plex_Sans_Arabic } from 'next/font/google';
 import '@/index.css';
 import { ConvexAuthNextjsServerProvider } from '@convex-dev/auth/nextjs/server';
 import { NextIntlClientProvider } from 'next-intl';
+import Providers from '@/components/providers';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -41,7 +42,9 @@ export default async function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} ${arabicFont.className} antialiased`}
         >
           <NextIntlClientProvider>
-            <div className="grid h-svh grid-rows-[auto_1fr]">{children}</div>
+            <Providers>
+              <div className="grid h-svh grid-rows-[auto_1fr]">{children}</div>
+            </Providers>
           </NextIntlClientProvider>
         </body>
       </html>

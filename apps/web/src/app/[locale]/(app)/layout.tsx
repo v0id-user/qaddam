@@ -1,3 +1,4 @@
+'use client';
 import { Authenticated } from 'convex/react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 
