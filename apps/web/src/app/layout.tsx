@@ -14,11 +14,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
-  variable: "--font-ibm-plex-sans-arabic",
-  subsets: ["arabic"],
-  weight: ["100", "200", "300", "400", "500", "600", "700"],
+const arabicFont = IBM_Plex_Sans_Arabic({
+  weight: ['100', '200', '300', '400', '500', '600', '700'],
+  subsets: ['arabic'],
 });
+
 
 export const metadata: Metadata = {
   title: "qaddam",
@@ -38,7 +38,7 @@ export default async function RootLayout({
     <ConvexAuthNextjsServerProvider>
       <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} suppressHydrationWarning>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} ${ibmPlexSansArabic.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} ${arabicFont.className} antialiased`}
         >
           <NextIntlClientProvider>
             <div className="grid grid-rows-[auto_1fr] h-svh">
