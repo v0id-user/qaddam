@@ -43,15 +43,13 @@ const Features = () => {
       className: "col-span-3 lg:col-span-1",
       background: (
         <FlickeringGrid
-          className="z-0 absolute inset-0 size-full"
-          squareSize={4}
-          gridGap={6}
-          color="#3b82f6"
-          maxOpacity={0.5}
-          flickerChance={0.1}
-          height={800}
-          width={800}
-        />
+        className="absolute inset-0 z-0 size-full opacity-20"
+        squareSize={4}
+        gridGap={6}
+        color="#000"
+        maxOpacity={0.3}
+        flickerChance={0.1}
+      />
       ),
     },
     {
@@ -88,7 +86,9 @@ const Features = () => {
 
         <BentoGrid>
           {features.map((feature, idx) => (
-            <BentoCard key={idx} {...feature} />
+            <BentoCard key={idx} {...feature} 
+            className={`p-6 rounded-xl border border-border bg-white transition-all duration-800 ease-out ${feature.className}`}
+            />
           ))}
         </BentoGrid>
       </div>
