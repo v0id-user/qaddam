@@ -62,7 +62,8 @@
       },
       "pro": {
         "name": "خطة المحترفين",
-        "price": "٨ دولارات",
+        "price": "٣٠",
+        "currency": "SAR",
         "price_detail": "شهرياً",
         "features": [
           "رفع سير ذاتية غير محدود",

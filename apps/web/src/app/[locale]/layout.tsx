@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, IBM_Plex_Sans_Arabic } from "next/font/google";
-import "../index.css";
+import "@/index.css";
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import {NextIntlClientProvider} from 'next-intl';
 
@@ -33,6 +33,7 @@ export default async function RootLayout({
   params: Promise<{locale: string}>;
 }) {
   const {locale} = await params;
+  console.log("locale", locale);
 
   return (
     <ConvexAuthNextjsServerProvider>

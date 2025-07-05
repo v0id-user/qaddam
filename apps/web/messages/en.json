@@ -62,7 +62,8 @@
       },
       "pro": {
         "name": "Pro Plan",
-        "price": "$8",
+        "price": "8",
+        "currency": "USD",
         "price_detail": "monthly",
         "features": [
           "Unlimited resume uploads",
