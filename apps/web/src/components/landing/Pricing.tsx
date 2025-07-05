@@ -1,6 +1,6 @@
 import { useTranslations, useLocale } from 'next-intl';
-import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Check } from 'lucide-react';
 
 const SaudiRiyal = ({ className = '', size = 0.8 }) => (
   <svg
@@ -20,20 +20,19 @@ const SaudiRiyal = ({ className = '', size = 0.8 }) => (
   </svg>
 );
 
-
 const Pricing = () => {
   const t = useTranslations('landing');
   const locale = useLocale();
-  
+
   const renderCurrencySymbol = (currency: string) => {
     if (currency === 'USD') {
-      return <span className="text-4xl font-bold text-foreground">$</span>;
+      return <span className="text-foreground text-4xl font-bold">$</span>;
     } else if (currency === 'SAR') {
       return <SaudiRiyal className="text-foreground" size={1} />;
     }
     return null;
   };
-  
+
   const plans = [
     {
       name: t('pricing.plans.free.name'),
@@ -43,11 +42,11 @@ const Pricing = () => {
         t('pricing.plans.free.features.0'),
         t('pricing.plans.free.features.1'),
         t('pricing.plans.free.features.2'),
-        t('pricing.plans.free.features.3')
+        t('pricing.plans.free.features.3'),
       ],
       isPopular: false,
       buttonText: t('pricing.plans.free.button'),
-      buttonClasses: "bg-foreground text-background border-none"
+      buttonClasses: 'bg-foreground text-background border-none',
     },
     {
       name: t('pricing.plans.pro.name'),
@@ -60,91 +59,80 @@ const Pricing = () => {
         t('pricing.plans.pro.features.2'),
         t('pricing.plans.pro.features.3'),
         t('pricing.plans.pro.features.4'),
-        t('pricing.plans.pro.features.5')
+        t('pricing.plans.pro.features.5'),
       ],
       isPopular: true,
       buttonText: t('pricing.plans.pro.button'),
-      buttonClasses: "bg-primary text-primary-foreground border-none"
-    }
+      buttonClasses: 'bg-primary text-primary-foreground border-none',
+    },
   ];
 
   return (
-    <section className="py-20 px-4 bg-muted">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+    <section className="bg-muted px-4 py-20">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-16 text-center">
+          <h2 className="text-foreground mb-4 text-4xl font-bold md:text-5xl">
             {t('pricing.title')}
           </h2>
-          <p className="text-lg text-muted-foreground">
-            {t('pricing.description')}
-          </p>
+          <p className="text-muted-foreground text-lg">{t('pricing.description')}</p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="mx-auto grid max-w-4xl gap-8 md:grid-cols-2">
           {plans.map((plan, index) => (
             <div
               key={index}
-              className={`bg-white rounded-2xl p-8 shadow-sm border-2 transition-all duration-200 hover:shadow-lg ${
-                plan.isPopular 
-                  ? 'relative border-primary' 
-                  : 'border-border hover:border-gray-200'
+              className={`rounded-2xl border-2 bg-white p-8 shadow-sm transition-all duration-200 hover:shadow-lg ${
+                plan.isPopular ? 'border-primary relative' : 'border-border hover:border-gray-200'
               }`}
             >
               {plan.isPopular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="px-4 py-2 rounded-full text-sm font-medium bg-primary text-primary-foreground">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
+                  <span className="bg-primary text-primary-foreground rounded-full px-4 py-2 text-sm font-medium">
                     {t('pricing.popular')}
                   </span>
                 </div>
               )}
 
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold mb-2 text-foreground">
-                  {plan.name}
-                </h3>
+              <div className="mb-8 text-center">
+                <h3 className="text-foreground mb-2 text-2xl font-bold">{plan.name}</h3>
                 <div className="flex items-center justify-center space-x-2 space-x-reverse">
                   {locale === 'ar' ? (
                     // Arabic: price first (right), then currency (left)
                     <>
-                      <span className="text-4xl font-bold text-foreground">
-                        {plan.price}
-                      </span>
+                      <span className="text-foreground text-4xl font-bold">{plan.price}</span>
                       {plan.currency && renderCurrencySymbol(plan.currency)}
                     </>
                   ) : (
                     // English: currency first (left), then price (right)
                     <>
                       {plan.currency && renderCurrencySymbol(plan.currency)}
-                      <span className="text-4xl font-bold text-foreground">
-                        {plan.price}
-                      </span>
+                      <span className="text-foreground text-4xl font-bold">{plan.price}</span>
                     </>
                   )}
-                  {(plan.price !== 'Free' && plan.price !== 'مجاناً') && '/'/* Split between price and currency */}
+                  {
+                    plan.price !== 'Free' &&
+                      plan.price !== 'مجاناً' &&
+                      '/' /* Split between price and currency */
+                  }
                   {plan.priceDetail && (
-                    
-                    <span className="text-muted-foreground">
-                      {plan.priceDetail}
-                    </span>
+                    <span className="text-muted-foreground">{plan.priceDetail}</span>
                   )}
                 </div>
               </div>
 
-              <ul className="space-y-4 mb-8">
+              <ul className="mb-8 space-y-4">
                 {plan.features.map((feature, featureIndex) => (
                   <li key={featureIndex} className="flex items-center space-x-3 space-x-reverse">
                     <div className="flex-shrink-0">
-                      <Check className="w-5 h-5 text-green-500" />
+                      <Check className="h-5 w-5 text-green-500" />
                     </div>
-                    <span className="text-foreground">
-                      {feature}
-                    </span>
+                    <span className="text-foreground">{feature}</span>
                   </li>
                 ))}
               </ul>
 
-              <Button 
-                className={`w-full py-3 text-lg font-semibold rounded-xl transition-all duration-200 ${plan.buttonClasses}`}
+              <Button
+                className={`w-full rounded-xl py-3 text-lg font-semibold transition-all duration-200 ${plan.buttonClasses}`}
               >
                 {plan.buttonText}
               </Button>

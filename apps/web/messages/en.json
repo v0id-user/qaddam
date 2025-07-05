@@ -1,98 +1,98 @@
 {
   "landing": {
-  "hero": {
-    "title": "Submit your resume.",
-    "subtitle": "Get the best opportunities.",
-    "description": "Qaddam.cv uses artificial intelligence to match your resume with the best job opportunities and automatically improve your resume.",
-    "cta": "Get Started",
-    "scroll_cta": "How does it work?"
-  },
-  "features": {
-    "title": "Qaddam Features",
-    "description": "Everything you need to find your ideal job",
-    "cta": "Learn more",
-    "items": {
-      "resume_analysis": {
-        "title": "Resume Analysis",
-        "description": "AI reads your experience and skills"
-      },
-      "job_matching": {
-        "title": "Job Matching Percentage",
-        "description": "Get a percentage match for each job"
-      },
-      "resume_optimization": {
-        "title": "Resume Optimization",
-        "description": "AI-powered resume improvement suggestions"
-      },
-      "job_search": {
-        "title": "Opportunities from Top Sites",
-        "description": "Jobs from LinkedIn, Google, and other sites"
-      },
-      "language_support": {
-        "title": "Arabic and English Support",
-        "description": "Bilingual experience"
-      },
-      "job_tracking": {
-        "title": "Save Jobs and Track",
-        "description": "Save jobs to apply to later"
-      }
-    }
-  },
-  "screenshot": {
-    "title": "See How Qaddam Works",
-    "description": "See the dashboard in action",
-    "coming_soon": "Dashboard Coming Soon",
-    "preview": "Dashboard preview coming soon"
-  },
-  "pricing": {
-    "title": "Choose Your Plan",
-    "description": "Start for free, upgrade when you're ready",
-    "popular": "Most Popular",
-    "plans": {
-      "free": {
-        "name": "Free Plan",
-        "price": "Free",
-        "features": [
-          "Upload one resume",
-          "3 job matches",
-          "Basic rewrite suggestions",
-          "Email support"
-        ],
-        "button": "Start Free"
-      },
-      "pro": {
-        "name": "Pro Plan",
-        "price": "8",
-        "currency": "USD",
-        "price_detail": "monthly",
-        "features": [
-          "Unlimited resume uploads",
-          "Unlimited job matches",
-          "Advanced AI rewriting",
-          "Priority support",
-          "Job tracking dashboard",
-          "ATS optimization"
-        ],
-        "button": "Start Free Trial"
-      }
-    }
-  },
-  "footer": {
-    "brand": "Qaddam.cv",
-    "tagline": "Smart job matching for your professional future",
-    "quick_links": {
-      "title": "Quick Links",
-      "how_it_works": "How it Works",
-      "pricing": "Pricing",
-      "help": "Help",
-      "contact": "Contact Us"
+    "hero": {
+      "title": "Submit your resume.",
+      "subtitle": "Get the best opportunities.",
+      "description": "Qaddam.cv uses artificial intelligence to match your resume with the best job opportunities and automatically improve your resume.",
+      "cta": "Get Started",
+      "scroll_cta": "How does it work?"
     },
-    "legal": {
-      "title": "Legal",
-      "privacy": "Privacy Policy",
-      "terms": "Terms of Use",
-      "cookies": "Cookies"
+    "features": {
+      "title": "Qaddam Features",
+      "description": "Everything you need to find your ideal job",
+      "cta": "Learn more",
+      "items": {
+        "resume_analysis": {
+          "title": "Resume Analysis",
+          "description": "AI reads your experience and skills"
+        },
+        "job_matching": {
+          "title": "Job Matching Percentage",
+          "description": "Get a percentage match for each job"
+        },
+        "resume_optimization": {
+          "title": "Resume Optimization",
+          "description": "AI-powered resume improvement suggestions"
+        },
+        "job_search": {
+          "title": "Opportunities from Top Sites",
+          "description": "Jobs from LinkedIn, Google, and other sites"
+        },
+        "language_support": {
+          "title": "Arabic and English Support",
+          "description": "Bilingual experience"
+        },
+        "job_tracking": {
+          "title": "Save Jobs and Track",
+          "description": "Save jobs to apply to later"
+        }
+      }
     },
+    "screenshot": {
+      "title": "See How Qaddam Works",
+      "description": "See the dashboard in action",
+      "coming_soon": "Dashboard Coming Soon",
+      "preview": "Dashboard preview coming soon"
+    },
+    "pricing": {
+      "title": "Choose Your Plan",
+      "description": "Start for free, upgrade when you're ready",
+      "popular": "Most Popular",
+      "plans": {
+        "free": {
+          "name": "Free Plan",
+          "price": "Free",
+          "features": [
+            "Upload one resume",
+            "3 job matches",
+            "Basic rewrite suggestions",
+            "Email support"
+          ],
+          "button": "Start Free"
+        },
+        "pro": {
+          "name": "Pro Plan",
+          "price": "8",
+          "currency": "USD",
+          "price_detail": "monthly",
+          "features": [
+            "Unlimited resume uploads",
+            "Unlimited job matches",
+            "Advanced AI rewriting",
+            "Priority support",
+            "Job tracking dashboard",
+            "ATS optimization"
+          ],
+          "button": "Start Free Trial"
+        }
+      }
+    },
+    "footer": {
+      "brand": "Qaddam.cv",
+      "tagline": "Smart job matching for your professional future",
+      "quick_links": {
+        "title": "Quick Links",
+        "how_it_works": "How it Works",
+        "pricing": "Pricing",
+        "help": "Help",
+        "contact": "Contact Us"
+      },
+      "legal": {
+        "title": "Legal",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Use",
+        "cookies": "Cookies"
+      },
       "copyright": "© 2025 Qaddam.cv. All rights reserved."
     }
   }

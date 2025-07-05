@@ -1,53 +1,53 @@
 import { useTranslations } from 'next-intl';
-import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { ChevronDown } from 'lucide-react';
 
 const Hero = () => {
   const t = useTranslations('landing');
-  
+
   const scrollToFeatures = () => {
     document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center px-4 relative bg-white">
-      <div className="text-center max-w-4xl mx-auto space-y-8 animate-fade-up">
+    <section className="relative flex min-h-screen flex-col items-center justify-center bg-white px-4">
+      <div className="animate-fade-up mx-auto max-w-4xl space-y-8 text-center">
         {/* Main Arabic Headline */}
-        <h1 className="text-5xl md:text-7xl font-bold leading-tight text-foreground">
+        <h1 className="text-foreground text-5xl leading-tight font-bold md:text-7xl">
           {t('hero.title')}
           <br />
           <span className="text-primary">{t('hero.subtitle')}</span>
         </h1>
 
         {/* Arabic Subtext */}
-        <p className="text-lg md:text-xl max-w-2xl mx-auto leading-relaxed text-muted-foreground">
+        <p className="text-muted-foreground mx-auto max-w-2xl text-lg leading-relaxed md:text-xl">
           {t('hero.description')}
         </p>
 
         {/* CTA Button */}
         <div className="flex flex-col items-center space-y-6">
-          <Button 
-            size="lg" 
-            className="px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 bg-primary text-primary-foreground border-none"
+          <Button
+            size="lg"
+            className="bg-primary text-primary-foreground rounded-xl border-none px-8 py-4 text-lg font-semibold shadow-lg transition-all duration-200 hover:shadow-xl"
           >
             {t('hero.cta')}
           </Button>
 
           {/* Scroll CTA */}
-          <button 
+          <button
             onClick={scrollToFeatures}
-            className="flex items-center space-x-2 space-x-reverse transition-colors duration-200 group text-muted-foreground"
+            className="group text-muted-foreground flex items-center space-x-2 space-x-reverse transition-colors duration-200"
           >
             <span>{t('hero.scroll_cta')}</span>
-            <ChevronDown className="w-4 h-4 group-hover:translate-y-1 transition-transform duration-200 ml-2" />
+            <ChevronDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-y-1" />
           </button>
         </div>
       </div>
 
       {/* Background decoration */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute top-1/4 right-1/4 w-72 h-72 bg-indigo-100 rounded-full blur-3xl opacity-30"></div>
-        <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-purple-100 rounded-full blur-3xl opacity-20"></div>
+        <div className="absolute top-1/4 right-1/4 h-72 w-72 rounded-full bg-indigo-100 opacity-30 blur-3xl"></div>
+        <div className="absolute bottom-1/4 left-1/4 h-96 w-96 rounded-full bg-purple-100 opacity-20 blur-3xl"></div>
       </div>
     </section>
   );

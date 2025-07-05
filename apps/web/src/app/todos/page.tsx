@@ -1,25 +1,18 @@
-"use client"
+'use client';
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Loader2, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Loader2, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
-import { useMutation, useQuery } from "convex/react";
-import { api } from "@qaddam/backend/convex/_generated/api";
-import type { Id } from "@qaddam/backend/convex/_generated/dataModel";
-
+import { useMutation, useQuery } from 'convex/react';
+import { api } from '@qaddam/backend/convex/_generated/api';
+import type { Id } from '@qaddam/backend/convex/_generated/dataModel';
 
 export default function TodosPage() {
-  const [newTodoText, setNewTodoText] = useState("");
+  const [newTodoText, setNewTodoText] = useState('');
 
   const todos = useQuery(api.todos.getAll);
   const createTodoMutation = useMutation(api.todos.create);
@@ -31,14 +24,14 @@ export default function TodosPage() {
     const text = newTodoText.trim();
     if (!text) return;
     await createTodoMutation({ text });
-    setNewTodoText("");
+    setNewTodoText('');
   };
 
-  const handleToggleTodo = (id: Id<"todos">, currentCompleted: boolean) => {
+  const handleToggleTodo = (id: Id<'todos'>, currentCompleted: boolean) => {
     toggleTodoMutation({ id, completed: !currentCompleted });
   };
 
-  const handleDeleteTodo = (id: Id<"todos">) => {
+  const handleDeleteTodo = (id: Id<'todos'>) => {
     deleteTodoMutation({ id });
   };
 
@@ -50,63 +43,55 @@ export default function TodosPage() {
           <CardDescription>Manage your tasks efficiently</CardDescription>
         </CardHeader>
         <CardContent>
-          <form
-            onSubmit={handleAddTodo}
-            className="mb-6 flex items-center space-x-2"
-          >
+          <form onSubmit={handleAddTodo} className="mb-6 flex items-center space-x-2">
             <Input
               value={newTodoText}
-              onChange={(e) => setNewTodoText(e.target.value)}
+              onChange={e => setNewTodoText(e.target.value)}
               placeholder="Add a new task..."
             />
-            <Button
-              type="submit"
-              disabled={!newTodoText.trim()}
-            >
-                Add
+            <Button type="submit" disabled={!newTodoText.trim()}>
+              Add
             </Button>
           </form>
 
-            {todos === undefined ? (
-              <div className="flex justify-center py-4">
-                <Loader2 className="h-6 w-6 animate-spin" />
-              </div>
-            ) : todos.length === 0 ? (
-              <p className="py-4 text-center">No todos yet. Add one above!</p>
-            ) : (
-              <ul className="space-y-2">
-                {todos.map((todo) => (
-                  <li
-                    key={todo._id}
-                    className="flex items-center justify-between rounded-md border p-2"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        checked={todo.completed}
-                        onCheckedChange={() =>
-                          handleToggleTodo(todo._id, todo.completed)
-                        }
-                        id={`todo-${todo._id}`}
-                      />
-                      <label
-                        htmlFor={`todo-${todo._id}`}
-                        className={`${todo.completed ? "line-through text-muted-foreground" : ""}`}
-                      >
-                        {todo.text}
-                      </label>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteTodo(todo._id)}
-                      aria-label="Delete todo"
+          {todos === undefined ? (
+            <div className="flex justify-center py-4">
+              <Loader2 className="h-6 w-6 animate-spin" />
+            </div>
+          ) : todos.length === 0 ? (
+            <p className="py-4 text-center">No todos yet. Add one above!</p>
+          ) : (
+            <ul className="space-y-2">
+              {todos.map(todo => (
+                <li
+                  key={todo._id}
+                  className="flex items-center justify-between rounded-md border p-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={todo.completed}
+                      onCheckedChange={() => handleToggleTodo(todo._id, todo.completed)}
+                      id={`todo-${todo._id}`}
+                    />
+                    <label
+                      htmlFor={`todo-${todo._id}`}
+                      className={`${todo.completed ? 'text-muted-foreground line-through' : ''}`}
                     >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            )}
+                      {todo.text}
+                    </label>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDeleteTodo(todo._id)}
+                    aria-label="Delete todo"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
         </CardContent>
       </Card>
     </div>

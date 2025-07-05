@@ -1,13 +1,9 @@
-import { Authenticated } from "convex/react";
+import { Authenticated } from 'convex/react';
 export default function AppLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode;
-    params: Promise<{locale: string}>;
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
-    return (
-        <Authenticated>
-            {children}
-        </Authenticated>
-    );
+  return <Authenticated>{children}</Authenticated>;
 }
