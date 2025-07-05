@@ -1,10 +1,5 @@
 'use client';
-import {
-  LayoutDashboard,
-  Briefcase,
-  UserCircle,
-  Settings,
-} from 'lucide-react';
+import { LayoutDashboard, Briefcase, UserCircle, Settings } from 'lucide-react';
 
 import {
   SidebarMenuButton,
@@ -28,11 +23,9 @@ export function SideNavMain() {
       { href: '/dashboard/jobs', icon: Briefcase, label: t('jobs') },
       { href: '/dashboard/profile', icon: UserCircle, label: t('profile') },
     ],
-    [t('more')]: [
-      { href: '/dashboard/settings', icon: Settings, label: t('settings') },
-    ],
+    [t('more')]: [{ href: '/dashboard/settings', icon: Settings, label: t('settings') }],
   };
-  
+
   return (
     <>
       {Object.entries(menuItems).map(([groupLabel, items]) => (

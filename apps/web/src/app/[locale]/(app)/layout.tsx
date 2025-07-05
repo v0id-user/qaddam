@@ -9,9 +9,7 @@ export default function AppLayout({
 }) {
   return (
     <Authenticated>
-      <SidebarProvider>
-        {children}
-      </SidebarProvider>
+      <SidebarProvider>{children}</SidebarProvider>
     </Authenticated>
   );
 }

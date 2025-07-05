@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
+import { useAuthActions } from '@convex-dev/auth/react';
 
 const GoogleIcon = () => (
   <svg
@@ -107,18 +108,33 @@ const GoogleIcon = () => (
       </clipPath>
     </defs>
     <g transform="matrix(0.957922,0,0,0.985255,-90.17436,-78.85577)" clipPath="url(#i)">
-      <path d="M92.07563 219.9585c.14844 22.14 6.5014 44.983 16.11767 63.4234v.1269c6.9482 13.3919 16.4444 23.9704 27.2604 34.4518l65.326-23.67c-12.3593-6.2344-14.2452-10.0546-23.1048-17.0253-9.0537-9.0658-15.8015-19.4735-20.0038-31.677h-.1693l.1693-.1269c-2.7646-8.0587-3.0373-16.6129-3.1393-25.5029Z" fill="url(#g)" />
-      <path d="M237.0835 79.02491c-6.4568 22.52569-3.988 44.42139 0 57.16129 7.4561.0055 14.6388.8881 21.4494 2.6464 15.6135 4.0309 26.6566 11.97 33.424 18.2496l41.8794-40.7256c-24.8094-22.58904-54.6663-37.2961-96.7528-37.33169Z" fill="url(#d)" />
-      <path d="M236.9434 78.84678c-31.6709-.00068-60.9107 9.79833-84.8718 26.35902-8.8968 6.149-17.0612 13.2521-24.3311 21.1509-1.9045 17.7429 14.2569 39.5507 46.2615 39.3702 15.5284-17.9373 38.4946-29.5427 64.0561-29.5427.0233 0 .046.0019.0693.002l-1.0439-57.33536c-.0472-.00003-.0929-.00406-.1401-.00406Z" fill="url(#m)" />
-      <path d="m341.4751 226.3788-28.2685 19.2848c-1.2405 7.5627-4.0278 15.0023-8.1068 21.7861-4.6734 7.7723-10.4506 13.6898-16.3725 18.196-17.7022 13.4704-38.3286 16.2439-52.6877 16.2553-14.8415 25.1018-17.4435 37.6749 1.0439 57.9342 22.8762-.0167 43.157-4.1174 61.0458-11.7965 12.9312-5.551 24.3879-12.7913 34.7609-22.0964 13.7061-12.295 24.4421-27.5034 31.7688-45.0003 7.3267-17.497 11.2446-37.2822 11.2446-58.7336Z" fill="url(#n)" />
-      <path d="M234.9956 191.2104v57.4981h136.0062c1.1962-7.8745 5.1523-18.0644 5.1523-26.5001 0-9.858-.9963-21.899-2.6873-30.998Z" fill="#3086ff" />
+      <path
+        d="M92.07563 219.9585c.14844 22.14 6.5014 44.983 16.11767 63.4234v.1269c6.9482 13.3919 16.4444 23.9704 27.2604 34.4518l65.326-23.67c-12.3593-6.2344-14.2452-10.0546-23.1048-17.0253-9.0537-9.0658-15.8015-19.4735-20.0038-31.677h-.1693l.1693-.1269c-2.7646-8.0587-3.0373-16.6129-3.1393-25.5029Z"
+        fill="url(#g)"
+      />
+      <path
+        d="M237.0835 79.02491c-6.4568 22.52569-3.988 44.42139 0 57.16129 7.4561.0055 14.6388.8881 21.4494 2.6464 15.6135 4.0309 26.6566 11.97 33.424 18.2496l41.8794-40.7256c-24.8094-22.58904-54.6663-37.2961-96.7528-37.33169Z"
+        fill="url(#d)"
+      />
+      <path
+        d="M236.9434 78.84678c-31.6709-.00068-60.9107 9.79833-84.8718 26.35902-8.8968 6.149-17.0612 13.2521-24.3311 21.1509-1.9045 17.7429 14.2569 39.5507 46.2615 39.3702 15.5284-17.9373 38.4946-29.5427 64.0561-29.5427.0233 0 .046.0019.0693.002l-1.0439-57.33536c-.0472-.00003-.0929-.00406-.1401-.00406Z"
+        fill="url(#m)"
+      />
+      <path
+        d="m341.4751 226.3788-28.2685 19.2848c-1.2405 7.5627-4.0278 15.0023-8.1068 21.7861-4.6734 7.7723-10.4506 13.6898-16.3725 18.196-17.7022 13.4704-38.3286 16.2439-52.6877 16.2553-14.8415 25.1018-17.4435 37.6749 1.0439 57.9342 22.8762-.0167 43.157-4.1174 61.0458-11.7965 12.9312-5.551 24.3879-12.7913 34.7609-22.0964 13.7061-12.295 24.4421-27.5034 31.7688-45.0003 7.3267-17.497 11.2446-37.2822 11.2446-58.7336Z"
+        fill="url(#n)"
+      />
+      <path
+        d="M234.9956 191.2104v57.4981h136.0062c1.1962-7.8745 5.1523-18.0644 5.1523-26.5001 0-9.858-.9963-21.899-2.6873-30.998Z"
+        fill="#3086ff"
+      />
     </g>
   </svg>
 );
 
 const TaglineBubble = ({ text, className = '' }: { text: string; className?: string }) => (
   <div
-    className={`absolute hidden md:block rounded-full bg-white/80 backdrop-blur-sm border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 shadow-sm ${className}`}
+    className={`absolute hidden rounded-full border border-gray-200 bg-white/80 px-3 py-2 text-sm font-medium text-gray-700 shadow-sm backdrop-blur-sm md:block ${className}`}
   >
     {text}
   </div>
@@ -126,6 +142,7 @@ const TaglineBubble = ({ text, className = '' }: { text: string; className?: str
 
 const SignPage = () => {
   const t = useTranslations('auth');
+  const { signIn } = useAuthActions();
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4">
@@ -141,26 +158,28 @@ const SignPage = () => {
       <TaglineBubble text={t('taglines.smart_resume')} className="top-1/2 left-10" />
       <TaglineBubble text={t('taglines.ai_smart')} className="top-1/2 right-16" />
       <TaglineBubble text={t('taglines.forget_random')} className="bottom-40 left-24" />
-      <TaglineBubble text={t('taglines.no_search')} className="bottom-32 right-28" />
-      <TaglineBubble text={t('taglines.profile_ready')} className="bottom-20 left-1/2 transform -translate-x-1/2" />
+      <TaglineBubble text={t('taglines.no_search')} className="right-28 bottom-32" />
+      <TaglineBubble
+        text={t('taglines.profile_ready')}
+        className="bottom-20 left-1/2 -translate-x-1/2 transform"
+      />
 
       {/* Main Content */}
       <div className="mx-auto w-full max-w-md">
         <div className="rounded-2xl bg-white p-8 shadow-xl">
           {/* Header */}
           <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {t('sign_in')}
-            </h1>
-            <p className="text-gray-600">
-              {t('welcome')}
-            </p>
+            <h1 className="mb-2 text-3xl font-bold text-gray-900">{t('sign_in')}</h1>
+            <p className="text-gray-600">{t('welcome')}</p>
           </div>
 
           {/* Google Sign In Button */}
           <div className="space-y-4">
             <Button
-              className="w-full rounded-xl bg-white border border-gray-300 py-3 text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 hover:shadow-md"
+              onClick={() => {
+                signIn('google', { redirectTo: '/dashboard' });
+              }}
+              className="w-full rounded-xl border border-gray-300 bg-white py-3 text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 hover:shadow-md"
               size="lg"
             >
               <GoogleIcon />
@@ -185,7 +204,7 @@ const SignPage = () => {
       </div>
 
       {/* Bottom Legal Footer */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-center text-xs text-gray-400">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 transform text-center text-xs text-gray-400">
         <p>{t('copyright')}</p>
       </div>
     </div>
