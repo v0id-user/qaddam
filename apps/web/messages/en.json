@@ -129,5 +129,88 @@
       "no_search": "No need to search. We recommend the best.",
       "profile_ready": "Your profile's ready. The opportunities are waiting."
     }
+  },
+  "dashboard": {
+    "cv_upload": {
+      "title": "Upload Your Resume",
+      "subtitle": "Start your professional journey with us",
+      "file_input_label": "Choose Resume File",
+      "file_input_placeholder": "Drag PDF file here or click to select",
+      "file_requirements": "PDF only, max 5MB",
+      "scan_button": "Scan CV with AI",
+
+      "benefits": {
+        "smart_analysis": {
+          "title": "Smart CV Analysis",
+          "subtitle": "AI-powered insights into your skills and experience"
+        },
+        "tailored_matches": {
+          "title": "Tailored Job Matches",
+          "subtitle": "Get matched with jobs that fit your profile perfectly"
+        },
+        "full_control": {
+          "title": "Full User Control",
+          "subtitle": "Manage your data and preferences anytime"
+        }
+      },
+      "errors": {
+        "invalid_type": "Only PDF files are allowed",
+        "file_too_large": "File size must be less than 5MB",
+        "too_many_files": "Only one file is allowed",
+        "upload_failed": "Failed to upload file"
+      },
+      "delete_file": "Delete file"
+    },
+    "workflow": {
+      "title": "Processing Your Resume",
+      "subtitle": "We're analyzing your CV to find the best job matches",
+      "steps": {
+        "parsing": {
+          "title": "Parsing CV",
+          "description": "Extracting your skills, experience, and qualifications"
+        },
+        "tuning": {
+          "title": "Tuning for Search",
+          "description": "Optimizing search parameters based on your profile"
+        },
+        "searching": {
+          "title": "Searching for Jobs",
+          "description": "Finding relevant opportunities across multiple platforms"
+        },
+        "combining": {
+          "title": "Combining Results",
+          "description": "Analyzing and ranking the best matches for you"
+        }
+      },
+      "status": {
+        "not_started": "Waiting",
+        "pending": "Processing",
+        "finished": "Complete"
+      }
+    },
+    "job_results": {
+      "title": "Job Matches Found",
+      "subtitle": "Here are the best opportunities matched to your profile",
+      "found_jobs": "Found {count} job matches",
+      "match_score": "Match Score",
+      "view_details": "View Details",
+      "apply_now": "Apply Now",
+      "save_job": "Save Job",
+      "job_types": {
+        "full_time": "Full Time",
+        "part_time": "Part Time",
+        "contract": "Contract",
+        "remote": "Remote"
+      },
+      "match_insights": {
+        "title": "Match Analysis",
+        "matched_skills": "Matched Skills",
+        "missing_skills": "Skills to Develop",
+        "experience_match": "Experience Match",
+        "salary_range": "Salary Range",
+        "location_match": "Location Match",
+        "close": "Close"
+      }
+    }
   }
 }

@@ -129,5 +129,88 @@
       "no_search": "ما تبحث كثير. نرشح لك كثير.",
       "profile_ready": "تحليلك جاهز. فرصك تنتظر."
     }
+  },
+  "dashboard": {
+    "cv_upload": {
+      "title": "ارفع سيرتك الذاتية",
+      "subtitle": "ابدأ رحلتك المهنية معنا",
+      "file_input_label": "اختر ملف السيرة الذاتية",
+      "file_input_placeholder": "اسحب ملف PDF هنا أو انقر للتحديد",
+      "file_requirements": "PDF فقط، الحد الأقصى ٥ ميجابايت",
+      "scan_button": "تحليل السيرة الذاتية بالذكاء الاصطناعي",
+
+      "benefits": {
+        "smart_analysis": {
+          "title": "تحليل ذكي للسيرة الذاتية",
+          "subtitle": "رؤى مدعومة بالذكاء الاصطناعي لمهاراتك وخبراتك"
+        },
+        "tailored_matches": {
+          "title": "وظائف مناسبة لك",
+          "subtitle": "احصل على وظائف تناسب ملفك الشخصي تماماً"
+        },
+        "full_control": {
+          "title": "تحكم كامل للمستخدم",
+          "subtitle": "إدارة بياناتك وتفضيلاتك في أي وقت"
+        }
+      },
+      "errors": {
+        "invalid_type": "ملفات PDF فقط مسموحة",
+        "file_too_large": "حجم الملف يجب أن يكون أقل من ٥ ميجابايت",
+        "too_many_files": "ملف واحد فقط مسموح",
+        "upload_failed": "فشل في رفع الملف"
+      },
+      "delete_file": "حذف الملف"
+    },
+    "workflow": {
+      "title": "معالجة سيرتك الذاتية",
+      "subtitle": "نحن نحلل سيرتك الذاتية لإيجاد أفضل الوظائف المناسبة",
+      "steps": {
+        "parsing": {
+          "title": "تحليل السيرة الذاتية",
+          "description": "استخراج مهاراتك وخبراتك ومؤهلاتك"
+        },
+        "tuning": {
+          "title": "تحسين البحث",
+          "description": "تحسين معايير البحث بناءً على ملفك الشخصي"
+        },
+        "searching": {
+          "title": "البحث عن الوظائف",
+          "description": "البحث عن الفرص المناسبة عبر منصات متعددة"
+        },
+        "combining": {
+          "title": "دمج النتائج",
+          "description": "تحليل وترتيب أفضل التطابقات لك"
+        }
+      },
+      "status": {
+        "not_started": "في الانتظار",
+        "pending": "قيد المعالجة",
+        "finished": "مكتمل"
+      }
+    },
+    "job_results": {
+      "title": "وظائف مطابقة",
+      "subtitle": "إليك أفضل الفرص المطابقة لملفك الشخصي",
+      "found_jobs": "تم العثور على {count} وظيفة مطابقة",
+      "match_score": "درجة التطابق",
+      "view_details": "عرض التفاصيل",
+      "apply_now": "تقدم الآن",
+      "save_job": "حفظ الوظيفة",
+      "job_types": {
+        "full_time": "دوام كامل",
+        "part_time": "دوام جزئي",
+        "contract": "عقد",
+        "remote": "عن بعد"
+      },
+      "match_insights": {
+        "title": "تحليل التطابق",
+        "matched_skills": "المهارات المطابقة",
+        "missing_skills": "المهارات المطلوب تطويرها",
+        "experience_match": "تطابق الخبرة",
+        "salary_range": "نطاق الراتب",
+        "location_match": "تطابق الموقع",
+        "close": "إغلاق"
+      }
+    }
   }
 }

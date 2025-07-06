@@ -4,7 +4,7 @@ import '@/index.css';
 import { ConvexAuthNextjsServerProvider } from '@convex-dev/auth/nextjs/server';
 import { NextIntlClientProvider } from 'next-intl';
 import Providers from '@/components/providers';
-
+import {Toaster} from 'react-hot-toast'
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
@@ -41,6 +41,7 @@ export default async function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} ${arabicFont.className} antialiased`}
         >
+          <Toaster/>
           <NextIntlClientProvider>
             <Providers>
               <div className="grid h-svh grid-rows-[auto_1fr]">{children}</div>

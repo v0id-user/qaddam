@@ -14,7 +14,10 @@
     "dev:server": "turbo -F @qaddam/backend dev",
     "dev:setup": "turbo -F @qaddam/backend dev:setup"
   },
-  "dependencies": {},
+  "dependencies": {
+    "react-dropzone": "^14.3.8",
+    "react-hot-toast": "^2.5.2"
+  },
   "devDependencies": {
     "turbo": "^2.5.4"
   },
