@@ -1,6 +1,7 @@
 'use client';
 import { Authenticated } from 'convex/react';
-import { SidebarProvider } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import ClientDashBoard from './ClientDashBoard';
 
 export default function AppLayout({
   children,
@@ -10,7 +11,13 @@ export default function AppLayout({
 }) {
   return (
     <Authenticated>
-      <SidebarProvider>{children}</SidebarProvider>
+      <SidebarProvider>
+        <ClientDashBoard />
+        <main className="flex-1 p-4">
+          <SidebarTrigger />
+          {children}
+        </main>
+      </SidebarProvider>
     </Authenticated>
   );
 }

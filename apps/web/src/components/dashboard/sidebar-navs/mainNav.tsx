@@ -7,6 +7,7 @@ import {
   SidebarMenuItem,
   SidebarGroup,
   SidebarGroupLabel,
+  SidebarGroupContent,
   SidebarMenu,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
@@ -64,29 +65,31 @@ export function SideNavMain({ customMenuItems, showDefaultMenu = true }: SideNav
         return (
           <SidebarGroup key={groupIndex}>
             {groupLabel && <SidebarGroupLabel>{groupLabel}</SidebarGroupLabel>}
-            <SidebarMenu>
-              {group.items.map((item, itemIndex) => {
-                const label = item.label || (item.translationKey ? t(item.translationKey) : '');
-                const isActive =
-                  item.href === '/dashboard'
-                    ? pathname === '/dashboard'
-                    : pathname === item.href || pathname.startsWith(`${item.href}/`);
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item, itemIndex) => {
+                  const label = item.label || (item.translationKey ? t(item.translationKey) : '');
+                  const isActive =
+                    item.href === '/dashboard'
+                      ? pathname === '/dashboard'
+                      : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
-                return (
-                  <SidebarMenuItem key={`${groupIndex}-${itemIndex}`}>
-                    <SidebarMenuButton
-                      asChild
-                      className={cn(isActive && 'bg-accent text-accent-foreground font-medium')}
-                    >
-                      <Link href={item.href} prefetch={true}>
-                        <item.icon className={cn(isActive && 'text-primary')} />
-                        <span>{label}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
+                  return (
+                    <SidebarMenuItem key={`${groupIndex}-${itemIndex}`}>
+                      <SidebarMenuButton
+                        asChild
+                        className={cn(isActive && 'bg-accent text-accent-foreground font-medium')}
+                      >
+                        <Link href={item.href} prefetch={true}>
+                          <item.icon className={cn(isActive && 'text-primary')} />
+                          <span>{label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
           </SidebarGroup>
         );
       })}

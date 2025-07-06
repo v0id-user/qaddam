@@ -4,7 +4,6 @@ import { SideNavMain } from './sidebar-navs/mainNav';
 import { SideNavFooter } from './sidebar-navs/footNav';
 
 interface DashboardSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  organizationName: string;
   user: {
     name: string;
     email: string;
@@ -13,7 +12,7 @@ interface DashboardSidebarProps extends React.ComponentProps<typeof Sidebar> {
   };
 }
 
-export function DashboardSidebar({ organizationName, user, ...props }: DashboardSidebarProps) {
+export function DashboardSidebar({ user, ...props }: DashboardSidebarProps) {
   return (
     <Sidebar collapsible="offcanvas" className="text-muted-foreground" {...props}>
       {/* Main Menu */}
