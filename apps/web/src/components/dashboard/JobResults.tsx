@@ -4,24 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import JobCard from './JobCard';
 import JobMatchInsights from './JobMatchInsights';
-
-interface Job {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  type: 'full_time' | 'part_time' | 'contract' | 'remote';
-  salary: string;
-  matchScore: number;
-  description: string;
-  requirements: string[];
-  benefits: string[];
-  postedDate: string;
-  matchedSkills: string[];
-  missingSkills: string[];
-  experienceMatch: string;
-  locationMatch: string;
-}
+import type { Job } from './types';
 
 // Mock data for testing
 const mockJobs: Job[] = [

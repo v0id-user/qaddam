@@ -3,16 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { FileText, Search, Target, Combine, CheckCircle, Clock, Circle } from 'lucide-react';
-
-type StepStatus = 'not_started' | 'pending' | 'finished';
-
-interface Step {
-  key: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  status: StepStatus;
-}
+import type { Step, StepStatus } from './types';
 
 interface WorkflowStepsProps {
   onComplete: () => void;

@@ -5,9 +5,13 @@ import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Button } from '@/components/ui/button';
 import { Upload, FileText, X, AlertCircle, Brain, Target, Settings } from 'lucide-react';
+import WorkflowSteps from '@/components/dashboard/WorkflowSteps';
+import JobResults from '@/components/dashboard/JobResults';
+import type { DashboardStage } from '@/components/dashboard/types';
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
+  const [currentStage, setCurrentStage] = useState<DashboardStage>('upload');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -56,10 +60,33 @@ export default function DashboardPage() {
   };
 
   const handleScanCV = () => {
-    // TODO: Implement CV scanning with AI
-    console.log('Scanning CV with AI...', selectedFile);
+    if (selectedFile) {
+      console.log('Starting CV scan with:', selectedFile.name);
+      setCurrentStage('workflow');
+    }
   };
 
+  const handleWorkflowComplete = () => {
+    console.log('Workflow completed, showing results');
+    setCurrentStage('results');
+  };
+
+  const handleBackToUpload = () => {
+    setCurrentStage('upload');
+    setSelectedFile(null);
+    setUploadError(null);
+  };
+
+  // Render based on current stage
+  if (currentStage === 'workflow') {
+    return <WorkflowSteps onComplete={handleWorkflowComplete} />;
+  }
+
+  if (currentStage === 'results') {
+    return <JobResults />;
+  }
+
+  // Default: Upload stage
   return (
     <div className="min-h-screen bg-gradient-to-br from-accent/30 via-background to-secondary/20 px-6 py-24">
       <div className="mx-auto max-w-5xl">
