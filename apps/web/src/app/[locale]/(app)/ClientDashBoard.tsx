@@ -14,6 +14,7 @@ export default function ClientDashBoard() {
       </div>
     );
   }
+  console.log(me);
 
 
   return (
@@ -22,8 +23,7 @@ export default function ClientDashBoard() {
       user={{
         name: me.name ?? '',
         email: me.email ?? '',
-        avatar: me.avatar?.toString() ?? '',
-        userId: me.userId?.toString() ?? '',
+        avatar: me.image ?? '',
       }}
     />
   );

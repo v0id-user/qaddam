@@ -8,7 +8,6 @@ interface DashboardSidebarProps extends React.ComponentProps<typeof Sidebar> {
     name: string;
     email: string;
     avatar: string;
-    userId: string;
   };
 }
 
