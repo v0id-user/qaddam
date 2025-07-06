@@ -10,7 +10,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             <h3 className="text-primary text-2xl font-bold">{t('footer.brand')}</h3>
-            <p className="opacity-70" dir="ltr">
+            <p className="opacity-70">
               {t('footer.tagline')}
             </p>
           </div>
@@ -66,7 +66,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-8 border-t border-white/10 pt-8 text-center opacity-70">
-          <p dir="ltr">{t('footer.copyright')}</p>
+          <p>{t('footer.copyright')}</p>
         </div>
       </div>
     </footer>

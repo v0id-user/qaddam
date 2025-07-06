@@ -134,7 +134,7 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
         <DropdownMenuSeparator />
         {allMenuItems.map((group, groupIndex) => (
           <div key={groupIndex}>
-            <DropdownMenuGroup dir="rtl">
+            <DropdownMenuGroup>
               {group.items.map((item, itemIndex) => {
                 const label = item.label || (item.translationKey ? t(item.translationKey) : '');
                 
