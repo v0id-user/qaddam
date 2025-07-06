@@ -166,7 +166,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
           {/* Job Requirements */}
           <div className="bg-card border border-border rounded-2xl p-6">
             <h4 className="text-lg font-bold text-foreground mb-4">
-              Job Requirements
+              {t('job_results.job_details.requirements')}
             </h4>
             <div className="space-y-2">
               {job.requirements.map((requirement, index) => (
@@ -185,7 +185,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
           {/* Benefits */}
           <div className="bg-card border border-border rounded-2xl p-6">
             <h4 className="text-lg font-bold text-foreground mb-4">
-              Benefits & Perks
+              {t('job_results.job_details.benefits')}
             </h4>
             <div className="flex flex-wrap gap-2">
               {job.benefits.map((benefit, index) => (
@@ -202,7 +202,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
           {/* Job Description */}
           <div className="bg-card border border-border rounded-2xl p-6">
             <h4 className="text-lg font-bold text-foreground mb-4">
-              Job Description
+              {t('job_results.job_details.description')}
             </h4>
             <p className="text-muted-foreground text-sm leading-relaxed">
               {job.description}

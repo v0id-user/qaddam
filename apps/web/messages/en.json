@@ -202,6 +202,22 @@
         "contract": "Contract",
         "remote": "Remote"
       },
+      "date_format": {
+        "yesterday": "Yesterday",
+        "days_ago": "{days} days ago",
+        "weeks_ago": "{weeks} weeks ago"
+      },
+      "card_actions": {
+        "view_match_analysis": "Click to view detailed match analysis"
+      },
+      "skills": {
+        "more_skills": "+{count} more"
+      },
+      "job_details": {
+        "requirements": "Job Requirements",
+        "benefits": "Benefits & Perks",
+        "description": "Job Description"
+      },
       "match_insights": {
         "title": "Match Analysis",
         "matched_skills": "Matched Skills",

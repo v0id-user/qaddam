@@ -202,6 +202,22 @@
         "contract": "عقد",
         "remote": "عن بعد"
       },
+      "date_format": {
+        "yesterday": "أمس",
+        "days_ago": "منذ {days} أيام",
+        "weeks_ago": "منذ {weeks} أسابيع"
+      },
+      "card_actions": {
+        "view_match_analysis": "انقر لعرض تحليل التطابق التفصيلي"
+      },
+      "skills": {
+        "more_skills": "+{count} أكثر"
+      },
+      "job_details": {
+        "requirements": "متطلبات الوظيفة",
+        "benefits": "المزايا والفوائد",
+        "description": "وصف الوظيفة"
+      },
       "match_insights": {
         "title": "تحليل التطابق",
         "matched_skills": "المهارات المطابقة",

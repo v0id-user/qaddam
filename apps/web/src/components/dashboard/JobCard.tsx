@@ -43,9 +43,9 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    if (diffDays === 1) return t('job_results.date_format.yesterday');
+    if (diffDays < 7) return t('job_results.date_format.days_ago', { days: diffDays });
+    if (diffDays < 30) return t('job_results.date_format.weeks_ago', { weeks: Math.floor(diffDays / 7) });
     return date.toLocaleDateString();
   };
 
@@ -137,7 +137,7 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
           ))}
           {job.matchedSkills.length > 3 && (
             <span className="px-2 py-1 bg-accent/20 text-muted-foreground text-xs rounded-full font-medium">
-              +{job.matchedSkills.length - 3} more
+              {t('job_results.skills.more_skills', { count: job.matchedSkills.length - 3 })}
             </span>
           )}
         </div>
@@ -166,15 +166,7 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
         </Button>
       </div>
 
-      {/* Match Insights Indicator */}
-      <div className="mt-4 p-3 bg-accent/10 rounded-lg">
-        <div className="flex items-center space-x-2 space-x-reverse">
-          <TrendingUp className="h-4 w-4 text-primary" />
-          <span className="text-sm text-muted-foreground">
-            Click to view detailed match analysis
-          </span>
-        </div>
-      </div>
+
     </div>
   );
 };
