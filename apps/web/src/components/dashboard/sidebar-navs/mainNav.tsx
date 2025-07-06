@@ -13,7 +13,7 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 export interface MenuItemConfig {
   href: string;
@@ -36,6 +36,8 @@ interface SideNavMainProps {
 export function SideNavMain({ customMenuItems, showDefaultMenu = true }: SideNavMainProps) {
   const pathname = usePathname();
   const t = useTranslations('sidebar');
+  const locale = useLocale();
+  const isRTL = locale === 'ar';
 
   const defaultMenuItems: MenuGroupConfig[] = [
     {
@@ -64,7 +66,11 @@ export function SideNavMain({ customMenuItems, showDefaultMenu = true }: SideNav
         
         return (
           <SidebarGroup key={groupIndex}>
-            {groupLabel && <SidebarGroupLabel>{groupLabel}</SidebarGroupLabel>}
+            {groupLabel && (
+              <SidebarGroupLabel className={isRTL ? 'text-right' : 'text-left'}>
+                {groupLabel}
+              </SidebarGroupLabel>
+            )}
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item, itemIndex) => {
@@ -78,7 +84,10 @@ export function SideNavMain({ customMenuItems, showDefaultMenu = true }: SideNav
                     <SidebarMenuItem key={`${groupIndex}-${itemIndex}`}>
                       <SidebarMenuButton
                         asChild
-                        className={cn(isActive && 'bg-accent text-accent-foreground font-medium')}
+                        className={cn(
+                          isActive && 'bg-accent text-accent-foreground font-medium',
+                          isRTL ? 'text-right' : 'text-left'
+                        )}
                       >
                         <Link href={item.href} prefetch={true}>
                           <item.icon className={cn(isActive && 'text-primary')} />

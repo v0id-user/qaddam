@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useAuthActions } from '@convex-dev/auth/react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 export interface UserMenuItemConfig {
   icon: LucideIcon;
@@ -52,6 +52,8 @@ interface SideNavFooterProps {
 const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNavFooterProps) => {
   const { signOut } = useAuthActions();
   const t = useTranslations('sidebar.user_menu');
+  const locale = useLocale();
+  const isRTL = locale === 'ar';
 
   const defaultMenuItems: UserMenuGroupConfig[] = [
     {
@@ -104,7 +106,7 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
             <AvatarImage src={user.avatar} alt={user.name} />
             <AvatarFallback className="rounded-lg">{user.name.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="grid flex-1 text-right text-sm leading-tight">
+          <div className={`grid flex-1 ${isRTL ? 'text-right' : 'text-left'} text-sm leading-tight`}>
             <span className="truncate font-medium">{user.name}</span>
             <span className="text-muted-foreground truncate text-xs">{user.email}</span>
           </div>
@@ -120,12 +122,12 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
         avoidCollisions
       >
         <DropdownMenuLabel className="p-0 font-normal">
-          <div className="flex items-center gap-2 px-1 py-1.5 text-right text-sm">
+          <div className={`flex items-center gap-2 px-1 py-1.5 ${isRTL ? 'text-right' : 'text-left'} text-sm`}>
             <Avatar className="h-8 w-8 rounded-lg">
               <AvatarImage src={user.avatar} alt={user.name} />
               <AvatarFallback className="rounded-lg">{user.name.charAt(0)}</AvatarFallback>
             </Avatar>
-            <div className="grid flex-1 text-right text-sm leading-tight">
+            <div className={`grid flex-1 ${isRTL ? 'text-right' : 'text-left'} text-sm leading-tight`}>
               <span className="truncate font-medium">{user.name}</span>
               <span className="text-muted-foreground truncate text-xs">{user.email}</span>
             </div>
