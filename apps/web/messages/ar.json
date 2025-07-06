@@ -103,7 +103,13 @@
     "jobs": "الوظائف",
     "profile": "السيرة الذاتية",
     "settings": "الإعدادات",
-    "applications": "طلباتي"
+    "applications": "طلباتي",
+    "user_menu": {
+      "account": "الحساب",
+      "billing": "الفواتير",
+      "notifications": "الإشعارات",
+      "sign_out": "تسجيل الخروج"
+    }
   },
   "auth": {
     "sign_in": "قم بتسجيل الدخول",

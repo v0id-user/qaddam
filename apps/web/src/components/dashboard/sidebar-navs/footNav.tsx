@@ -1,0 +1,171 @@
+'use client';
+import {
+  SidebarFooter,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from '@/components/ui/sidebar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  MoreVerticalIcon,
+  UserCircleIcon,
+  CreditCardIcon,
+  BellIcon,
+  LogOutIcon,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { useAuthActions } from '@convex-dev/auth/react';
+import { useTranslations } from 'next-intl';
+
+export interface UserMenuItemConfig {
+  icon: LucideIcon;
+  label?: string;
+  translationKey?: string;
+  onClick: () => void | Promise<void>;
+}
+
+export interface UserMenuGroupConfig {
+  groupLabel?: string;
+  groupTranslationKey?: string;
+  items: UserMenuItemConfig[];
+}
+
+interface SideNavFooterProps {
+  user: {
+    name: string;
+    email: string;
+    avatar: string;
+  };
+  customMenuItems?: UserMenuGroupConfig[];
+  showDefaultMenu?: boolean;
+}
+
+const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNavFooterProps) => {
+  const { signOut } = useAuthActions();
+  const t = useTranslations('sidebar.user_menu');
+
+  const defaultMenuItems: UserMenuGroupConfig[] = [
+    {
+      groupTranslationKey: 'account_section',
+      items: [
+        {
+          icon: UserCircleIcon,
+          translationKey: 'account',
+          onClick: () => console.log('Navigate to account settings'),
+        },
+        {
+          icon: CreditCardIcon,
+          translationKey: 'billing',
+          onClick: () => console.log('Navigate to billing'),
+        },
+        {
+          icon: BellIcon,
+          translationKey: 'notifications',
+          onClick: () => console.log('Navigate to notifications'),
+        },
+      ],
+    },
+    {
+      groupTranslationKey: 'actions_section',
+      items: [
+        {
+          icon: LogOutIcon,
+          translationKey: 'sign_out',
+          onClick: async () => {
+            console.log('Handle logout');
+            await signOut();
+            window.location.href = '/sign';
+          },
+        },
+      ],
+    },
+  ];
+
+  const menuItems = showDefaultMenu ? defaultMenuItems : [];
+  const allMenuItems = [...menuItems, ...(customMenuItems || [])];
+
+  return (
+    <DropdownMenu modal={false}>
+      <DropdownMenuTrigger asChild>
+        <SidebarMenuButton
+          size="lg"
+          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
+        >
+          <Avatar className="h-8 w-8 rounded-lg grayscale">
+            <AvatarImage src={user.avatar} alt={user.name} />
+            <AvatarFallback className="rounded-lg">{user.name.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div className="grid flex-1 text-right text-sm leading-tight">
+            <span className="truncate font-medium">{user.name}</span>
+            <span className="text-muted-foreground truncate text-xs">{user.email}</span>
+          </div>
+          <MoreVerticalIcon className="mr-auto size-4" />
+        </SidebarMenuButton>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+        side="right"
+        align="end"
+        sideOffset={4}
+        collisionPadding={8}
+        avoidCollisions
+      >
+        <DropdownMenuLabel className="p-0 font-normal">
+          <div className="flex items-center gap-2 px-1 py-1.5 text-right text-sm">
+            <Avatar className="h-8 w-8 rounded-lg">
+              <AvatarImage src={user.avatar} alt={user.name} />
+              <AvatarFallback className="rounded-lg">{user.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-right text-sm leading-tight">
+              <span className="truncate font-medium">{user.name}</span>
+              <span className="text-muted-foreground truncate text-xs">{user.email}</span>
+            </div>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {allMenuItems.map((group, groupIndex) => (
+          <div key={groupIndex}>
+            <DropdownMenuGroup dir="rtl">
+              {group.items.map((item, itemIndex) => {
+                const label = item.label || (item.translationKey ? t(item.translationKey) : '');
+                
+                return (
+                  <DropdownMenuItem 
+                    key={`${groupIndex}-${itemIndex}`} 
+                    className="cursor-pointer" 
+                    onClick={item.onClick}
+                  >
+                    <item.icon />
+                    {label}
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuGroup>
+            {groupIndex < allMenuItems.length - 1 && <DropdownMenuSeparator />}
+          </div>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+export function SideNavFooter({ user, customMenuItems, showDefaultMenu = true }: SideNavFooterProps) {
+  return (
+    <SidebarFooter>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <UserDropDown user={user} customMenuItems={customMenuItems} showDefaultMenu={showDefaultMenu} />
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </SidebarFooter>
+  );
+}

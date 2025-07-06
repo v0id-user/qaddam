@@ -103,7 +103,13 @@
     "jobs": "Jobs",
     "profile": "Profile",
     "settings": "Settings",
-    "applications": "My Applications"
+    "applications": "My Applications",
+    "user_menu": {
+      "account": "Account",
+      "billing": "Billing",
+      "notifications": "Notifications",
+      "sign_out": "Sign Out"
+    }
   },
   "auth": {
     "sign_in": "Sign In",
