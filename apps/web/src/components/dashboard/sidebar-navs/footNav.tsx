@@ -115,7 +115,7 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
       </DropdownMenuTrigger>
       <DropdownMenuContent
         className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-        side="right"
+        side={isRTL ? "left" : "right"}
         align="end"
         sideOffset={4}
         collisionPadding={8}
@@ -143,7 +143,7 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
                 return (
                   <DropdownMenuItem 
                     key={`${groupIndex}-${itemIndex}`} 
-                    className="cursor-pointer" 
+                    className={`cursor-pointer ${isRTL ? 'text-right' : 'text-left'}`}
                     onClick={item.onClick}
                   >
                     <item.icon />
