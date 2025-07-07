@@ -36,15 +36,15 @@ function useIsRTL() {
     };
 
     checkDirection();
-    
+
     // Listen for direction changes
     const observer = new MutationObserver(() => {
       checkDirection();
     });
-    
+
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['dir']
+      attributeFilter: ['dir'],
     });
 
     return () => observer.disconnect();
@@ -318,21 +318,21 @@ function SidebarRail({ className, ...props }: React.ComponentProps<'button'>) {
       className={cn(
         'hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex',
         // RTL-aware positioning
-        isRTL 
-          ? 'group-data-[side=right]:-left-4 group-data-[side=left]:right-0'
+        isRTL
+          ? 'group-data-[side=left]:right-0 group-data-[side=right]:-left-4'
           : 'group-data-[side=left]:-right-4 group-data-[side=right]:left-0',
         // RTL-aware cursors
         isRTL
-          ? 'in-data-[side=right]:cursor-e-resize in-data-[side=left]:cursor-w-resize'
+          ? 'in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize'
           : 'in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize',
         // RTL-aware collapsed state cursors
         isRTL
-          ? '[[data-side=right][data-state=collapsed]_&]:cursor-w-resize [[data-side=left][data-state=collapsed]_&]:cursor-e-resize'
+          ? '[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize'
           : '[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize',
         'hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full',
         // RTL-aware offcanvas positioning
         isRTL
-          ? '[[data-side=right][data-collapsible=offcanvas]_&]:-left-2 [[data-side=left][data-collapsible=offcanvas]_&]:-right-2'
+          ? '[[data-side=left][data-collapsible=offcanvas]_&]:-right-2 [[data-side=right][data-collapsible=offcanvas]_&]:-left-2'
           : '[[data-side=left][data-collapsible=offcanvas]_&]:-right-2 [[data-side=right][data-collapsible=offcanvas]_&]:-left-2',
         className
       )}
@@ -343,7 +343,7 @@ function SidebarRail({ className, ...props }: React.ComponentProps<'button'>) {
 
 function SidebarInset({ className, ...props }: React.ComponentProps<'main'>) {
   const { isRTL } = useSidebar();
-  
+
   return (
     <main
       data-slot="sidebar-inset"
@@ -558,8 +558,8 @@ function SidebarMenuButton({
         // RTL-aware text alignment
         isRTL ? 'text-right' : 'text-left',
         // RTL-aware padding for menu actions
-        isRTL 
-          ? 'group-has-data-[sidebar=menu-action]/menu-item:pl-8' 
+        isRTL
+          ? 'group-has-data-[sidebar=menu-action]/menu-item:pl-8'
           : 'group-has-data-[sidebar=menu-action]/menu-item:pr-8',
         className
       )}
@@ -627,7 +627,7 @@ function SidebarMenuAction({
 
 function SidebarMenuBadge({ className, ...props }: React.ComponentProps<'div'>) {
   const { isRTL } = useSidebar();
-  
+
   return (
     <div
       data-slot="sidebar-menu-badge"

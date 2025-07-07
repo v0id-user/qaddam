@@ -106,7 +106,9 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
             <AvatarImage src={user.avatar} alt={user.name} />
             <AvatarFallback className="rounded-lg">{user.name.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className={`grid flex-1 ${isRTL ? 'text-right' : 'text-left'} text-sm leading-tight`}>
+          <div
+            className={`grid flex-1 ${isRTL ? 'text-right' : 'text-left'} text-sm leading-tight`}
+          >
             <span className="truncate font-medium">{user.name}</span>
             <span className="text-muted-foreground truncate text-xs">{user.email}</span>
           </div>
@@ -115,19 +117,23 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
       </DropdownMenuTrigger>
       <DropdownMenuContent
         className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-        side={isRTL ? "left" : "right"}
+        side={isRTL ? 'left' : 'right'}
         align="end"
         sideOffset={4}
         collisionPadding={8}
         avoidCollisions
       >
         <DropdownMenuLabel className="p-0 font-normal">
-          <div className={`flex items-center gap-2 px-1 py-1.5 ${isRTL ? 'text-right' : 'text-left'} text-sm`}>
+          <div
+            className={`flex items-center gap-2 px-1 py-1.5 ${isRTL ? 'text-right' : 'text-left'} text-sm`}
+          >
             <Avatar className="h-8 w-8 rounded-lg">
               <AvatarImage src={user.avatar} alt={user.name} />
               <AvatarFallback className="rounded-lg">{user.name.charAt(0)}</AvatarFallback>
             </Avatar>
-            <div className={`grid flex-1 ${isRTL ? 'text-right' : 'text-left'} text-sm leading-tight`}>
+            <div
+              className={`grid flex-1 ${isRTL ? 'text-right' : 'text-left'} text-sm leading-tight`}
+            >
               <span className="truncate font-medium">{user.name}</span>
               <span className="text-muted-foreground truncate text-xs">{user.email}</span>
             </div>
@@ -139,10 +145,10 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
             <DropdownMenuGroup>
               {group.items.map((item, itemIndex) => {
                 const label = item.label || (item.translationKey ? t(item.translationKey) : '');
-                
+
                 return (
-                  <DropdownMenuItem 
-                    key={`${groupIndex}-${itemIndex}`} 
+                  <DropdownMenuItem
+                    key={`${groupIndex}-${itemIndex}`}
                     className={`cursor-pointer ${isRTL ? 'text-right' : 'text-left'}`}
                     onClick={item.onClick}
                   >
@@ -160,12 +166,20 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
   );
 };
 
-export function SideNavFooter({ user, customMenuItems, showDefaultMenu = true }: SideNavFooterProps) {
+export function SideNavFooter({
+  user,
+  customMenuItems,
+  showDefaultMenu = true,
+}: SideNavFooterProps) {
   return (
     <SidebarFooter>
       <SidebarMenu>
         <SidebarMenuItem>
-          <UserDropDown user={user} customMenuItems={customMenuItems} showDefaultMenu={showDefaultMenu} />
+          <UserDropDown
+            user={user}
+            customMenuItems={customMenuItems}
+            showDefaultMenu={showDefaultMenu}
+          />
         </SidebarMenuItem>
       </SidebarMenu>
     </SidebarFooter>

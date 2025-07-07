@@ -50,9 +50,7 @@ export function SideNavMain({ customMenuItems, showDefaultMenu = true }: SideNav
     },
     {
       groupTranslationKey: 'more',
-      items: [
-        { href: '/dashboard/settings', icon: Settings, translationKey: 'settings' }
-      ],
+      items: [{ href: '/dashboard/settings', icon: Settings, translationKey: 'settings' }],
     },
   ];
 
@@ -62,8 +60,9 @@ export function SideNavMain({ customMenuItems, showDefaultMenu = true }: SideNav
   return (
     <>
       {allMenuItems.map((group, groupIndex) => {
-        const groupLabel = group.groupLabel || (group.groupTranslationKey ? t(group.groupTranslationKey) : '');
-        
+        const groupLabel =
+          group.groupLabel || (group.groupTranslationKey ? t(group.groupTranslationKey) : '');
+
         return (
           <SidebarGroup key={groupIndex}>
             {groupLabel && (

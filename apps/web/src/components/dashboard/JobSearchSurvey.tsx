@@ -35,7 +35,7 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
   const isRTL = locale === 'ar';
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const saveSurvey = useMutation(api.users.saveSurvey);
+  const saveSurvey = useMutation(api.surveys.saveSurvey);
 
   const [surveyData, setSurveyData] = useState<SurveyData>({
     profession: '',
@@ -54,37 +54,138 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
 
   // Tech-focused options
   const techProfessions = [
-    'Software Developer', 'Frontend Developer', 'Backend Developer', 'Full Stack Developer',
-    'Mobile Developer', 'DevOps Engineer', 'Data Scientist', 'Data Engineer', 'Data Analyst',
-    'UI/UX Designer', 'Product Manager', 'QA Engineer', 'Cybersecurity Specialist',
-    'Cloud Engineer', 'AI/ML Engineer', 'System Administrator', 'Technical Writer'
+    'Software Developer',
+    'Frontend Developer',
+    'Backend Developer',
+    'Full Stack Developer',
+    'Mobile Developer',
+    'DevOps Engineer',
+    'Data Scientist',
+    'Data Engineer',
+    'Data Analyst',
+    'UI/UX Designer',
+    'Product Manager',
+    'QA Engineer',
+    'Cybersecurity Specialist',
+    'Cloud Engineer',
+    'AI/ML Engineer',
+    'System Administrator',
+    'Technical Writer',
   ];
 
   const techJobTitles = [
-    'Software Engineer', 'Senior Software Engineer', 'Lead Developer', 'Principal Engineer',
-    'Frontend Engineer', 'Backend Engineer', 'Full Stack Engineer', 'Mobile Developer',
-    'React Developer', 'Node.js Developer', 'Python Developer', 'Java Developer',
-    'DevOps Engineer', 'Data Scientist', 'Data Engineer', 'Machine Learning Engineer',
-    'Product Manager', 'Technical Product Manager', 'UI Designer', 'UX Designer',
-    'QA Engineer', 'Test Engineer', 'Cybersecurity Engineer', 'Cloud Architect',
-    'Solutions Architect', 'Engineering Manager', 'Technical Lead'
+    'Software Engineer',
+    'Senior Software Engineer',
+    'Lead Developer',
+    'Principal Engineer',
+    'Frontend Engineer',
+    'Backend Engineer',
+    'Full Stack Engineer',
+    'Mobile Developer',
+    'React Developer',
+    'Node.js Developer',
+    'Python Developer',
+    'Java Developer',
+    'DevOps Engineer',
+    'Data Scientist',
+    'Data Engineer',
+    'Machine Learning Engineer',
+    'Product Manager',
+    'Technical Product Manager',
+    'UI Designer',
+    'UX Designer',
+    'QA Engineer',
+    'Test Engineer',
+    'Cybersecurity Engineer',
+    'Cloud Architect',
+    'Solutions Architect',
+    'Engineering Manager',
+    'Technical Lead',
   ];
 
   const techSkills = [
-    'JavaScript', 'TypeScript', 'React', 'Vue.js', 'Angular', 'Node.js', 'Express',
-    'Python', 'Django', 'Flask', 'Java', 'Spring Boot', 'C#', '.NET', 'Go',
-    'PHP', 'Laravel', 'Ruby', 'Rails', 'Swift', 'Kotlin', 'Flutter', 'React Native',
-    'HTML', 'CSS', 'Sass', 'Tailwind CSS', 'Bootstrap', 'SQL', 'PostgreSQL',
-    'MySQL', 'MongoDB', 'Redis', 'Docker', 'Kubernetes', 'AWS', 'Azure', 'GCP',
-    'Git', 'GitHub', 'GitLab', 'CI/CD', 'Jenkins', 'Linux', 'Bash', 'GraphQL',
-    'REST APIs', 'Microservices', 'Agile', 'Scrum', 'Figma', 'Adobe XD'
+    'JavaScript',
+    'TypeScript',
+    'React',
+    'Vue.js',
+    'Angular',
+    'Node.js',
+    'Express',
+    'Python',
+    'Django',
+    'Flask',
+    'Java',
+    'Spring Boot',
+    'C#',
+    '.NET',
+    'Go',
+    'PHP',
+    'Laravel',
+    'Ruby',
+    'Rails',
+    'Swift',
+    'Kotlin',
+    'Flutter',
+    'React Native',
+    'HTML',
+    'CSS',
+    'Sass',
+    'Tailwind CSS',
+    'Bootstrap',
+    'SQL',
+    'PostgreSQL',
+    'MySQL',
+    'MongoDB',
+    'Redis',
+    'Docker',
+    'Kubernetes',
+    'AWS',
+    'Azure',
+    'GCP',
+    'Git',
+    'GitHub',
+    'GitLab',
+    'CI/CD',
+    'Jenkins',
+    'Linux',
+    'Bash',
+    'GraphQL',
+    'REST APIs',
+    'Microservices',
+    'Agile',
+    'Scrum',
+    'Figma',
+    'Adobe XD',
   ];
 
   const techLocations = [
-    'Remote', 'Riyadh', 'Jeddah', 'Dammam', 'Khobar', 'Mecca', 'Medina', 'Tabuk',
-    'Dubai', 'Abu Dhabi', 'Doha', 'Kuwait City', 'Manama', 'Muscat',
-    'Cairo', 'Amman', 'Beirut', 'Baghdad', 'Tunis', 'Casablanca',
-    'London', 'Berlin', 'Amsterdam', 'Paris', 'Toronto', 'New York', 'San Francisco'
+    'Remote',
+    'Riyadh',
+    'Jeddah',
+    'Dammam',
+    'Khobar',
+    'Mecca',
+    'Medina',
+    'Tabuk',
+    'Dubai',
+    'Abu Dhabi',
+    'Doha',
+    'Kuwait City',
+    'Manama',
+    'Muscat',
+    'Cairo',
+    'Amman',
+    'Beirut',
+    'Baghdad',
+    'Tunis',
+    'Casablanca',
+    'London',
+    'Berlin',
+    'Amsterdam',
+    'Paris',
+    'Toronto',
+    'New York',
+    'San Francisco',
   ];
 
   const experienceOptions = ['0-1', '2-4', '5-8', '9+'];
@@ -109,9 +210,11 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
     try {
       const finalSurveyData = {
         ...surveyData,
-        languages: [{ language: 'English', proficiency: 'Fluent' }] // Default for tech
+        languages: [{ language: 'English', proficiency: 'Fluent' }], // Default for tech
+        industries: ['Technology'], // Auto-set to Technology for tech-focused survey
+        companyTypes: ['Any'], // Default to Any since we're not asking this question
       };
-      
+
       // Log all collected survey data to console
       console.log('=== SURVEY COMPLETED ===');
       console.log('📊 Survey Data:', finalSurveyData);
@@ -126,12 +229,16 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
       console.log('🗣️ Languages:', finalSurveyData.languages);
       console.log('🏆 Company Types:', finalSurveyData.companyTypes);
       console.log('========================');
-      
-      await saveSurvey(finalSurveyData);
-      localStorage.setItem('qaddam_survey_completed', 'true');
+
+      const result = await saveSurvey(finalSurveyData);
+      console.log('✅ Backend response:', result);
+
       onComplete();
     } catch (error) {
-      console.error('Error saving survey:', error);
+      console.error('❌ Error saving survey:', error);
+      // You could add toast notification here for user feedback
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      alert(`Failed to save survey: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -142,26 +249,34 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
     if (currentValues.includes(value)) {
       setSurveyData(prev => ({
         ...prev,
-        [field]: currentValues.filter(item => item !== value)
+        [field]: currentValues.filter(item => item !== value),
       }));
     } else {
       setSurveyData(prev => ({
         ...prev,
-        [field]: [...currentValues, value]
+        [field]: [...currentValues, value],
       }));
     }
   };
 
   const canProceed = (step: number) => {
     switch (step) {
-      case 0: return surveyData.profession !== '';
-      case 1: return surveyData.experience !== '';
-      case 2: return surveyData.careerLevel !== '';
-      case 3: return surveyData.jobTitles.length > 0;
-      case 4: return surveyData.skills.length > 0;
-      case 5: return surveyData.workType !== '';
-      case 6: return surveyData.locations.length > 0;
-      default: return true;
+      case 0:
+        return surveyData.profession !== '';
+      case 1:
+        return surveyData.experience !== '';
+      case 2:
+        return surveyData.careerLevel !== '';
+      case 3:
+        return surveyData.jobTitles.length > 0;
+      case 4:
+        return surveyData.skills.length > 0;
+      case 5:
+        return surveyData.workType !== '';
+      case 6:
+        return surveyData.locations.length > 0;
+      default:
+        return true;
     }
   };
 
@@ -172,10 +287,10 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
           <div className="space-y-4">
             <Label className="text-lg font-semibold">{t('steps.profession.title')}</Label>
             <div className="grid grid-cols-2 gap-3">
-              {techProfessions.map((profession) => (
+              {techProfessions.map(profession => (
                 <Button
                   key={profession}
-                  variant={surveyData.profession === profession ? "default" : "outline"}
+                  variant={surveyData.profession === profession ? 'default' : 'outline'}
                   onClick={() => setSurveyData(prev => ({ ...prev, profession }))}
                   className="h-12 text-sm"
                 >
@@ -191,10 +306,10 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
           <div className="space-y-4">
             <Label className="text-lg font-semibold">{t('steps.experience.title')}</Label>
             <div className="grid grid-cols-2 gap-4">
-              {experienceOptions.map((option) => (
+              {experienceOptions.map(option => (
                 <Button
                   key={option}
-                  variant={surveyData.experience === option ? "default" : "outline"}
+                  variant={surveyData.experience === option ? 'default' : 'outline'}
                   onClick={() => setSurveyData(prev => ({ ...prev, experience: option }))}
                   className="h-16 text-lg"
                 >
@@ -210,10 +325,10 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
           <div className="space-y-4">
             <Label className="text-lg font-semibold">{t('steps.career_level.title')}</Label>
             <div className="grid grid-cols-2 gap-4">
-              {careerLevelOptions.map((option) => (
+              {careerLevelOptions.map(option => (
                 <Button
                   key={option}
-                  variant={surveyData.careerLevel === option ? "default" : "outline"}
+                  variant={surveyData.careerLevel === option ? 'default' : 'outline'}
                   onClick={() => setSurveyData(prev => ({ ...prev, careerLevel: option }))}
                   className="h-16 text-lg"
                 >
@@ -228,21 +343,21 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
         return (
           <div className="space-y-4">
             <Label className="text-lg font-semibold">{t('steps.job_titles.title')}</Label>
-            <p className="text-sm text-muted-foreground">Select all that interest you</p>
-            <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
-              {techJobTitles.map((title) => (
+            <p className="text-muted-foreground text-sm">Select all that interest you</p>
+            <div className="grid max-h-64 grid-cols-2 gap-2 overflow-y-auto">
+              {techJobTitles.map(title => (
                 <Button
                   key={title}
-                  variant={surveyData.jobTitles.includes(title) ? "default" : "outline"}
+                  variant={surveyData.jobTitles.includes(title) ? 'default' : 'outline'}
                   onClick={() => toggleArrayItem('jobTitles', title)}
-                  className="h-10 text-sm justify-start"
+                  className="h-10 justify-start text-sm"
                 >
-                  {surveyData.jobTitles.includes(title) && <Check className="h-4 w-4 mr-2" />}
+                  {surveyData.jobTitles.includes(title) && <Check className="mr-2 h-4 w-4" />}
                   {title}
                 </Button>
               ))}
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-muted-foreground text-sm">
               Selected: {surveyData.jobTitles.length} titles
             </div>
           </div>
@@ -252,22 +367,22 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
         return (
           <div className="space-y-4">
             <Label className="text-lg font-semibold">{t('steps.skills.title')}</Label>
-            <p className="text-sm text-muted-foreground">Select your top skills (max 8)</p>
-            <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
-              {techSkills.map((skill) => (
+            <p className="text-muted-foreground text-sm">Select your top skills (max 8)</p>
+            <div className="grid max-h-64 grid-cols-3 gap-2 overflow-y-auto">
+              {techSkills.map(skill => (
                 <Button
                   key={skill}
-                  variant={surveyData.skills.includes(skill) ? "default" : "outline"}
+                  variant={surveyData.skills.includes(skill) ? 'default' : 'outline'}
                   onClick={() => toggleArrayItem('skills', skill)}
                   className="h-10 text-sm"
                   disabled={!surveyData.skills.includes(skill) && surveyData.skills.length >= 8}
                 >
-                  {surveyData.skills.includes(skill) && <Check className="h-4 w-4 mr-1" />}
+                  {surveyData.skills.includes(skill) && <Check className="mr-1 h-4 w-4" />}
                   {skill}
                 </Button>
               ))}
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-muted-foreground text-sm">
               Selected: {surveyData.skills.length}/8 skills
             </div>
           </div>
@@ -278,10 +393,10 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
           <div className="space-y-4">
             <Label className="text-lg font-semibold">{t('steps.work_type.title')}</Label>
             <div className="grid grid-cols-3 gap-4">
-              {workTypeOptions.map((option) => (
+              {workTypeOptions.map(option => (
                 <Button
                   key={option}
-                  variant={surveyData.workType === option ? "default" : "outline"}
+                  variant={surveyData.workType === option ? 'default' : 'outline'}
                   onClick={() => setSurveyData(prev => ({ ...prev, workType: option }))}
                   className="h-16 text-lg"
                 >
@@ -296,21 +411,21 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
         return (
           <div className="space-y-4">
             <Label className="text-lg font-semibold">{t('steps.locations.title')}</Label>
-            <p className="text-sm text-muted-foreground">Select all locations you're open to</p>
-            <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
-              {techLocations.map((location) => (
+            <p className="text-muted-foreground text-sm">Select all locations you're open to</p>
+            <div className="grid max-h-64 grid-cols-2 gap-2 overflow-y-auto">
+              {techLocations.map(location => (
                 <Button
                   key={location}
-                  variant={surveyData.locations.includes(location) ? "default" : "outline"}
+                  variant={surveyData.locations.includes(location) ? 'default' : 'outline'}
                   onClick={() => toggleArrayItem('locations', location)}
-                  className="h-10 text-sm justify-start"
+                  className="h-10 justify-start text-sm"
                 >
-                  {surveyData.locations.includes(location) && <Check className="h-4 w-4 mr-2" />}
+                  {surveyData.locations.includes(location) && <Check className="mr-2 h-4 w-4" />}
                   {location}
                 </Button>
               ))}
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-muted-foreground text-sm">
               Selected: {surveyData.locations.length} locations
             </div>
           </div>
@@ -322,39 +437,53 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <Label className="text-sm font-medium text-primary">Profession</Label>
-                  <p className="text-sm bg-secondary p-2 rounded">{surveyData.profession}</p>
+                  <Label className="text-primary text-sm font-medium">Profession</Label>
+                  <p className="bg-secondary rounded p-2 text-sm">{surveyData.profession}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm font-medium text-primary">Experience</Label>
-                    <p className="text-sm bg-secondary p-2 rounded">{t(`steps.experience.options.${surveyData.experience}`)}</p>
+                    <Label className="text-primary text-sm font-medium">Experience</Label>
+                    <p className="bg-secondary rounded p-2 text-sm">
+                      {t(`steps.experience.options.${surveyData.experience}`)}
+                    </p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-primary">Level</Label>
-                    <p className="text-sm bg-secondary p-2 rounded">{t(`steps.career_level.options.${surveyData.careerLevel}`)}</p>
+                    <Label className="text-primary text-sm font-medium">Level</Label>
+                    <p className="bg-secondary rounded p-2 text-sm">
+                      {t(`steps.career_level.options.${surveyData.careerLevel}`)}
+                    </p>
                   </div>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-primary">Job Titles ({surveyData.jobTitles.length})</Label>
-                  <div className="flex flex-wrap gap-1 mt-1">
+                  <Label className="text-primary text-sm font-medium">
+                    Job Titles ({surveyData.jobTitles.length})
+                  </Label>
+                  <div className="mt-1 flex flex-wrap gap-1">
                     {surveyData.jobTitles.slice(0, 5).map((title, index) => (
-                      <span key={index} className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs">
+                      <span
+                        key={index}
+                        className="bg-primary text-primary-foreground rounded px-2 py-1 text-xs"
+                      >
                         {title}
                       </span>
                     ))}
                     {surveyData.jobTitles.length > 5 && (
-                      <span className="bg-muted text-muted-foreground px-2 py-1 rounded text-xs">
+                      <span className="bg-muted text-muted-foreground rounded px-2 py-1 text-xs">
                         +{surveyData.jobTitles.length - 5} more
                       </span>
                     )}
                   </div>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-primary">Skills ({surveyData.skills.length})</Label>
-                  <div className="flex flex-wrap gap-1 mt-1">
+                  <Label className="text-primary text-sm font-medium">
+                    Skills ({surveyData.skills.length})
+                  </Label>
+                  <div className="mt-1 flex flex-wrap gap-1">
                     {surveyData.skills.slice(0, 8).map((skill, index) => (
-                      <span key={index} className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs">
+                      <span
+                        key={index}
+                        className="bg-primary text-primary-foreground rounded px-2 py-1 text-xs"
+                      >
                         {skill}
                       </span>
                     ))}
@@ -362,19 +491,26 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm font-medium text-primary">Work Type</Label>
-                    <p className="text-sm bg-secondary p-2 rounded">{t(`steps.work_type.options.${surveyData.workType}`)}</p>
+                    <Label className="text-primary text-sm font-medium">Work Type</Label>
+                    <p className="bg-secondary rounded p-2 text-sm">
+                      {t(`steps.work_type.options.${surveyData.workType}`)}
+                    </p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-primary">Locations ({surveyData.locations.length})</Label>
-                    <div className="flex flex-wrap gap-1 mt-1">
+                    <Label className="text-primary text-sm font-medium">
+                      Locations ({surveyData.locations.length})
+                    </Label>
+                    <div className="mt-1 flex flex-wrap gap-1">
                       {surveyData.locations.slice(0, 3).map((location, index) => (
-                        <span key={index} className="bg-secondary text-secondary-foreground px-2 py-1 rounded text-xs">
+                        <span
+                          key={index}
+                          className="bg-secondary text-secondary-foreground rounded px-2 py-1 text-xs"
+                        >
                           {location}
                         </span>
                       ))}
                       {surveyData.locations.length > 3 && (
-                        <span className="bg-muted text-muted-foreground px-2 py-1 rounded text-xs">
+                        <span className="bg-muted text-muted-foreground rounded px-2 py-1 text-xs">
                           +{surveyData.locations.length - 3} more
                         </span>
                       )}
@@ -392,29 +528,29 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-background/95 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+    <div className="bg-background/95 fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+      <Card className="max-h-[90vh] w-full max-w-3xl overflow-y-auto">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
               <CardTitle className="text-xl">🚀 {t('title')}</CardTitle>
               <CardDescription>{t('subtitle')}</CardDescription>
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-muted-foreground text-sm">
               {t('step_progress', { current: currentStep + 1, total: totalSteps })}
             </div>
           </div>
-          <div className="w-full bg-secondary rounded-full h-2">
-            <div 
+          <div className="bg-secondary h-2 w-full rounded-full">
+            <div
               className="bg-primary h-2 rounded-full transition-all duration-300"
               style={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
             />
           </div>
         </CardHeader>
-        
+
         <CardContent className="space-y-6">
           {renderStep()}
-          
+
           <div className="flex justify-between">
             <Button
               variant="outline"
@@ -425,7 +561,7 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
               {isRTL ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
               {t('back')}
             </Button>
-            
+
             <div className="flex gap-2">
               {currentStep === totalSteps - 1 ? (
                 <Button
@@ -434,7 +570,7 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
                   className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
                 >
                   {isSubmitting ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                    <div className="h-4 w-4 animate-spin rounded-full border-t-2 border-b-2 border-white"></div>
                   ) : (
                     <Check className="h-4 w-4" />
                   )}
@@ -447,7 +583,11 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
                   className="flex items-center gap-2"
                 >
                   {t('next')}
-                  {isRTL ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  {isRTL ? (
+                    <ChevronLeft className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
                 </Button>
               )}
             </div>
@@ -456,4 +596,4 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
       </Card>
     </div>
   );
-} 
+}

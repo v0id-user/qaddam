@@ -18,9 +18,9 @@ export function DashboardSidebar({ user, ...props }: DashboardSidebarProps) {
   const isRTL = locale === 'ar';
 
   return (
-    <Sidebar 
-      collapsible="offcanvas" 
-      className={`text-muted-foreground ${isRTL ? 'text-right' : 'text-left'}`} 
+    <Sidebar
+      collapsible="offcanvas"
+      className={`text-muted-foreground ${isRTL ? 'text-right' : 'text-left'}`}
       {...props}
     >
       {/* Main Menu */}

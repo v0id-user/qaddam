@@ -249,7 +249,7 @@
           "title": "How many years of work experience do you have?",
           "options": {
             "0-1": "0-1 years",
-            "2-4": "2-4 years", 
+            "2-4": "2-4 years",
             "5-8": "5-8 years",
             "9+": "9+ years"
           }
@@ -315,7 +315,7 @@
           "proficiency_placeholder": "Select proficiency...",
           "proficiency_options": {
             "Basic": "Basic",
-            "Intermediate": "Intermediate", 
+            "Intermediate": "Intermediate",
             "Fluent": "Fluent"
           },
           "common_languages": {

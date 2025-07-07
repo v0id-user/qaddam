@@ -10,9 +10,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             <h3 className="text-primary text-2xl font-bold">{t('footer.brand')}</h3>
-            <p className="opacity-70">
-              {t('footer.tagline')}
-            </p>
+            <p className="opacity-70">{t('footer.tagline')}</p>
           </div>
 
           {/* Links */}

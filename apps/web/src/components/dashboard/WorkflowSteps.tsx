@@ -18,44 +18,48 @@ const WorkflowSteps = ({ onComplete }: WorkflowStepsProps) => {
       title: t('workflow.steps.parsing.title'),
       description: t('workflow.steps.parsing.description'),
       icon: <FileText className="h-8 w-8" />,
-      status: 'not_started'
+      status: 'not_started',
     },
     {
       key: 'tuning',
       title: t('workflow.steps.tuning.title'),
       description: t('workflow.steps.tuning.description'),
       icon: <Target className="h-8 w-8" />,
-      status: 'not_started'
+      status: 'not_started',
     },
     {
       key: 'searching',
       title: t('workflow.steps.searching.title'),
       description: t('workflow.steps.searching.description'),
       icon: <Search className="h-8 w-8" />,
-      status: 'not_started'
+      status: 'not_started',
     },
     {
       key: 'combining',
       title: t('workflow.steps.combining.title'),
       description: t('workflow.steps.combining.description'),
       icon: <Combine className="h-8 w-8" />,
-      status: 'not_started'
-    }
+      status: 'not_started',
+    },
   ]);
 
   // Simulate workflow progress
   useEffect(() => {
     const processStep = (stepIndex: number) => {
       // Mark current step as pending
-      setSteps(prev => prev.map((step, index) => 
-        index === stepIndex ? { ...step, status: 'pending' as StepStatus } : step
-      ));
+      setSteps(prev =>
+        prev.map((step, index) =>
+          index === stepIndex ? { ...step, status: 'pending' as StepStatus } : step
+        )
+      );
 
       // After 2 seconds, mark as finished and move to next
       setTimeout(() => {
-        setSteps(prev => prev.map((step, index) => 
-          index === stepIndex ? { ...step, status: 'finished' as StepStatus } : step
-        ));
+        setSteps(prev =>
+          prev.map((step, index) =>
+            index === stepIndex ? { ...step, status: 'finished' as StepStatus } : step
+          )
+        );
 
         if (stepIndex < steps.length - 1) {
           setCurrentStep(stepIndex + 1);
@@ -76,13 +80,13 @@ const WorkflowSteps = ({ onComplete }: WorkflowStepsProps) => {
   const getStatusIcon = (status: StepStatus) => {
     switch (status) {
       case 'not_started':
-        return <Circle className="h-6 w-6 text-muted-foreground" />;
+        return <Circle className="text-muted-foreground h-6 w-6" />;
       case 'pending':
-        return <Clock className="h-6 w-6 text-primary animate-pulse" />;
+        return <Clock className="text-primary h-6 w-6 animate-pulse" />;
       case 'finished':
         return <CheckCircle className="h-6 w-6 text-green-500" />;
       default:
-        return <Circle className="h-6 w-6 text-muted-foreground" />;
+        return <Circle className="text-muted-foreground h-6 w-6" />;
     }
   };
 
@@ -100,30 +104,26 @@ const WorkflowSteps = ({ onComplete }: WorkflowStepsProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-accent/30 via-background to-secondary/20 px-6 py-24">
+    <div className="from-accent/30 via-background to-secondary/20 min-h-screen bg-gradient-to-br px-6 py-24">
       <div className="mx-auto max-w-4xl">
         {/* Header */}
         <div className="mb-16 text-center">
           <h1 className="text-foreground mb-6 text-4xl font-bold md:text-5xl">
             {t('workflow.title')}
           </h1>
-          <p className="text-muted-foreground text-xl leading-relaxed">
-            {t('workflow.subtitle')}
-          </p>
+          <p className="text-muted-foreground text-xl leading-relaxed">{t('workflow.subtitle')}</p>
         </div>
 
         {/* Progress Bar */}
         <div className="mb-12">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm text-muted-foreground">
+          <div className="mb-4 flex items-center justify-between">
+            <span className="text-muted-foreground text-sm">
               {t('workflow.status.not_started')}
             </span>
-            <span className="text-sm text-muted-foreground">
-              {t('workflow.status.finished')}
-            </span>
+            <span className="text-muted-foreground text-sm">{t('workflow.status.finished')}</span>
           </div>
-          <div className="w-full bg-accent/20 rounded-full h-2">
-            <div 
+          <div className="bg-accent/20 h-2 w-full rounded-full">
+            <div
               className="bg-primary h-2 rounded-full transition-all duration-1000 ease-out"
               style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
             />
@@ -139,39 +139,52 @@ const WorkflowSteps = ({ onComplete }: WorkflowStepsProps) => {
             >
               <div className="flex items-center space-x-6 space-x-reverse">
                 {/* Step Icon */}
-                <div className={`rounded-full p-4 ${
-                  step.status === 'pending' ? 'bg-primary/10' :
-                  step.status === 'finished' ? 'bg-green-100' :
-                  'bg-accent/20'
-                }`}>
-                  <div className={`${
-                    step.status === 'pending' ? 'text-primary' :
-                    step.status === 'finished' ? 'text-green-600' :
-                    'text-muted-foreground'
-                  }`}>
+                <div
+                  className={`rounded-full p-4 ${
+                    step.status === 'pending'
+                      ? 'bg-primary/10'
+                      : step.status === 'finished'
+                        ? 'bg-green-100'
+                        : 'bg-accent/20'
+                  }`}
+                >
+                  <div
+                    className={`${
+                      step.status === 'pending'
+                        ? 'text-primary'
+                        : step.status === 'finished'
+                          ? 'text-green-600'
+                          : 'text-muted-foreground'
+                    }`}
+                  >
                     {step.icon}
                   </div>
                 </div>
 
                 {/* Step Content */}
                 <div className="flex-1">
-                  <div className="flex items-center space-x-3 space-x-reverse mb-2">
-                    <h3 className="text-foreground text-xl font-bold">
-                      {step.title}
-                    </h3>
+                  <div className="mb-2 flex items-center space-x-3 space-x-reverse">
+                    <h3 className="text-foreground text-xl font-bold">{step.title}</h3>
                     {getStatusIcon(step.status)}
                   </div>
-                  <p className="text-muted-foreground">
-                    {step.description}
-                  </p>
+                  <p className="text-muted-foreground">{step.description}</p>
                   {step.status === 'pending' && (
                     <div className="mt-3 flex items-center space-x-2 space-x-reverse">
                       <div className="flex space-x-1 space-x-reverse">
-                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                        <div
+                          className="bg-primary h-2 w-2 animate-bounce rounded-full"
+                          style={{ animationDelay: '0ms' }}
+                        />
+                        <div
+                          className="bg-primary h-2 w-2 animate-bounce rounded-full"
+                          style={{ animationDelay: '150ms' }}
+                        />
+                        <div
+                          className="bg-primary h-2 w-2 animate-bounce rounded-full"
+                          style={{ animationDelay: '300ms' }}
+                        />
                       </div>
-                      <span className="text-sm text-primary font-medium">
+                      <span className="text-primary text-sm font-medium">
                         {t('workflow.status.pending')}
                       </span>
                     </div>
@@ -186,4 +199,4 @@ const WorkflowSteps = ({ onComplete }: WorkflowStepsProps) => {
   );
 };
 
-export default WorkflowSteps; 
+export default WorkflowSteps;

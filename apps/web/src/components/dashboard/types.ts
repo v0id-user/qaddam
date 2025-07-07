@@ -26,4 +26,4 @@ export interface Job {
   missingSkills: string[];
   experienceMatch: string;
   locationMatch: string;
-} 
+}

@@ -18,14 +18,15 @@ const mockJobs: Job[] = [
     type: 'full_time',
     salary: '$60,000 - $80,000',
     matchScore: 92,
-    description: 'We are looking for a senior frontend developer to join our team and build amazing user interfaces.',
+    description:
+      'We are looking for a senior frontend developer to join our team and build amazing user interfaces.',
     requirements: ['React', 'TypeScript', 'Next.js', 'TailwindCSS'],
     benefits: ['Health Insurance', 'Remote Work', 'Professional Development'],
     postedDate: '2025-01-15',
     matchedSkills: ['React', 'TypeScript', 'Next.js', 'JavaScript'],
     missingSkills: ['Vue.js', 'Angular'],
     experienceMatch: 'Perfect match - 5+ years required',
-    locationMatch: 'Same city preferred'
+    locationMatch: 'Same city preferred',
   },
   {
     id: '2',
@@ -35,14 +36,15 @@ const mockJobs: Job[] = [
     type: 'remote',
     salary: '$50,000 - $70,000',
     matchScore: 85,
-    description: 'Join our innovative startup and work on cutting-edge projects with modern technologies.',
+    description:
+      'Join our innovative startup and work on cutting-edge projects with modern technologies.',
     requirements: ['Node.js', 'React', 'MongoDB', 'Express'],
     benefits: ['Flexible Hours', 'Stock Options', 'Learning Budget'],
     postedDate: '2025-01-14',
     matchedSkills: ['Node.js', 'React', 'MongoDB'],
     missingSkills: ['Express', 'GraphQL'],
     experienceMatch: 'Good match - 3+ years required',
-    locationMatch: 'Remote work available'
+    locationMatch: 'Remote work available',
   },
   {
     id: '3',
@@ -59,7 +61,7 @@ const mockJobs: Job[] = [
     matchedSkills: ['Figma', 'Adobe Creative Suite'],
     missingSkills: ['User Research', 'Prototyping'],
     experienceMatch: 'Moderate match - 2+ years required',
-    locationMatch: 'Different city - relocation possible'
+    locationMatch: 'Different city - relocation possible',
   },
   {
     id: '4',
@@ -76,7 +78,7 @@ const mockJobs: Job[] = [
     matchedSkills: ['Python', 'PostgreSQL'],
     missingSkills: ['Django', 'Redis', 'Docker'],
     experienceMatch: 'Good match - 3+ years required',
-    locationMatch: 'Different country - visa support available'
+    locationMatch: 'Different country - visa support available',
   },
   {
     id: '5',
@@ -93,8 +95,8 @@ const mockJobs: Job[] = [
     matchedSkills: ['React Native', 'JavaScript'],
     missingSkills: ['iOS Development', 'Android Development'],
     experienceMatch: 'Entry level - 1+ years required',
-    locationMatch: 'Different country - remote work possible'
-  }
+    locationMatch: 'Different country - remote work possible',
+  },
 ];
 
 interface JobResultsProps {
@@ -117,18 +119,18 @@ const JobResults = ({ onBackToUpload }: JobResultsProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-accent/30 via-background to-secondary/20 px-6 py-24">
+    <div className="from-accent/30 via-background to-secondary/20 min-h-screen bg-gradient-to-br px-6 py-24">
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-16 text-center">
           <h1 className="text-foreground mb-6 text-4xl font-bold md:text-5xl">
             {t('job_results.title')}
           </h1>
-          <p className="text-muted-foreground text-xl leading-relaxed mb-4">
+          <p className="text-muted-foreground mb-4 text-xl leading-relaxed">
             {t('job_results.subtitle')}
           </p>
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2">
+          <div className="mb-6 flex items-center justify-center gap-4">
+            <div className="bg-primary/10 inline-flex items-center rounded-full px-4 py-2">
               <span className="text-primary font-semibold">
                 {t('job_results.found_jobs', { count: mockJobs.length })}
               </span>
@@ -136,9 +138,9 @@ const JobResults = ({ onBackToUpload }: JobResultsProps) => {
             <Button
               onClick={onBackToUpload}
               variant="outline"
-              className="rounded-full border-primary text-primary hover:bg-primary/5"
+              className="border-primary text-primary hover:bg-primary/5 rounded-full"
             >
-              <Upload className="h-4 w-4 mr-2" />
+              <Upload className="mr-2 h-4 w-4" />
               {t('job_results.upload_new_cv')}
             </Button>
           </div>
@@ -146,25 +148,18 @@ const JobResults = ({ onBackToUpload }: JobResultsProps) => {
 
         {/* Job Cards Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {mockJobs.map((job) => (
-            <JobCard
-              key={job.id}
-              job={job}
-              onClick={() => handleJobClick(job)}
-            />
+          {mockJobs.map(job => (
+            <JobCard key={job.id} job={job} onClick={() => handleJobClick(job)} />
           ))}
         </div>
 
         {/* Job Match Insights Modal */}
         {isInsightsOpen && selectedJob && (
-          <JobMatchInsights
-            job={selectedJob}
-            onClose={handleCloseInsights}
-          />
+          <JobMatchInsights job={selectedJob} onClose={handleCloseInsights} />
         )}
       </div>
     </div>
   );
 };
 
-export default JobResults; 
+export default JobResults;

@@ -42,10 +42,11 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 1) return t('job_results.date_format.yesterday');
     if (diffDays < 7) return t('job_results.date_format.days_ago', { days: diffDays });
-    if (diffDays < 30) return t('job_results.date_format.weeks_ago', { weeks: Math.floor(diffDays / 7) });
+    if (diffDays < 30)
+      return t('job_results.date_format.weeks_ago', { weeks: Math.floor(diffDays / 7) });
     return date.toLocaleDateString();
   };
 
@@ -57,29 +58,27 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
   return (
     <div
       onClick={onClick}
-      className="group rounded-2xl border border-border bg-card p-6 shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer hover:border-primary/40"
+      className="group border-border bg-card hover:border-primary/40 cursor-pointer rounded-2xl border p-6 shadow-sm transition-all duration-200 hover:shadow-lg"
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
+      <div className="mb-4 flex items-start justify-between">
         <div className="flex-1">
-          <h3 className="text-foreground font-bold text-xl mb-1 group-hover:text-primary transition-colors">
+          <h3 className="text-foreground group-hover:text-primary mb-1 text-xl font-bold transition-colors">
             {job.title}
           </h3>
-          <p className="text-muted-foreground font-medium mb-2">
-            {job.company}
-          </p>
-          <div className="flex items-center space-x-2 space-x-reverse text-muted-foreground text-sm">
+          <p className="text-muted-foreground mb-2 font-medium">{job.company}</p>
+          <div className="text-muted-foreground flex items-center space-x-2 space-x-reverse text-sm">
             <MapPin className="h-4 w-4" />
             <span>{job.location}</span>
           </div>
         </div>
-        
+
         {/* Save Button */}
         <button
           onClick={handleSaveJob}
-          className={`p-2 rounded-full transition-colors ${
-            isSaved 
-              ? 'bg-red-100 text-red-600 hover:bg-red-200' 
+          className={`rounded-full p-2 transition-colors ${
+            isSaved
+              ? 'bg-red-100 text-red-600 hover:bg-red-200'
               : 'bg-accent/20 text-muted-foreground hover:bg-accent/30'
           }`}
           title={t('job_results.save_job')}
@@ -89,35 +88,37 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       </div>
 
       {/* Job Details */}
-      <div className="space-y-3 mb-6">
+      <div className="mb-6 space-y-3">
         <div className="flex items-center space-x-2 space-x-reverse">
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${getTypeColor(job.type)}`}>
+          <span className={`rounded-full px-3 py-1 text-sm font-medium ${getTypeColor(job.type)}`}>
             {t(`job_results.job_types.${job.type}`)}
           </span>
-          <div className="flex items-center space-x-1 space-x-reverse text-muted-foreground text-sm">
+          <div className="text-muted-foreground flex items-center space-x-1 space-x-reverse text-sm">
             <Clock className="h-4 w-4" />
             <span>{formatDate(job.postedDate)}</span>
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-2 space-x-reverse">
-          <Briefcase className="h-4 w-4 text-muted-foreground" />
+          <Briefcase className="text-muted-foreground h-4 w-4" />
           <span className="text-foreground font-medium">{job.salary}</span>
         </div>
       </div>
 
       {/* Match Score */}
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-muted-foreground">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-muted-foreground text-sm font-medium">
             {t('job_results.match_score')}
           </span>
-          <span className={`px-2 py-1 rounded-full text-sm font-bold ${getMatchScoreColor(job.matchScore)}`}>
+          <span
+            className={`rounded-full px-2 py-1 text-sm font-bold ${getMatchScoreColor(job.matchScore)}`}
+          >
             {job.matchScore}%
           </span>
         </div>
-        <div className="w-full bg-accent/20 rounded-full h-2">
-          <div 
+        <div className="bg-accent/20 h-2 w-full rounded-full">
+          <div
             className="bg-primary h-2 rounded-full transition-all duration-300"
             style={{ width: `${job.matchScore}%` }}
           />
@@ -130,13 +131,13 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
           {job.matchedSkills.slice(0, 3).map((skill, index) => (
             <span
               key={index}
-              className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium"
+              className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800"
             >
               {skill}
             </span>
           ))}
           {job.matchedSkills.length > 3 && (
-            <span className="px-2 py-1 bg-accent/20 text-muted-foreground text-xs rounded-full font-medium">
+            <span className="bg-accent/20 text-muted-foreground rounded-full px-2 py-1 text-xs font-medium">
               {t('job_results.skills.more_skills', { count: job.matchedSkills.length - 3 })}
             </span>
           )}
@@ -144,31 +145,24 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       </div>
 
       {/* Description */}
-      <p className="text-muted-foreground text-sm mb-6 line-clamp-3">
-        {job.description}
-      </p>
+      <p className="text-muted-foreground mb-6 line-clamp-3 text-sm">{job.description}</p>
 
       {/* Actions */}
       <div className="flex space-x-3 space-x-reverse">
-        <Button
-          size="sm"
-          className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
-        >
+        <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 flex-1">
           {t('job_results.view_details')}
-          <ExternalLink className="h-4 w-4 ml-2" />
+          <ExternalLink className="ml-2 h-4 w-4" />
         </Button>
         <Button
           size="sm"
           variant="outline"
-          className="flex-1 border-primary text-primary hover:bg-primary/5"
+          className="border-primary text-primary hover:bg-primary/5 flex-1"
         >
           {t('job_results.apply_now')}
         </Button>
       </div>
-
-
     </div>
   );
 };
 
-export default JobCard; 
+export default JobCard;

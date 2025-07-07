@@ -8,38 +8,43 @@ import { api } from '@qaddam/backend/convex/_generated/api';
 
 export default function ClientDashBoard() {
   const me = useQuery(api.users.getMe);
-  const userSurvey = useQuery(api.users.getUserSurvey);
+  const hasSurveyCompleted = useQuery(api.surveys.hasSurveyCompleted);
   const [showSurvey, setShowSurvey] = useState(false);
 
   useEffect(() => {
-    // Check if user has completed the survey
-    const surveyCompleted = localStorage.getItem('qaddam_survey_completed');
-    
-    // Show survey if:
-    // 1. User data is loaded
-    // 2. User hasn't completed survey in localStorage
-    // 3. User doesn't have survey data in backend
-    if (me && !surveyCompleted && userSurvey === null) {
+    // Show survey if user is loaded and hasn't completed survey
+    if (me && hasSurveyCompleted === false) {
+      console.log('🎯 Showing survey - first time user detected');
       setShowSurvey(true);
+    } else if (me && hasSurveyCompleted === true) {
+      console.log('✅ Survey already completed');
+      setShowSurvey(false);
     }
-  }, [me, userSurvey]);
+  }, [me, hasSurveyCompleted]);
 
   const handleSurveyComplete = () => {
+    console.log('🎉 Survey completed callback triggered');
     setShowSurvey(false);
   };
 
   if (!me) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-black"></div>
+      <div className="flex h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-t-2 border-b-2 border-black"></div>
       </div>
     );
   }
 
+  console.log('🔍 Dashboard state:', {
+    userLoaded: !!me,
+    hasSurveyCompleted,
+    showSurvey,
+  });
+
   return (
     <>
       {showSurvey && <JobSearchSurvey onComplete={handleSurveyComplete} />}
-      <DashboardSidebar 
+      <DashboardSidebar
         variant="sidebar"
         user={{
           name: me.name ?? '',
