@@ -196,6 +196,7 @@
       "view_details": "View Details",
       "apply_now": "Apply Now",
       "save_job": "Save Job",
+      "upload_new_cv": "Upload New CV",
       "job_types": {
         "full_time": "Full Time",
         "part_time": "Part Time",
@@ -226,6 +227,140 @@
         "salary_range": "Salary Range",
         "location_match": "Location Match",
         "close": "Close"
+      }
+    },
+    "survey": {
+      "title": "Job Search Profile",
+      "subtitle": "Help us personalize your job search experience",
+      "step_progress": "Step {current} of {total}",
+      "next": "Next",
+      "back": "Back",
+      "finish": "Finish",
+      "skip": "Skip for now",
+      "required": "Required",
+      "optional": "Optional",
+      "steps": {
+        "profession": {
+          "title": "What is your main field or profession?",
+          "placeholder": "e.g., Software Development, Marketing, Sales...",
+          "help": "Help us understand your area of expertise"
+        },
+        "experience": {
+          "title": "How many years of work experience do you have?",
+          "options": {
+            "0-1": "0-1 years",
+            "2-4": "2-4 years", 
+            "5-8": "5-8 years",
+            "9+": "9+ years"
+          }
+        },
+        "career_level": {
+          "title": "What is your current career level?",
+          "options": {
+            "Student": "Student",
+            "Entry": "Entry Level",
+            "Mid": "Mid Level",
+            "Senior": "Senior Level",
+            "Lead": "Lead/Principal",
+            "Manager": "Manager"
+          }
+        },
+        "job_titles": {
+          "title": "What job titles are you interested in?",
+          "placeholder": "Add job titles...",
+          "help": "Press Enter to add each title",
+          "add_more": "Add another title"
+        },
+        "industries": {
+          "title": "Which industries are you targeting?",
+          "placeholder": "Select industries...",
+          "options": {
+            "Technology": "Technology",
+            "Healthcare": "Healthcare",
+            "Finance": "Finance",
+            "Education": "Education",
+            "Manufacturing": "Manufacturing",
+            "Retail": "Retail",
+            "Consulting": "Consulting",
+            "Government": "Government",
+            "Non-profit": "Non-profit",
+            "Other": "Other"
+          }
+        },
+        "work_type": {
+          "title": "What work type do you prefer?",
+          "options": {
+            "Remote": "Remote",
+            "Hybrid": "Hybrid",
+            "On-site": "On-site"
+          }
+        },
+        "locations": {
+          "title": "What locations are you open to?",
+          "placeholder": "Add locations...",
+          "help": "Press Enter to add each location",
+          "add_more": "Add another location"
+        },
+        "skills": {
+          "title": "What are your top 5 skills or tools?",
+          "placeholder": "Add skills...",
+          "help": "Press Enter to add each skill",
+          "add_more": "Add another skill",
+          "limit": "Maximum 5 skills"
+        },
+        "languages": {
+          "title": "What's your language proficiency?",
+          "add_language": "Add Language",
+          "language_placeholder": "Select language...",
+          "proficiency_placeholder": "Select proficiency...",
+          "proficiency_options": {
+            "Basic": "Basic",
+            "Intermediate": "Intermediate", 
+            "Fluent": "Fluent"
+          },
+          "common_languages": {
+            "English": "English",
+            "Arabic": "Arabic",
+            "Spanish": "Spanish",
+            "French": "French",
+            "German": "German",
+            "Chinese": "Chinese",
+            "Japanese": "Japanese",
+            "Portuguese": "Portuguese",
+            "Russian": "Russian",
+            "Italian": "Italian"
+          }
+        },
+        "company_types": {
+          "title": "What type of companies do you prefer?",
+          "options": {
+            "Startup": "Startup",
+            "SME": "Small & Medium Enterprise",
+            "Enterprise": "Large Enterprise",
+            "Any": "Any Size"
+          }
+        }
+      },
+      "review": {
+        "title": "Review Your Profile",
+        "subtitle": "Please review your information before submitting",
+        "profession": "Profession",
+        "experience": "Experience",
+        "career_level": "Career Level",
+        "job_titles": "Job Titles",
+        "industries": "Industries",
+        "work_type": "Work Type",
+        "locations": "Locations",
+        "skills": "Skills",
+        "languages": "Languages",
+        "company_types": "Company Types",
+        "submit": "Submit Profile",
+        "edit_step": "Edit"
+      },
+      "success": {
+        "title": "Profile Complete!",
+        "subtitle": "Your job search profile has been saved successfully",
+        "continue": "Continue to Dashboard"
       }
     }
   }

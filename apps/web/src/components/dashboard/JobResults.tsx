@@ -2,8 +2,10 @@
 
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import JobCard from './JobCard';
-import JobMatchInsights from './JobMatchInsights';
+import { Button } from '@/components/ui/button';
+import { Upload } from 'lucide-react';
+import JobCard from '@/components/dashboard/JobCard';
+import JobMatchInsights from '@/components/dashboard/JobMatchInsights';
 import type { Job } from './types';
 
 // Mock data for testing
@@ -95,7 +97,11 @@ const mockJobs: Job[] = [
   }
 ];
 
-const JobResults = () => {
+interface JobResultsProps {
+  onBackToUpload: () => void;
+}
+
+const JobResults = ({ onBackToUpload }: JobResultsProps) => {
   const t = useTranslations('dashboard');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [isInsightsOpen, setIsInsightsOpen] = useState(false);
@@ -121,10 +127,20 @@ const JobResults = () => {
           <p className="text-muted-foreground text-xl leading-relaxed mb-4">
             {t('job_results.subtitle')}
           </p>
-          <div className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2">
-            <span className="text-primary font-semibold">
-              {t('job_results.found_jobs', { count: mockJobs.length })}
-            </span>
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <div className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2">
+              <span className="text-primary font-semibold">
+                {t('job_results.found_jobs', { count: mockJobs.length })}
+              </span>
+            </div>
+            <Button
+              onClick={onBackToUpload}
+              variant="outline"
+              className="rounded-full border-primary text-primary hover:bg-primary/5"
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              {t('job_results.upload_new_cv')}
+            </Button>
           </div>
         </div>
 

@@ -83,7 +83,7 @@ export default function DashboardPage() {
   }
 
   if (currentStage === 'results') {
-    return <JobResults />;
+    return <JobResults onBackToUpload={handleBackToUpload} />;
   }
 
   // Default: Upload stage

@@ -196,6 +196,7 @@
       "view_details": "عرض التفاصيل",
       "apply_now": "تقدم الآن",
       "save_job": "حفظ الوظيفة",
+      "upload_new_cv": "رفع سيرة ذاتية جديدة",
       "job_types": {
         "full_time": "دوام كامل",
         "part_time": "دوام جزئي",
@@ -226,6 +227,140 @@
         "salary_range": "نطاق الراتب",
         "location_match": "تطابق الموقع",
         "close": "إغلاق"
+      }
+    },
+    "survey": {
+      "title": "الملف المهني للبحث عن الوظائف",
+      "subtitle": "ساعدنا في تخصيص تجربة البحث عن الوظائف لك",
+      "step_progress": "الخطوة {current} من {total}",
+      "next": "التالي",
+      "back": "السابق",
+      "finish": "انتهاء",
+      "skip": "تخطي الآن",
+      "required": "مطلوب",
+      "optional": "اختياري",
+      "steps": {
+        "profession": {
+          "title": "ما هو مجال عملك أو مهنتك الأساسية؟",
+          "placeholder": "مثال: تطوير البرمجيات، التسويق، المبيعات...",
+          "help": "ساعدنا في فهم مجال خبرتك"
+        },
+        "experience": {
+          "title": "كم سنة من الخبرة العملية لديك؟",
+          "options": {
+            "0-1": "٠-١ سنة",
+            "2-4": "٢-٤ سنوات",
+            "5-8": "٥-٨ سنوات",
+            "9+": "٩+ سنوات"
+          }
+        },
+        "career_level": {
+          "title": "ما هو مستواك المهني الحالي؟",
+          "options": {
+            "Student": "طالب",
+            "Entry": "مبتدئ",
+            "Mid": "متوسط",
+            "Senior": "كبير",
+            "Lead": "قائد/رئيسي",
+            "Manager": "مدير"
+          }
+        },
+        "job_titles": {
+          "title": "ما هي المسميات الوظيفية التي تهتم بها؟",
+          "placeholder": "أضف المسميات الوظيفية...",
+          "help": "اضغط Enter لإضافة كل مسمى",
+          "add_more": "أضف مسمى آخر"
+        },
+        "industries": {
+          "title": "ما هي الصناعات التي تستهدفها؟",
+          "placeholder": "اختر الصناعات...",
+          "options": {
+            "Technology": "التكنولوجيا",
+            "Healthcare": "الرعاية الصحية",
+            "Finance": "المالية",
+            "Education": "التعليم",
+            "Manufacturing": "التصنيع",
+            "Retail": "التجزئة",
+            "Consulting": "الاستشارات",
+            "Government": "الحكومة",
+            "Non-profit": "غير ربحي",
+            "Other": "أخرى"
+          }
+        },
+        "work_type": {
+          "title": "ما هو نوع العمل الذي تفضله؟",
+          "options": {
+            "Remote": "عن بُعد",
+            "Hybrid": "مختلط",
+            "On-site": "في المكتب"
+          }
+        },
+        "locations": {
+          "title": "ما هي المواقع التي تفكر في العمل بها؟",
+          "placeholder": "أضف المواقع...",
+          "help": "اضغط Enter لإضافة كل موقع",
+          "add_more": "أضف موقع آخر"
+        },
+        "skills": {
+          "title": "ما هي أهم ٥ مهارات أو أدوات تتقنها؟",
+          "placeholder": "أضف المهارات...",
+          "help": "اضغط Enter لإضافة كل مهارة",
+          "add_more": "أضف مهارة أخرى",
+          "limit": "الحد الأقصى ٥ مهارات"
+        },
+        "languages": {
+          "title": "ما هي مستويات إتقانك للغات؟",
+          "add_language": "أضف لغة",
+          "language_placeholder": "اختر اللغة...",
+          "proficiency_placeholder": "اختر مستوى الإتقان...",
+          "proficiency_options": {
+            "Basic": "أساسي",
+            "Intermediate": "متوسط",
+            "Fluent": "متقن"
+          },
+          "common_languages": {
+            "English": "الإنجليزية",
+            "Arabic": "العربية",
+            "Spanish": "الإسبانية",
+            "French": "الفرنسية",
+            "German": "الألمانية",
+            "Chinese": "الصينية",
+            "Japanese": "اليابانية",
+            "Portuguese": "البرتغالية",
+            "Russian": "الروسية",
+            "Italian": "الإيطالية"
+          }
+        },
+        "company_types": {
+          "title": "ما هو نوع الشركات التي تفضلها؟",
+          "options": {
+            "Startup": "الشركات الناشئة",
+            "SME": "الشركات الصغيرة والمتوسطة",
+            "Enterprise": "الشركات الكبيرة",
+            "Any": "أي حجم"
+          }
+        }
+      },
+      "review": {
+        "title": "مراجعة ملفك الشخصي",
+        "subtitle": "يرجى مراجعة معلوماتك قبل الإرسال",
+        "profession": "المهنة",
+        "experience": "الخبرة",
+        "career_level": "المستوى المهني",
+        "job_titles": "المسميات الوظيفية",
+        "industries": "الصناعات",
+        "work_type": "نوع العمل",
+        "locations": "المواقع",
+        "skills": "المهارات",
+        "languages": "اللغات",
+        "company_types": "أنواع الشركات",
+        "submit": "إرسال الملف",
+        "edit_step": "تعديل"
+      },
+      "success": {
+        "title": "تم إكمال الملف الشخصي!",
+        "subtitle": "تم حفظ ملف البحث عن الوظائف بنجاح",
+        "continue": "متابعة إلى الرئيسية"
       }
     }
   }
