@@ -1,15 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation } from 'convex/react';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ChevronLeft, ChevronRight, Check, X, Plus, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { useLocale } from 'next-intl';
 
 interface SurveyData {
@@ -191,7 +189,7 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
   const experienceOptions = ['0-1', '2-4', '5-8', '9+'];
   const careerLevelOptions = ['Entry', 'Mid', 'Senior', 'Lead', 'Manager'];
   const workTypeOptions = ['Remote', 'Hybrid', 'On-site'];
-  const companyTypeOptions = ['Startup', 'SME', 'Enterprise', 'Any'];
+  //  const companyTypeOptions = ['Startup', 'SME', 'Enterprise', 'Any'];
 
   const handleNext = () => {
     if (currentStep < totalSteps - 1) {
@@ -411,7 +409,7 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
         return (
           <div className="space-y-4">
             <Label className="text-lg font-semibold">{t('steps.locations.title')}</Label>
-            <p className="text-muted-foreground text-sm">Select all locations you're open to</p>
+            <p className="text-muted-foreground text-sm">{t('steps.locations.description')}</p>
             <div className="grid max-h-64 grid-cols-2 gap-2 overflow-y-auto">
               {techLocations.map(location => (
                 <Button

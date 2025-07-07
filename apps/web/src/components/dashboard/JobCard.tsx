@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { MapPin, Clock, Briefcase, TrendingUp, ExternalLink, Heart } from 'lucide-react';
+import { MapPin, Clock, Briefcase, ExternalLink, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import type { Job } from './types';

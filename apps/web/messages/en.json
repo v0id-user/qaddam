@@ -297,6 +297,7 @@
         },
         "locations": {
           "title": "What locations are you open to?",
+          "description": "Select all locations you're open to",
           "placeholder": "Add locations...",
           "help": "Press Enter to add each location",
           "add_more": "Add another location"

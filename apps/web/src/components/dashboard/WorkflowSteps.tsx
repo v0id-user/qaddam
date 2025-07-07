@@ -132,7 +132,7 @@ const WorkflowSteps = ({ onComplete }: WorkflowStepsProps) => {
 
         {/* Steps */}
         <div className="space-y-6">
-          {steps.map((step, index) => (
+          {steps.map(step => (
             <div
               key={step.key}
               className={`rounded-2xl border-2 p-8 transition-all duration-500 ${getStepClasses(step.status)}`}
