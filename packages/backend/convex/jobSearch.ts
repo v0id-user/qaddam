@@ -2,10 +2,10 @@ import { WorkflowManager } from "@convex-dev/workflow";
 import { components, internal, api } from "./_generated/api";
 import { internalAction } from "./_generated/server";
 import { v } from 'convex/values'
-import { Agent, createTool } from "@convex-dev/agent";
 import { openai } from "@ai-sdk/openai"
 import { z } from "zod";
 import { JobResult, JobSearchResults } from "./types/jobs";
+import { generateObject } from 'ai';
 
 export const workflow = new WorkflowManager(components.workflow);
 
@@ -16,10 +16,22 @@ export const aiParseCV = internalAction({
         userId: v.optional(v.id("users")),
     },
     handler: async (ctx, args): Promise<any> => {
-        const agent = new Agent(components.agent, {
-            chat: openai.chat("gpt-4o-mini"),
-            instructions: `
-            <agent>
+      
+
+        const { cv_storage_id } = args;
+        const cv = await ctx.storage.getUrl(cv_storage_id);
+        
+        if (!cv) {
+            throw new Error("CV file not found in storage");
+        }
+
+        const response = await generateObject({
+            model: openai.chat("gpt-4o-mini", {
+                structuredOutputs: true,
+            }),
+            schemaName: "Job Search keywords From CV",
+            prompt: `
+<agent>
   <name>JobSearchProfileAgent</name>
   <description>
     An AI agent that parses CVs and extracts structured job search profiles for automated job discovery.
@@ -41,49 +53,36 @@ export const aiParseCV = internalAction({
     <rule>Output structured JSON data that can be consumed by search algorithms</rule>
   </rules>
 </agent>
-            `,
-            tools: {
-                extractCVProfile: createTool({
-                    description: "Extract structured profile from CV text",
-                    args: z.object({
-                        skills: z.array(z.string()).describe("Technical and soft skills found in CV"),
-                        experience_level: z.enum(["entry", "mid", "senior", "executive"]).describe("Inferred experience level"),
-                        job_titles: z.array(z.string()).describe("Suitable job titles based on experience"),
-                        industries: z.array(z.string()).describe("Relevant industries"),
-                        keywords: z.array(z.string()).describe("Search keywords for job matching"),
-                        education: z.string().describe("Highest education level"),
-                        years_of_experience: z.number().describe("Estimated years of experience"),
-                        preferred_locations: z.array(z.string()).describe("Location preferences if mentioned"),
-                    }),
-                    handler: async (ctx, args) => {
-                        // Store the extracted profile for the next step
-                        return args;
-                    }
-                })
-            },
-            textEmbedding: openai.embedding("text-embedding-3-small"),
-            maxSteps: 5,
-            maxRetries: 3,
+            `.trim(),
+            schema: z.object({
+                skills: z.array(z.string()),
+                experience_level: z.enum(["entry", "mid", "senior", "executive"]),
+                job_titles: z.array(z.string()),
+                industries: z.array(z.string()),
+                keywords: z.array(z.string()),
+                education: z.string(),
+                years_of_experience: z.number(),
+                preferred_locations: z.array(z.string()),
+            }),
+            messages: [
+                {
+                    role: 'user',
+                    content: '',
+                    experimental_attachments: [
+                        {
+                            name: 'cv.pdf',
+                            contentType: 'application/pdf',
+                            url: cv
+                            
+                        }
+                    ]
+                }
+            ]
         });
 
-        const user = await ctx.runQuery(api.users.getMe);
-        const thread = await agent.createThread(ctx, {
-            userId: args.userId || user?._id,
-        });
 
-        const { cv_storage_id } = args;
-        const cv = await ctx.storage.get(cv_storage_id);
-        
-        if (!cv) {
-            throw new Error("CV file not found in storage");
-        }
 
-        // Convert CV to text (this would need proper PDF/DOC parsing)
-        const cvText = await cv.text(); // This is a placeholder - you'd use a proper PDF parser
-        
-        const result = ""// TODO: extract the result from the agent
-
-        return result;
+        return response.object;
     }
 });
 
@@ -94,10 +93,13 @@ export const aiTuneJobSearch = internalAction({
         userId: v.optional(v.id("users")),
     },
     handler: async (ctx, args): Promise<any> => {
-        const agent = new Agent(components.agent, {
-            chat: openai.chat("gpt-4o-mini"),
-            instructions: `
-            <agent>
+        const response = await generateObject({
+            model: openai.chat("gpt-4o-mini", {
+                structuredOutputs: true,
+            }),
+            schemaName: "Job Search Optimization Parameters",
+            prompt: `
+<agent>
   <name>JobSearchTuningAgent</name>
   <description>
     An AI agent that optimizes job search parameters based on user profile and market conditions.
@@ -123,40 +125,26 @@ export const aiTuneJobSearch = internalAction({
     <rule>Gracefully handle edge cases like missing language tags, mixed inputs, or contradictory answers.</rule>
   </rules>
 </agent>
-            `,
-            tools: {
-                tuneSearchParams: createTool({
-                    description: "Generate optimized job search parameters",
-                    args: z.object({
-                        optimized_keywords: z.array(z.string()).describe("Enhanced search keywords"),
-                        target_job_titles: z.array(z.string()).describe("Specific job titles to search for"),
-                        target_companies: z.array(z.string()).describe("Recommended companies to target"),
-                        salary_range: z.object({
-                            min: z.number(),
-                            max: z.number(),
-                            currency: z.string()
-                        }).describe("Suggested salary range"),
-                        preferred_job_types: z.array(z.enum(["full-time", "part-time", "contract", "internship"])),
-                        locations: z.array(z.string()).describe("Target locations including remote"),
-                        search_strategy: z.string().describe("Personalized search approach"),
-                    }),
-                    handler: async (ctx, args) => {
-                        return args;
-                    }
-                })
-            },
-            maxSteps: 3,
-            maxRetries: 2,
+
+Based on the following CV profile, generate optimized job search parameters:
+${JSON.stringify(args.cvProfile, null, 2)}
+            `.trim(),
+            schema: z.object({
+                optimized_keywords: z.array(z.string()).describe("Enhanced search keywords"),
+                target_job_titles: z.array(z.string()).describe("Specific job titles to search for"),
+                target_companies: z.array(z.string()).describe("Recommended companies to target"),
+                salary_range: z.object({
+                    min: z.number(),
+                    max: z.number(),
+                    currency: z.string()
+                }).describe("Suggested salary range"),
+                preferred_job_types: z.array(z.enum(["full-time", "part-time", "contract", "internship"])),
+                locations: z.array(z.string()).describe("Target locations including remote"),
+                search_strategy: z.string().describe("Personalized search approach"),
+            }),
         });
 
-        const user = await ctx.runQuery(api.users.getMe);
-        const thread = await agent.createThread(ctx, {
-            userId: args.userId || user?._id,
-        });
-
-        const result = ""// TODO: extract the result from the agent
-
-        return result;
+        return response.object;
     }
 });
 
@@ -252,10 +240,13 @@ export const aiCombineJobResults = internalAction({
         searchParams: v.any(), // Search parameters used
     },
     handler: async (ctx, args): Promise<JobSearchResults> => {
-        const agent = new Agent(components.agent, {
-            chat: openai.chat("gpt-4o-mini"),
-            instructions: `
-            <agent>
+        const response = await generateObject({
+            model: openai.chat("gpt-4o-mini", {
+                structuredOutputs: true,
+            }),
+            schemaName: "Job Ranking and Insights",
+            prompt: `
+<agent>
   <name>JobRankingAgent</name>
   <description>
     An AI agent that intelligently ranks and filters job results based on user profile and preferences.
@@ -276,56 +267,50 @@ export const aiCombineJobResults = internalAction({
     <rule>Provide reasoning for job rankings and match scores</rule>
   </rules>
 </agent>
-            `,
-            tools: {
-                rankJobs: createTool({
-                    description: "Rank and filter job results",
-                    args: z.object({
-                        ranked_jobs: z.array(z.object({
-                            id: z.string(),
-                            match_score: z.number().min(0).max(1),
-                            match_reasons: z.array(z.string()),
-                            concerns: z.array(z.string()).optional(),
-                            recommendation: z.enum(["highly_recommended", "recommended", "consider", "not_recommended"]),
-                        })),
-                        insights: z.object({
-                            total_relevant: z.number(),
-                            avg_match_score: z.number(),
-                            top_skills_in_demand: z.array(z.string()),
-                            salary_insights: z.string(),
-                            market_observations: z.string(),
-                        }),
-                    }),
-                    handler: async (ctx, args) => {
-                        return args;
-                    }
-                })
-            },
-            maxSteps: 3,
-            maxRetries: 2,
+
+Based on the following data, rank and analyze job results:
+
+CV Profile: ${JSON.stringify(args.cvProfile, null, 2)}
+Search Parameters: ${JSON.stringify(args.searchParams, null, 2)}
+Job Results: ${JSON.stringify(args.jobResults, null, 2)}
+            `.trim(),
+            schema: z.object({
+                ranked_jobs: z.array(z.object({
+                    id: z.string(),
+                    match_score: z.number().min(0).max(1),
+                    match_reasons: z.array(z.string()),
+                    concerns: z.array(z.string()).optional(),
+                    recommendation: z.enum(["highly_recommended", "recommended", "consider", "not_recommended"]),
+                })),
+                insights: z.object({
+                    total_relevant: z.number(),
+                    avg_match_score: z.number(),
+                    top_skills_in_demand: z.array(z.string()),
+                    salary_insights: z.string(),
+                    market_observations: z.string(),
+                }),
+            }),
         });
 
-        const user = await ctx.runQuery(api.users.getMe);
-        const thread = await agent.createThread(ctx, {
-            userId: user?._id,
-        });
-
-        const result = ""// TODO: extract the result from the agent
-
-        // For now, return the job results with mock ranking
-        // In a real implementation, the agent would process and rank these
-        const rankedJobs = args.jobResults.jobs.sort((a: JobResult, b: JobResult) => b.matchScore - a.matchScore);
+        // Merge AI rankings with original job data
+        const rankedJobsData = response.object.ranked_jobs;
+        const originalJobs = args.jobResults.jobs;
+        
+        const finalJobs = originalJobs.map((job: JobResult) => {
+            const ranking = rankedJobsData.find(r => r.id === job.id);
+            return {
+                ...job,
+                matchScore: ranking ? ranking.match_score * 100 : job.matchScore, // Convert to percentage
+                aiMatchReasons: ranking?.match_reasons || [],
+                aiConcerns: ranking?.concerns || [],
+                aiRecommendation: ranking?.recommendation || "consider",
+            };
+        }).sort((a: any, b: any) => b.matchScore - a.matchScore);
 
         return {
-            jobs: rankedJobs,
-            totalFound: rankedJobs.length,
-            insights: {
-                total_relevant: rankedJobs.length,
-                avg_match_score: 88,
-                top_skills_in_demand: ["React", "TypeScript", "Node.js"],
-                salary_insights: "Salaries range from 12,000 to 28,000 based on experience",
-                market_observations: "Strong demand for full-stack developers in the region",
-            },
+            jobs: finalJobs,
+            totalFound: finalJobs.length,
+            insights: response.object.insights,
             searchParams: {
                 optimized_keywords: args.searchParams?.optimized_keywords || [],
                 target_job_titles: args.searchParams?.target_job_titles || [],
