@@ -138,6 +138,11 @@
       "file_input_placeholder": "Drag PDF file here or click to select",
       "file_requirements": "PDF only, max 5MB",
       "scan_button": "Scan CV with AI",
+      "view_cv": "View CV",
+      "delete_cv": "Delete CV",
+      "start_job_search": "Start Job Search",
+      "cv_uploaded": "CV Uploaded Successfully",
+      "cv_uploaded_subtitle": "Your resume has been uploaded. You can now view it or start your job search.",
 
       "benefits": {
         "smart_analysis": {

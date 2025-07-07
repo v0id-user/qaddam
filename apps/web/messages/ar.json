@@ -138,6 +138,11 @@
       "file_input_placeholder": "اسحب ملف PDF هنا أو انقر للتحديد",
       "file_requirements": "PDF فقط، الحد الأقصى ٥ ميجابايت",
       "scan_button": "تحليل السيرة الذاتية بالذكاء الاصطناعي",
+      "view_cv": "عرض السيرة الذاتية",
+      "delete_cv": "حذف السيرة الذاتية",
+      "start_job_search": "بدء البحث عن الوظائف",
+      "cv_uploaded": "تم رفع السيرة الذاتية بنجاح",
+      "cv_uploaded_subtitle": "تم رفع سيرتك الذاتية. يمكنك الآن عرضها أو بدء البحث عن الوظائف.",
 
       "benefits": {
         "smart_analysis": {
