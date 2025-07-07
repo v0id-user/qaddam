@@ -203,6 +203,7 @@
         "contract": "Contract",
         "remote": "Remote"
       },
+      "salary_not_specified": "Salary not specified",
       "date_format": {
         "yesterday": "Yesterday",
         "days_ago": "{days} days ago",

@@ -3,10 +3,10 @@
 import { useTranslations } from 'next-intl';
 import { X, CheckCircle, AlertCircle, MapPin, DollarSign, Clock, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import type { Job } from './types';
+import type { JobResult } from './types';
 
 interface JobMatchInsightsProps {
-  job: Job;
+  job: JobResult;
   onClose: () => void;
 }
 
@@ -138,7 +138,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
                   {t('job_results.match_insights.salary_range')}
                 </h4>
               </div>
-              <p className="text-muted-foreground text-sm">{job.salary}</p>
+              <p className="text-muted-foreground text-sm">{job.salary || t('job_results.salary_not_specified')}</p>
             </div>
 
             {/* Location Match */}

@@ -4,10 +4,10 @@ import { useTranslations } from 'next-intl';
 import { MapPin, Clock, Briefcase, ExternalLink, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import type { Job } from './types';
+import type { JobResult } from './types';
 
 interface JobCardProps {
-  job: Job;
+  job: JobResult;
   onClick: () => void;
 }
 
@@ -101,7 +101,7 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
 
         <div className="flex items-center space-x-2 space-x-reverse">
           <Briefcase className="text-muted-foreground h-4 w-4" />
-          <span className="text-foreground font-medium">{job.salary}</span>
+          <span className="text-foreground font-medium">{job.salary || t('job_results.salary_not_specified')}</span>
         </div>
       </div>
 

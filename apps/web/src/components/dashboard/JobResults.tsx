@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Upload } from 'lucide-react';
 import JobCard from '@/components/dashboard/JobCard';
 import JobMatchInsights from '@/components/dashboard/JobMatchInsights';
-import type { Job } from './types';
+import type { JobResult } from './types';
 
 // Mock data for testing
-const mockJobs: Job[] = [
+const mockJobs: JobResult[] = [
   {
     id: '1',
     title: 'Senior Frontend Developer',
@@ -17,6 +17,8 @@ const mockJobs: Job[] = [
     location: 'Riyadh, Saudi Arabia',
     type: 'full_time',
     salary: '$60,000 - $80,000',
+    remote: true,
+    url: 'https://techcorp.com/jobs/senior-frontend-dev',
     matchScore: 92,
     description:
       'We are looking for a senior frontend developer to join our team and build amazing user interfaces.',
@@ -35,6 +37,8 @@ const mockJobs: Job[] = [
     location: 'Dubai, UAE',
     type: 'remote',
     salary: '$50,000 - $70,000',
+    remote: true,
+    url: 'https://startuphub.com/careers/fullstack-dev',
     matchScore: 85,
     description:
       'Join our innovative startup and work on cutting-edge projects with modern technologies.',
@@ -53,6 +57,8 @@ const mockJobs: Job[] = [
     location: 'Jeddah, Saudi Arabia',
     type: 'contract',
     salary: '$40,000 - $55,000',
+    remote: false,
+    url: 'https://designstudio.com/jobs/ux-designer',
     matchScore: 78,
     description: 'Create beautiful and intuitive user experiences for our digital products.',
     requirements: ['Figma', 'Adobe Creative Suite', 'User Research', 'Prototyping'],
@@ -70,6 +76,8 @@ const mockJobs: Job[] = [
     location: 'Cairo, Egypt',
     type: 'full_time',
     salary: '$45,000 - $65,000',
+    remote: true,
+    url: 'https://datatech.com/careers/backend-dev',
     matchScore: 73,
     description: 'Build scalable backend systems and APIs for our data-driven applications.',
     requirements: ['Python', 'Django', 'PostgreSQL', 'Redis'],
@@ -87,6 +95,8 @@ const mockJobs: Job[] = [
     location: 'Kuwait City, Kuwait',
     type: 'part_time',
     salary: '$30,000 - $45,000',
+    remote: true,
+    url: 'https://mobilefirst.com/jobs/mobile-dev',
     matchScore: 68,
     description: 'Develop cross-platform mobile applications using React Native.',
     requirements: ['React Native', 'JavaScript', 'iOS', 'Android'],
@@ -105,10 +115,10 @@ interface JobResultsProps {
 
 const JobResults = ({ onBackToUpload }: JobResultsProps) => {
   const t = useTranslations('dashboard');
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [selectedJob, setSelectedJob] = useState<JobResult | null>(null);
   const [isInsightsOpen, setIsInsightsOpen] = useState(false);
 
-  const handleJobClick = (job: Job) => {
+  const handleJobClick = (job: JobResult) => {
     setSelectedJob(job);
     setIsInsightsOpen(true);
   };

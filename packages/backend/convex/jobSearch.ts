@@ -5,35 +5,9 @@ import { v } from 'convex/values'
 import { Agent, createTool } from "@convex-dev/agent";
 import { openai } from "@ai-sdk/openai"
 import { z } from "zod";
+import { JobResult, JobSearchResults } from "./types/jobs";
 
 export const workflow = new WorkflowManager(components.workflow);
-
-// Shared types for job results
-export type JobResult = {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  description: string;
-  requirements: string[];
-  salary?: string;
-  type: "full-time" | "part-time" | "contract" | "internship";
-  remote: boolean;
-  url: string;
-  postedDate: string;
-  matchScore: number;
-};
-
-export type JobSearchResults = {
-  jobs: JobResult[];
-  totalFound: number;
-  searchParams: {
-    keywords: string[];
-    location: string;
-    jobType: string;
-    experienceLevel: string;
-  };
-};
 
 // Step 1: Parse CV and extract user profile
 export const aiParseCV = internalAction({
@@ -205,11 +179,16 @@ export const aiSearchJobs = internalAction({
                 description: "We are looking for a skilled Frontend Developer to join our team...",
                 requirements: ["React", "TypeScript", "CSS", "JavaScript"],
                 salary: "15000-25000 SAR",
-                type: "full-time",
+                type: "full_time",
                 remote: true,
                 url: "https://techcorp.com/jobs/frontend-dev",
                 postedDate: new Date().toISOString(),
-                matchScore: 0.95,
+                matchScore: 95,
+                benefits: ["Health Insurance", "Remote Work", "Professional Development"],
+                matchedSkills: ["React", "TypeScript", "JavaScript"],
+                missingSkills: ["Next.js", "TailwindCSS"],
+                experienceMatch: "Perfect match - 5+ years required",
+                locationMatch: "Same city preferred",
             },
             {
                 id: "job-2", 
@@ -219,11 +198,16 @@ export const aiSearchJobs = internalAction({
                 description: "Join our fast-growing startup as a Full Stack Engineer...",
                 requirements: ["Node.js", "React", "MongoDB", "AWS"],
                 salary: "12000-20000 AED",
-                type: "full-time",
+                type: "full_time",
                 remote: false,
                 url: "https://startupxyz.com/careers/fullstack",
                 postedDate: new Date().toISOString(),
-                matchScore: 0.87,
+                matchScore: 87,
+                benefits: ["Flexible Hours", "Stock Options", "Learning Budget"],
+                matchedSkills: ["Node.js", "React", "MongoDB"],
+                missingSkills: ["AWS", "GraphQL"],
+                experienceMatch: "Good match - 3+ years required",
+                locationMatch: "Different country - visa support available",
             },
             {
                 id: "job-3",
@@ -233,11 +217,16 @@ export const aiSearchJobs = internalAction({
                 description: "Looking for an experienced Backend Developer...",
                 requirements: ["Python", "Django", "PostgreSQL", "Docker"],
                 salary: "18000-28000 SAR",
-                type: "full-time",
+                type: "full_time",
                 remote: true,
                 url: "https://enterprise.com/jobs/backend",
                 postedDate: new Date().toISOString(),
-                matchScore: 0.82,
+                matchScore: 82,
+                benefits: ["Health Insurance", "Annual Bonus", "Training Programs"],
+                matchedSkills: ["Python", "PostgreSQL"],
+                missingSkills: ["Django", "Docker", "Redis"],
+                experienceMatch: "Good match - 3+ years required",
+                locationMatch: "Different city - relocation possible",
             }
         ];
 
@@ -332,12 +321,20 @@ export const aiCombineJobResults = internalAction({
             totalFound: rankedJobs.length,
             insights: {
                 total_relevant: rankedJobs.length,
-                avg_match_score: 0.88,
+                avg_match_score: 88,
                 top_skills_in_demand: ["React", "TypeScript", "Node.js"],
                 salary_insights: "Salaries range from 12,000 to 28,000 based on experience",
                 market_observations: "Strong demand for full-stack developers in the region",
             },
-            searchParams: args.searchParams,
+            searchParams: {
+                optimized_keywords: args.searchParams?.optimized_keywords || [],
+                target_job_titles: args.searchParams?.target_job_titles || [],
+                target_companies: args.searchParams?.target_companies || [],
+                salary_range: args.searchParams?.salary_range || { min: 0, max: 100000, currency: "USD" },
+                preferred_job_types: args.searchParams?.preferred_job_types || [],
+                locations: args.searchParams?.locations || [],
+                search_strategy: args.searchParams?.search_strategy || "Default search strategy",
+            },
         } as JobSearchResults;
     }
 });

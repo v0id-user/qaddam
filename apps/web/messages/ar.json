@@ -203,6 +203,7 @@
         "contract": "عقد",
         "remote": "عن بعد"
       },
+      "salary_not_specified": "الراتب غير محدد",
       "date_format": {
         "yesterday": "أمس",
         "days_ago": "منذ {days} أيام",

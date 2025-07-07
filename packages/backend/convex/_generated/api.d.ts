@@ -17,6 +17,7 @@ import type * as schemas_index from "../schemas/index.js";
 import type * as schemas_jobs from "../schemas/jobs.js";
 import type * as schemas_surveys from "../schemas/surveys.js";
 import type * as surveys from "../surveys.js";
+import type * as types_jobs from "../types/jobs.js";
 import type * as users from "../users.js";
 
 import type {
@@ -43,6 +44,7 @@ declare const fullApi: ApiFromModules<{
   "schemas/jobs": typeof schemas_jobs;
   "schemas/surveys": typeof schemas_surveys;
   surveys: typeof surveys;
+  "types/jobs": typeof types_jobs;
   users: typeof users;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
