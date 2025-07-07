@@ -239,6 +239,26 @@
       "skip": "Skip for now",
       "required": "Required",
       "optional": "Optional",
+      "selected_count": {
+        "titles": "Selected: {count} titles",
+        "skills": "Selected: {count}/8 skills",
+        "locations": "Selected: {count} locations"
+      },
+      "more_items": "+{count} more",
+      "toasts": {
+        "success": "Profile completed successfully! 🎉",
+        "error": "Failed to save profile. Please try again.",
+        "validation": {
+          "profession": "Please select your profession",
+          "experience": "Please select your experience level", 
+          "career_level": "Please select your career level",
+          "job_titles": "Please select at least one job title",
+          "skills": "Please select at least one skill",
+          "work_type": "Please select your preferred work type",
+          "locations": "Please select at least one location"
+        },
+        "skills_limit": "Maximum 8 skills selected!"
+      },
       "steps": {
         "profession": {
           "title": "What is your main field or profession?",
@@ -267,6 +287,7 @@
         },
         "job_titles": {
           "title": "What job titles are you interested in?",
+          "description": "Select all that interest you",
           "placeholder": "Add job titles...",
           "help": "Press Enter to add each title",
           "add_more": "Add another title"
@@ -303,11 +324,12 @@
           "add_more": "Add another location"
         },
         "skills": {
-          "title": "What are your top 5 skills or tools?",
+          "title": "What are your top skills or tools?",
+          "description": "Select your top skills (max 8)",
           "placeholder": "Add skills...",
           "help": "Press Enter to add each skill",
           "add_more": "Add another skill",
-          "limit": "Maximum 5 skills"
+          "limit": "Maximum 8 skills"
         },
         "languages": {
           "title": "What's your language proficiency?",
@@ -345,16 +367,18 @@
       "review": {
         "title": "Review Your Profile",
         "subtitle": "Please review your information before submitting",
-        "profession": "Profession",
-        "experience": "Experience",
-        "career_level": "Career Level",
-        "job_titles": "Job Titles",
-        "industries": "Industries",
-        "work_type": "Work Type",
-        "locations": "Locations",
-        "skills": "Skills",
-        "languages": "Languages",
-        "company_types": "Company Types",
+        "labels": {
+          "profession": "Profession",
+          "experience": "Experience",
+          "level": "Level",
+          "job_titles": "Job Titles",
+          "industries": "Industries",
+          "work_type": "Work Type",
+          "locations": "Locations",
+          "skills": "Skills",
+          "languages": "Languages",
+          "company_types": "Company Types"
+        },
         "submit": "Submit Profile",
         "edit_step": "Edit"
       },

@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { useLocale } from 'next-intl';
-
+import { toast } from 'react-hot-toast';
 interface SurveyData {
   profession: string;
   experience: string;
@@ -48,7 +48,7 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
     companyTypes: [],
   });
 
-  const totalSteps = 8; // Reduced from 11 to 8
+  const totalSteps = 8; 
 
   // Tech-focused options
   const techProfessions = [
@@ -192,8 +192,32 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
   //  const companyTypeOptions = ['Startup', 'SME', 'Enterprise', 'Any'];
 
   const handleNext = () => {
+    if (!canProceed(currentStep)) {
+      // Show validation toast based on current step
+      const validationMessages = {
+        0: 'toasts.validation.profession',
+        1: 'toasts.validation.experience', 
+        2: 'toasts.validation.career_level',
+        3: 'toasts.validation.job_titles',
+        4: 'toasts.validation.skills',
+        5: 'toasts.validation.work_type',
+        6: 'toasts.validation.locations'
+      };
+      
+      const messageKey = validationMessages[currentStep as keyof typeof validationMessages];
+      if (messageKey) {
+        toast.error(t(messageKey));
+      }
+      return;
+    }
+    
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
+      
+      // Show milestone toast when reaching review step
+      if (currentStep + 1 === totalSteps - 1) {
+        toast.success('🎯 ' + (locale === 'ar' ? 'ممتاز! خطوة أخيرة للانتهاء' : 'Great! One final step to finish'));
+      }
     }
   };
 
@@ -231,12 +255,14 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
       const result = await saveSurvey(finalSurveyData);
       console.log('✅ Backend response:', result);
 
+      // Show success toast
+      toast.success(t('toasts.success'));
+      
       onComplete();
     } catch (error) {
       console.error('❌ Error saving survey:', error);
-      // You could add toast notification here for user feedback
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
-      alert(`Failed to save survey: ${errorMessage}`);
+      // Show error toast
+      toast.error(t('toasts.error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -250,6 +276,12 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
         [field]: currentValues.filter(item => item !== value),
       }));
     } else {
+      // Check skills limit
+      if (field === 'skills' && currentValues.length >= 8) {
+        toast.error(t('toasts.skills_limit'));
+        return;
+      }
+      
       setSurveyData(prev => ({
         ...prev,
         [field]: [...currentValues, value],
@@ -341,7 +373,7 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
         return (
           <div className="space-y-4">
             <Label className="text-lg font-semibold">{t('steps.job_titles.title')}</Label>
-            <p className="text-muted-foreground text-sm">Select all that interest you</p>
+            <p className="text-muted-foreground text-sm">{t('steps.job_titles.description')}</p>
             <div className="grid max-h-64 grid-cols-2 gap-2 overflow-y-auto">
               {techJobTitles.map(title => (
                 <Button
@@ -356,7 +388,7 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
               ))}
             </div>
             <div className="text-muted-foreground text-sm">
-              Selected: {surveyData.jobTitles.length} titles
+              {t('selected_count.titles', { count: surveyData.jobTitles.length })}
             </div>
           </div>
         );
@@ -365,7 +397,7 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
         return (
           <div className="space-y-4">
             <Label className="text-lg font-semibold">{t('steps.skills.title')}</Label>
-            <p className="text-muted-foreground text-sm">Select your top skills (max 8)</p>
+            <p className="text-muted-foreground text-sm">{t('steps.skills.description')}</p>
             <div className="grid max-h-64 grid-cols-3 gap-2 overflow-y-auto">
               {techSkills.map(skill => (
                 <Button
@@ -381,7 +413,7 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
               ))}
             </div>
             <div className="text-muted-foreground text-sm">
-              Selected: {surveyData.skills.length}/8 skills
+              {t('selected_count.skills', { count: surveyData.skills.length })}
             </div>
           </div>
         );
@@ -424,7 +456,7 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
               ))}
             </div>
             <div className="text-muted-foreground text-sm">
-              Selected: {surveyData.locations.length} locations
+              {t('selected_count.locations', { count: surveyData.locations.length })}
             </div>
           </div>
         );
@@ -435,18 +467,18 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <Label className="text-primary text-sm font-medium">Profession</Label>
+                  <Label className="text-primary text-sm font-medium">{t('review.labels.profession')}</Label>
                   <p className="bg-secondary rounded p-2 text-sm">{surveyData.profession}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-primary text-sm font-medium">Experience</Label>
+                    <Label className="text-primary text-sm font-medium">{t('review.labels.experience')}</Label>
                     <p className="bg-secondary rounded p-2 text-sm">
                       {t(`steps.experience.options.${surveyData.experience}`)}
                     </p>
                   </div>
                   <div>
-                    <Label className="text-primary text-sm font-medium">Level</Label>
+                    <Label className="text-primary text-sm font-medium">{t('review.labels.level')}</Label>
                     <p className="bg-secondary rounded p-2 text-sm">
                       {t(`steps.career_level.options.${surveyData.careerLevel}`)}
                     </p>
@@ -454,7 +486,7 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
                 </div>
                 <div>
                   <Label className="text-primary text-sm font-medium">
-                    Job Titles ({surveyData.jobTitles.length})
+                    {t('review.labels.job_titles')} ({surveyData.jobTitles.length})
                   </Label>
                   <div className="mt-1 flex flex-wrap gap-1">
                     {surveyData.jobTitles.slice(0, 5).map((title, index) => (
@@ -467,14 +499,14 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
                     ))}
                     {surveyData.jobTitles.length > 5 && (
                       <span className="bg-muted text-muted-foreground rounded px-2 py-1 text-xs">
-                        +{surveyData.jobTitles.length - 5} more
+                        {t('more_items', { count: surveyData.jobTitles.length - 5 })}
                       </span>
                     )}
                   </div>
                 </div>
                 <div>
                   <Label className="text-primary text-sm font-medium">
-                    Skills ({surveyData.skills.length})
+                    {t('review.labels.skills')} ({surveyData.skills.length})
                   </Label>
                   <div className="mt-1 flex flex-wrap gap-1">
                     {surveyData.skills.slice(0, 8).map((skill, index) => (
@@ -489,14 +521,14 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-primary text-sm font-medium">Work Type</Label>
+                    <Label className="text-primary text-sm font-medium">{t('review.labels.work_type')}</Label>
                     <p className="bg-secondary rounded p-2 text-sm">
                       {t(`steps.work_type.options.${surveyData.workType}`)}
                     </p>
                   </div>
                   <div>
                     <Label className="text-primary text-sm font-medium">
-                      Locations ({surveyData.locations.length})
+                      {t('review.labels.locations')} ({surveyData.locations.length})
                     </Label>
                     <div className="mt-1 flex flex-wrap gap-1">
                       {surveyData.locations.slice(0, 3).map((location, index) => (
@@ -509,7 +541,7 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
                       ))}
                       {surveyData.locations.length > 3 && (
                         <span className="bg-muted text-muted-foreground rounded px-2 py-1 text-xs">
-                          +{surveyData.locations.length - 3} more
+                          {t('more_items', { count: surveyData.locations.length - 3 })}
                         </span>
                       )}
                     </div>

@@ -81,9 +81,8 @@ export default function DashboardPage() {
     return <JobResults onBackToUpload={handleBackToUpload} />;
   }
 
-  // Default: Upload stage
   return (
-    <div className="from-accent/30 via-background to-secondary/20 min-h-screen bg-gradient-to-br px-6 py-24">
+    <div className="min-h-screen px-6 py-24">
       <div className="mx-auto max-w-5xl">
         {/* Header */}
         <div className="mb-20 text-center">
