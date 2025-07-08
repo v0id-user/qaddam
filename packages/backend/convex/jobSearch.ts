@@ -6,6 +6,8 @@ import { openai } from "@ai-sdk/openai"
 import { z } from "zod";
 import type { JobResult, JobSearchResults } from "./types/jobs";
 import { generateObject } from 'ai';
+import JobSearch from "./driver/jobs/driver";
+import { GoogleJobsActor } from "./driver/jobs/actors";
 
 export const workflow = new WorkflowManager(components.workflow);
 
@@ -93,6 +95,18 @@ export const aiTuneJobSearch = internalAction({
         userId: v.optional(v.id("users")),
     },
     handler: async (ctx, args): Promise<any> => {
+
+        const jobSearch = new JobSearch(GoogleJobsActor);
+        const searchRun = await jobSearch.search({
+            queries: "software engineer",
+            maxPagesPerQuery: 1,
+            csvFriendlyOutput: false,
+            languageCode: "en"
+        });
+        const results = await jobSearch.getResults(searchRun);
+
+        console.log(results);
+
         const response = await generateObject({
             model: openai.chat("gpt-4o-mini", {
                 structuredOutputs: true,

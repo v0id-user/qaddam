@@ -2,9 +2,9 @@ import { ApifyDriver } from "@/driver/apify";
 import { Actor } from "@/driver/apify/actors";
 import { ActorRun } from 'apify-client';
 import { JobSource } from "../types/job-source";
+import { JobSearchInput, JobSearchActor } from "../driver";
 
-export interface GoogleJobsInput {
-    queries: string;
+export interface GoogleJobsInput extends JobSearchInput {
     maxPagesPerQuery?: number;
     csvFriendlyOutput?: boolean;
     languageCode?: string;
@@ -65,7 +65,7 @@ export interface GoogleJobsResult {
     pageNumber: number;
 }
 
-export class GoogleJobsActor extends Actor {
+export class GoogleJobsActor extends Actor implements JobSearchActor<GoogleJobsInput, GoogleJobsResult> {
     private static readonly ACTOR_ID: string = 'SpK8RxKhIgV6BWOz9';
     
     constructor(apifyDriver: ApifyDriver) {
