@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
@@ -30,7 +30,7 @@ const Hero = () => {
         <div className="flex flex-col items-center space-y-6">
           <Button
             onClick={() => {
-              router.push('/sign')
+              router.push('/sign');
             }}
             size="lg"
             className="bg-primary text-primary-foreground rounded-xl border-none px-8 py-4 text-lg font-semibold shadow-lg transition-all duration-200 hover:shadow-xl"

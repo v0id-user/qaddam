@@ -5,21 +5,34 @@ import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useMutation, useQuery } from 'convex/react';
 import { Button } from '@/components/ui/button';
-import { Upload, FileText, X, AlertCircle, Brain, Target, Settings, Eye, Trash2, Search } from 'lucide-react';
+import {
+  Upload,
+  FileText,
+  X,
+  AlertCircle,
+  Brain,
+  Target,
+  Settings,
+  Eye,
+  Trash2,
+  Search,
+} from 'lucide-react';
 import WorkflowSteps from '@/components/dashboard/WorkflowSteps';
 import JobResults from '@/components/dashboard/JobResults';
 import type { DashboardStage } from '@/components/dashboard/types';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import type { Id } from '@qaddam/backend/convex/_generated/dataModel';
 
-type UploadStage = 'upload' | 'uploaded' | 'workflow' | 'results';
-
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
-  const [currentStage, setCurrentStage] = useState<UploadStage>('upload');
+  const [currentStage, setCurrentStage] = useState<DashboardStage>('upload');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadedCVId, setUploadedCVId] = useState<Id<"_storage"> | null>(null);
-  const [cvData, setCvData] = useState<{cvId: string, fileHash: string, isDuplicate: boolean} | null>(null);
+  const [uploadedCVId, setUploadedCVId] = useState<Id<'_storage'> | null>(null);
+  const [cvData, setCvData] = useState<{
+    cvId: string;
+    fileHash: string;
+    isDuplicate: boolean;
+  } | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -35,7 +48,7 @@ export default function DashboardPage() {
     maxFiles: 1,
     maxSize: 5 * 1024 * 1024, // 5MB
     multiple: false,
-    onDrop: async (acceptedFiles) => {
+    onDrop: async acceptedFiles => {
       setUploadError(null);
       if (acceptedFiles.length > 0) {
         const file = acceptedFiles[0];
@@ -66,14 +79,14 @@ export default function DashboardPage() {
 
   const handleUploadCV = async (file: File) => {
     if (!me) return;
-    
+
     setIsUploading(true);
     setUploadError(null);
 
     try {
       // Generate upload URL
       const uploadUrl = await generateUploadUrl();
-      
+
       // Upload file to Convex storage
       const result = await fetch(uploadUrl, {
         method: 'POST',
@@ -82,16 +95,15 @@ export default function DashboardPage() {
       });
 
       const { storageId } = await result.json();
-      
+
       // Save CV with validation
-      const cvResult = await saveCV({ 
-        storageId: storageId as Id<"_storage">
+      const cvResult = await saveCV({
+        storageId: storageId as Id<'_storage'>,
       });
-      
+
       setUploadedCVId(storageId);
       setCvData(cvResult);
       setCurrentStage('uploaded');
-      
     } catch (error) {
       console.error('Upload error:', error);
       setUploadError(error instanceof Error ? error.message : t('cv_upload.errors.upload_failed'));
@@ -112,7 +124,7 @@ export default function DashboardPage() {
     if (cvData?.cvId) {
       try {
         // Get secure download URL
-        const cvUrl = await getCVDownloadUrl({ cvId: cvData.cvId as Id<"cvUploads"> });
+        const cvUrl = await getCVDownloadUrl({ cvId: cvData.cvId as Id<'cvUploads'> });
         if (cvUrl) {
           window.open(cvUrl, '_blank');
         }
@@ -159,7 +171,9 @@ export default function DashboardPage() {
             {currentStage === 'uploaded' ? t('cv_upload.cv_uploaded') : t('cv_upload.title')}
           </h1>
           <p className="text-muted-foreground text-xl leading-relaxed">
-            {currentStage === 'uploaded' ? t('cv_upload.cv_uploaded_subtitle') : t('cv_upload.subtitle')}
+            {currentStage === 'uploaded'
+              ? t('cv_upload.cv_uploaded_subtitle')
+              : t('cv_upload.subtitle')}
           </p>
         </div>
 
@@ -167,12 +181,11 @@ export default function DashboardPage() {
         <div className="mb-16">
           <div className="bg-card ring-accent/50 hover:ring-accent/70 rounded-3xl p-10 shadow-lg ring-1 transition-all duration-300 hover:shadow-xl">
             <div className="text-center">
-              
               {currentStage === 'uploaded' && selectedFile ? (
                 /* CV Uploaded State */
                 <div className="space-y-8">
                   {/* Uploaded File Display */}
-                  <div className="bg-card ring-primary/60 flex w-full max-w-md mx-auto items-center space-x-6 space-x-reverse rounded-2xl p-8 shadow-lg ring-1">
+                  <div className="bg-card ring-primary/60 mx-auto flex w-full max-w-md items-center space-x-6 space-x-reverse rounded-2xl p-8 shadow-lg ring-1">
                     <div className="bg-primary/10 rounded-full p-4">
                       <FileText className="text-primary h-10 w-10" />
                     </div>
@@ -187,7 +200,7 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                  <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                     <Button
                       onClick={handleViewCV}
                       variant="outline"
@@ -197,12 +210,12 @@ export default function DashboardPage() {
                       <Eye className="mr-2 h-5 w-5" />
                       {t('cv_upload.view_cv')}
                     </Button>
-                    
+
                     <Button
                       onClick={handleDeleteFile}
                       variant="outline"
                       size="lg"
-                      className="rounded-2xl px-8 py-6 text-lg font-semibold shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg border-destructive/20 text-destructive hover:bg-destructive/10"
+                      className="border-destructive/20 text-destructive hover:bg-destructive/10 rounded-2xl px-8 py-6 text-lg font-semibold shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg"
                     >
                       <Trash2 className="mr-2 h-5 w-5" />
                       {t('cv_upload.delete_cv')}
@@ -240,12 +253,10 @@ export default function DashboardPage() {
                       {isUploading ? (
                         <div className="space-y-4">
                           <div className="bg-accent rounded-full p-6">
-                            <div className="h-14 w-14 animate-spin rounded-full border-t-2 border-b-2 border-primary"></div>
+                            <div className="border-primary h-14 w-14 animate-spin rounded-full border-t-2 border-b-2"></div>
                           </div>
                           <div className="space-y-2">
-                            <p className="text-foreground text-xl font-semibold">
-                              Uploading CV...
-                            </p>
+                            <p className="text-foreground text-xl font-semibold">Uploading CV...</p>
                             <p className="text-muted-foreground text-base">
                               Please wait while we upload your resume
                             </p>

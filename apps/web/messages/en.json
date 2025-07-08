@@ -256,7 +256,7 @@
         "error": "Failed to save profile. Please try again.",
         "validation": {
           "profession": "Please select your profession",
-          "experience": "Please select your experience level", 
+          "experience": "Please select your experience level",
           "career_level": "Please select your career level",
           "job_titles": "Please select at least one job title",
           "skills": "Please select at least one skill",

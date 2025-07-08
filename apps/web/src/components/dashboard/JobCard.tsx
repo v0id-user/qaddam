@@ -101,7 +101,9 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
 
         <div className="flex items-center space-x-2 space-x-reverse">
           <Briefcase className="text-muted-foreground h-4 w-4" />
-          <span className="text-foreground font-medium">{job.salary || t('job_results.salary_not_specified')}</span>
+          <span className="text-foreground font-medium">
+            {job.salary || t('job_results.salary_not_specified')}
+          </span>
         </div>
       </div>
 

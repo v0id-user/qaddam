@@ -48,7 +48,7 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
     companyTypes: [],
   });
 
-  const totalSteps = 8; 
+  const totalSteps = 8;
 
   // Tech-focused options
   const techProfessions = [
@@ -196,27 +196,30 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
       // Show validation toast based on current step
       const validationMessages = {
         0: 'toasts.validation.profession',
-        1: 'toasts.validation.experience', 
+        1: 'toasts.validation.experience',
         2: 'toasts.validation.career_level',
         3: 'toasts.validation.job_titles',
         4: 'toasts.validation.skills',
         5: 'toasts.validation.work_type',
-        6: 'toasts.validation.locations'
+        6: 'toasts.validation.locations',
       };
-      
+
       const messageKey = validationMessages[currentStep as keyof typeof validationMessages];
       if (messageKey) {
         toast.error(t(messageKey));
       }
       return;
     }
-    
+
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
-      
+
       // Show milestone toast when reaching review step
       if (currentStep + 1 === totalSteps - 1) {
-        toast.success('🎯 ' + (locale === 'ar' ? 'ممتاز! خطوة أخيرة للانتهاء' : 'Great! One final step to finish'));
+        toast.success(
+          '🎯 ' +
+            (locale === 'ar' ? 'ممتاز! خطوة أخيرة للانتهاء' : 'Great! One final step to finish')
+        );
       }
     }
   };
@@ -257,7 +260,7 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
 
       // Show success toast
       toast.success(t('toasts.success'));
-      
+
       onComplete();
     } catch (error) {
       console.error('❌ Error saving survey:', error);
@@ -281,7 +284,7 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
         toast.error(t('toasts.skills_limit'));
         return;
       }
-      
+
       setSurveyData(prev => ({
         ...prev,
         [field]: [...currentValues, value],
@@ -467,18 +470,24 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <Label className="text-primary text-sm font-medium">{t('review.labels.profession')}</Label>
+                  <Label className="text-primary text-sm font-medium">
+                    {t('review.labels.profession')}
+                  </Label>
                   <p className="bg-secondary rounded p-2 text-sm">{surveyData.profession}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-primary text-sm font-medium">{t('review.labels.experience')}</Label>
+                    <Label className="text-primary text-sm font-medium">
+                      {t('review.labels.experience')}
+                    </Label>
                     <p className="bg-secondary rounded p-2 text-sm">
                       {t(`steps.experience.options.${surveyData.experience}`)}
                     </p>
                   </div>
                   <div>
-                    <Label className="text-primary text-sm font-medium">{t('review.labels.level')}</Label>
+                    <Label className="text-primary text-sm font-medium">
+                      {t('review.labels.level')}
+                    </Label>
                     <p className="bg-secondary rounded p-2 text-sm">
                       {t(`steps.career_level.options.${surveyData.careerLevel}`)}
                     </p>
@@ -521,7 +530,9 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-primary text-sm font-medium">{t('review.labels.work_type')}</Label>
+                    <Label className="text-primary text-sm font-medium">
+                      {t('review.labels.work_type')}
+                    </Label>
                     <p className="bg-secondary rounded p-2 text-sm">
                       {t(`steps.work_type.options.${surveyData.workType}`)}
                     </p>

@@ -138,7 +138,9 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
                   {t('job_results.match_insights.salary_range')}
                 </h4>
               </div>
-              <p className="text-muted-foreground text-sm">{job.salary || t('job_results.salary_not_specified')}</p>
+              <p className="text-muted-foreground text-sm">
+                {job.salary || t('job_results.salary_not_specified')}
+              </p>
             </div>
 
             {/* Location Match */}
