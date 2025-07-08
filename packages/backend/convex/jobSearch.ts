@@ -6,8 +6,9 @@ import { openai } from "@ai-sdk/openai"
 import { z } from "zod";
 import type { JobResult, JobSearchResults } from "./types/jobs";
 import { generateObject } from 'ai';
-import JobSearch from "./driver/jobs/driver";
+import JobSearchEngine from "./driver/jobs/driver";
 import { GoogleJobsActor } from "./driver/jobs/actors";
+import { objectToXml } from "./utils/xml";
 
 export const workflow = new WorkflowManager(components.workflow);
 
@@ -91,12 +92,12 @@ export const aiParseCV = internalAction({
 // Step 2: Job search tuning based on user preferences and CV
 export const aiTuneJobSearch = internalAction({
     args: {
-        cvProfile: v.any(), // Profile from step 1
+        cvProfile: v.string(), // Profile from step 1
         userId: v.optional(v.id("users")),
     },
     handler: async (ctx, args): Promise<any> => {
 
-        const jobSearch = new JobSearch(GoogleJobsActor);
+        const jobSearch = new JobSearchEngine(GoogleJobsActor);
         const searchRun = await jobSearch.search({
             queries: "software engineer",
             maxPagesPerQuery: 1,
@@ -105,7 +106,8 @@ export const aiTuneJobSearch = internalAction({
         });
         const results = await jobSearch.getResults(searchRun);
 
-        console.log(results);
+        // Convert results to XML string
+        const xmlResults = objectToXml(results);
 
         const response = await generateObject({
             model: openai.chat("gpt-4o-mini", {
@@ -113,7 +115,17 @@ export const aiTuneJobSearch = internalAction({
             }),
             schemaName: "Job Search Optimization Parameters",
             prompt: `
-<agent>
+Based on the following CV profile, generate optimized job search parameters:
+${args.cvProfile}
+
+Current Job Search Results:
+${xmlResults}
+            `.trim(),
+            messages: [
+                {
+                    'role': 'system',
+                    'content': `
+                    <agent>
   <name>JobSearchTuningAgent</name>
   <description>
     An AI agent that optimizes job search parameters based on user profile and market conditions.
@@ -139,10 +151,9 @@ export const aiTuneJobSearch = internalAction({
     <rule>Gracefully handle edge cases like missing language tags, mixed inputs, or contradictory answers.</rule>
   </rules>
 </agent>
-
-Based on the following CV profile, generate optimized job search parameters:
-${JSON.stringify(args.cvProfile, null, 2)}
-            `.trim(),
+                    `
+                },
+            ],
             schema: z.object({
                 optimized_keywords: z.array(z.string()).describe("Enhanced search keywords"),
                 target_job_titles: z.array(z.string()).describe("Specific job titles to search for"),

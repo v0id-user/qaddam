@@ -36,7 +36,7 @@ export interface JobSearchActorConstructor<TActor extends JobSearchActor<unknown
 /**
  * Main job search class that manages actor initialization and execution
  */
-export default class JobSearch<TActor extends JobSearchActor<unknown, unknown>> {
+export default class JobSearchEngine<TActor extends JobSearchActor<unknown, unknown>> {
     private actor: TActor | null = null;
     
     constructor(private readonly ActorClass: JobSearchActorConstructor<TActor>) {}
