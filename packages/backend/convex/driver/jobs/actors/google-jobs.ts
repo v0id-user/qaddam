@@ -1,6 +1,7 @@
 import { ApifyDriver } from "@/driver/apify";
 import { Actor } from "@/driver/apify/actors";
 import { ActorRun } from 'apify-client';
+import { JobSource } from "../types/job-source";
 
 export interface GoogleJobsInput {
     queries: string;
@@ -92,5 +93,12 @@ export class GoogleJobsActor extends Actor {
     async searchAndGetResults(input: GoogleJobsInput): Promise<GoogleJobsResult[]> {
         const run = await this.search(input);
         return await this.getResults(run);
+    }
+
+    getJobSource(): JobSource {
+        return {
+            source: 'google',
+            searchUrl: 'https://www.google.com/search?q={query}&ibp=htl;jobs'
+        };
     }
 }
