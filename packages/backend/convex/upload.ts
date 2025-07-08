@@ -129,7 +129,7 @@ export const deleteCV = mutation({
       // Delete the actual file from storage
       await ctx.storage.delete(cv.storageId);
       
-      // Remove the database record
+      // Remove the database record from cvUploads table
       await ctx.db.delete(args.cvId);
 
       return true;
