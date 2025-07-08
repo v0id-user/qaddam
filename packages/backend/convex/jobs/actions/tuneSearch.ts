@@ -1,14 +1,15 @@
 "use node";
 
-import { internalAction } from "../_generated/server";
+import { internalAction } from "@/_generated/server";
 import { v } from "convex/values";
-import JobSearchEngine from "../driver/jobs/driver";
-import { GoogleJobsActor } from "../driver/jobs/actors";
+import JobSearchEngine from "@/driver/jobs/driver";
+import { GoogleJobsActor } from "@/driver/jobs/actors";
 import { XMLBuilder } from "fast-xml-parser";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 
+// Step 2: Job search tuning based on user preferences and CV
 export const aiTuneJobSearch = internalAction({
 	args: {
 		cvProfile: v.string(), // Profile from step 1
@@ -43,7 +44,7 @@ ${xmlResults}
 				{
 					role: "system",
 					content: `
-                    <agent>
+<agent>
   <name>JobSearchTuningAgent</name>
   <description>
     An AI agent that optimizes job search parameters based on user profile and market conditions.
@@ -101,4 +102,4 @@ ${xmlResults}
 
 		return response.object;
 	},
-});
+}); 
