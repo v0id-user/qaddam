@@ -3,7 +3,6 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { events } from '@/events';
 
 const Hero = () => {
   const t = useTranslations('landing');

@@ -16,6 +16,7 @@ import type * as schemas_auth from "../schemas/auth.js";
 import type * as schemas_index from "../schemas/index.js";
 import type * as schemas_jobs from "../schemas/jobs.js";
 import type * as schemas_surveys from "../schemas/surveys.js";
+import type * as schemas_uploads from "../schemas/uploads.js";
 import type * as surveys from "../surveys.js";
 import type * as types_jobs from "../types/jobs.js";
 import type * as upload from "../upload.js";
@@ -44,6 +45,7 @@ declare const fullApi: ApiFromModules<{
   "schemas/index": typeof schemas_index;
   "schemas/jobs": typeof schemas_jobs;
   "schemas/surveys": typeof schemas_surveys;
+  "schemas/uploads": typeof schemas_uploads;
   surveys: typeof surveys;
   "types/jobs": typeof types_jobs;
   upload: typeof upload;

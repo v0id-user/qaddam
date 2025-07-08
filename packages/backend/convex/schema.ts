@@ -2,6 +2,7 @@ import { defineSchema } from "convex/server";
 import { authSchemas } from "./schemas/auth";
 import { surveySchemas } from "./schemas/surveys";
 import { jobSchemas } from "./schemas/jobs";
+import { uploadSchemas } from "./schemas/uploads";
 
 export default defineSchema({
   // Authentication tables
@@ -12,4 +13,7 @@ export default defineSchema({
   
   // Job-related tables
   ...jobSchemas,
+  
+  // Upload-related tables
+  ...uploadSchemas,
 });

@@ -19,11 +19,13 @@ export default function DashboardPage() {
   const [currentStage, setCurrentStage] = useState<UploadStage>('upload');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadedCVId, setUploadedCVId] = useState<Id<"_storage"> | null>(null);
+  const [cvData, setCvData] = useState<{cvId: string, fileHash: string, isDuplicate: boolean} | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const generateUploadUrl = useMutation(api.upload.generateUploadUrl);
   const saveCV = useMutation(api.upload.saveCV);
+  const getCVDownloadUrl = useMutation(api.upload.getCVDownloadUrl);
   const me = useQuery(api.users.getMe);
 
   const { getRootProps, getInputProps, isDragActive, isDragAccept } = useDropzone({
@@ -82,12 +84,12 @@ export default function DashboardPage() {
       const { storageId } = await result.json();
       
       // Save CV with validation
-      await saveCV({ 
-        storageId: storageId as Id<"_storage">, 
-        userId: me._id 
+      const cvResult = await saveCV({ 
+        storageId: storageId as Id<"_storage">
       });
       
       setUploadedCVId(storageId);
+      setCvData(cvResult);
       setCurrentStage('uploaded');
       
     } catch (error) {
@@ -101,15 +103,23 @@ export default function DashboardPage() {
   const handleDeleteFile = () => {
     setSelectedFile(null);
     setUploadedCVId(null);
+    setCvData(null);
     setUploadError(null);
     setCurrentStage('upload');
   };
 
-  const handleViewCV = () => {
-    if (uploadedCVId) {
-      // Open CV in new tab
-      const cvUrl = `${process.env.NEXT_PUBLIC_CONVEX_URL}/api/storage/${uploadedCVId}`;
-      window.open(cvUrl, '_blank');
+  const handleViewCV = async () => {
+    if (cvData?.cvId) {
+      try {
+        // Get secure download URL
+        const cvUrl = await getCVDownloadUrl({ cvId: cvData.cvId as Id<"cvUploads"> });
+        if (cvUrl) {
+          window.open(cvUrl, '_blank');
+        }
+      } catch (error) {
+        console.error('Error getting CV download URL:', error);
+        setUploadError('Failed to open CV');
+      }
     }
   };
 
@@ -127,6 +137,7 @@ export default function DashboardPage() {
     setCurrentStage('upload');
     setSelectedFile(null);
     setUploadedCVId(null);
+    setCvData(null);
     setUploadError(null);
   };
 
