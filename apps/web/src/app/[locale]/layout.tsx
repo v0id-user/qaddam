@@ -5,6 +5,8 @@ import { ConvexAuthNextjsServerProvider } from '@convex-dev/auth/nextjs/server';
 import { NextIntlClientProvider } from 'next-intl';
 import Providers from '@/components/providers';
 import { Toaster } from 'react-hot-toast';
+import {getTranslations} from 'next-intl/server';
+
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
@@ -20,10 +22,19 @@ const arabicFont = IBM_Plex_Sans_Arabic({
   subsets: ['arabic'],
 });
 
-export const metadata: Metadata = {
-  title: 'qaddam',
-  description: 'qaddam',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale });
+
+  return {
+    title: t('metadata.title'),
+    description: t('metadata.description'),
+  };
+}
 
 export default async function RootLayout({
   children,

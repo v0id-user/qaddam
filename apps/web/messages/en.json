@@ -1,4 +1,8 @@
 {
+  "metadata": {
+    "title": "Qaddam - AI-Powered Job Search & Resume Matching",
+    "description": "AI-native job search platform that matches your resume with the best opportunities and automatically optimizes your CV. Find your perfect job with intelligent matching technology."
+  },
   "landing": {
     "hero": {
       "title": "Submit your resume.",
