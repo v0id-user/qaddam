@@ -19,6 +19,10 @@ export class Actor {
         return this.actorClient;
     }
 
+    protected getClient(): any {
+        return this.apifyDriver.getClient();
+    }
+
     async call(input?: any, options?: any) {
         return await this.actorClient.call(input, options);
     }
