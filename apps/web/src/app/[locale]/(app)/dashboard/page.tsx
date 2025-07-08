@@ -5,23 +5,13 @@ import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useMutation, useQuery } from 'convex/react';
 import { Button } from '@/components/ui/button';
-import {
-  Upload,
-  FileText,
-  X,
-  Brain,
-  Target,
-  Settings,
-  Eye,
-  Trash2,
-  Search,
-} from 'lucide-react';
+import { Upload, FileText, X, Brain, Target, Settings, Eye, Trash2, Search } from 'lucide-react';
 import WorkflowSteps from '@/components/dashboard/WorkflowSteps';
 import JobResults from '@/components/dashboard/JobResults';
 import type { DashboardStage } from '@/components/dashboard/types';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import type { Id } from '@qaddam/backend/convex/_generated/dataModel';
-import { toast } from 'react-hot-toast'
+import { toast } from 'react-hot-toast';
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
@@ -123,7 +113,7 @@ export default function DashboardPage() {
     try {
       // Delete CV from backend (this will delete both the file and database record)
       await deleteCV({ cvId: cvData.cvId as Id<'cvUploads'> });
-      
+
       // Clear local state after successful deletion
       setSelectedFile(null);
       setUploadedCVId(null);
@@ -271,7 +261,9 @@ export default function DashboardPage() {
                             <div className="border-primary h-14 w-14 animate-spin rounded-full border-t-2 border-b-2"></div>
                           </div>
                           <div className="space-y-2">
-                            <p className="text-foreground text-xl font-semibold">{t('cv_upload.uploading.title')}</p>
+                            <p className="text-foreground text-xl font-semibold">
+                              {t('cv_upload.uploading.title')}
+                            </p>
                             <p className="text-muted-foreground text-base">
                               {t('cv_upload.uploading.subtitle')}
                             </p>
@@ -318,8 +310,6 @@ export default function DashboardPage() {
                       )}
                     </div>
                   </div>
-
-
                 </>
               )}
             </div>
