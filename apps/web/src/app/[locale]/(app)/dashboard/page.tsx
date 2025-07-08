@@ -9,7 +9,6 @@ import {
   Upload,
   FileText,
   X,
-  AlertCircle,
   Brain,
   Target,
   Settings,
@@ -22,6 +21,7 @@ import JobResults from '@/components/dashboard/JobResults';
 import type { DashboardStage } from '@/components/dashboard/types';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import type { Id } from '@qaddam/backend/convex/_generated/dataModel';
+import { toast } from 'react-hot-toast'
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
@@ -30,15 +30,14 @@ export default function DashboardPage() {
   const [uploadedCVId, setUploadedCVId] = useState<Id<'_storage'> | null>(null);
   const [cvData, setCvData] = useState<{
     cvId: string;
-    fileHash: string;
-    isDuplicate: boolean;
+    storageId: string;
   } | null>(null);
-  const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const generateUploadUrl = useMutation(api.upload.generateUploadUrl);
   const saveCV = useMutation(api.upload.saveCV);
   const getCVDownloadUrl = useMutation(api.upload.getCVDownloadUrl);
+  const deleteCV = useMutation(api.upload.deleteCV);
   const me = useQuery(api.users.getMe);
 
   const { getRootProps, getInputProps, isDragActive, isDragAccept } = useDropzone({
@@ -49,7 +48,6 @@ export default function DashboardPage() {
     maxSize: 5 * 1024 * 1024, // 5MB
     multiple: false,
     onDrop: async acceptedFiles => {
-      setUploadError(null);
       if (acceptedFiles.length > 0) {
         const file = acceptedFiles[0];
         setSelectedFile(file);
@@ -72,7 +70,7 @@ export default function DashboardPage() {
               return error.message;
           }
         });
-        setUploadError(errors.join(', '));
+        toast.error(errors.join(', '));
       }
     },
   });
@@ -81,7 +79,6 @@ export default function DashboardPage() {
     if (!me) return;
 
     setIsUploading(true);
-    setUploadError(null);
 
     try {
       // Generate upload URL
@@ -104,20 +101,39 @@ export default function DashboardPage() {
       setUploadedCVId(storageId);
       setCvData(cvResult);
       setCurrentStage('uploaded');
+      toast.success(t('cv_upload.success.cv_uploaded'));
     } catch (error) {
       console.error('Upload error:', error);
-      setUploadError(error instanceof Error ? error.message : t('cv_upload.errors.upload_failed'));
+      toast.error(error instanceof Error ? error.message : t('cv_upload.errors.upload_failed'));
     } finally {
       setIsUploading(false);
     }
   };
 
-  const handleDeleteFile = () => {
-    setSelectedFile(null);
-    setUploadedCVId(null);
-    setCvData(null);
-    setUploadError(null);
-    setCurrentStage('upload');
+  const handleDeleteFile = async () => {
+    if (!cvData?.cvId) {
+      // If no CV to delete, just clear local state
+      setSelectedFile(null);
+      setUploadedCVId(null);
+      setCvData(null);
+      setCurrentStage('upload');
+      return;
+    }
+
+    try {
+      // Delete CV from backend (this will delete both the file and database record)
+      await deleteCV({ cvId: cvData.cvId as Id<'cvUploads'> });
+      
+      // Clear local state after successful deletion
+      setSelectedFile(null);
+      setUploadedCVId(null);
+      setCvData(null);
+      setCurrentStage('upload');
+      toast.success(t('cv_upload.success.cv_deleted'));
+    } catch (error) {
+      console.error('Error deleting CV:', error);
+      toast.error(error instanceof Error ? error.message : t('cv_upload.errors.delete_failed'));
+    }
   };
 
   const handleViewCV = async () => {
@@ -130,7 +146,7 @@ export default function DashboardPage() {
         }
       } catch (error) {
         console.error('Error getting CV download URL:', error);
-        setUploadError('Failed to open CV');
+        toast.error(t('cv_upload.errors.view_failed'));
       }
     }
   };
@@ -150,7 +166,6 @@ export default function DashboardPage() {
     setSelectedFile(null);
     setUploadedCVId(null);
     setCvData(null);
-    setUploadError(null);
   };
 
   // Render based on current stage
@@ -256,9 +271,9 @@ export default function DashboardPage() {
                             <div className="border-primary h-14 w-14 animate-spin rounded-full border-t-2 border-b-2"></div>
                           </div>
                           <div className="space-y-2">
-                            <p className="text-foreground text-xl font-semibold">Uploading CV...</p>
+                            <p className="text-foreground text-xl font-semibold">{t('cv_upload.uploading.title')}</p>
                             <p className="text-muted-foreground text-base">
-                              Please wait while we upload your resume
+                              {t('cv_upload.uploading.subtitle')}
                             </p>
                           </div>
                         </div>
@@ -304,15 +319,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  {/* Error Message */}
-                  {uploadError && (
-                    <div className="bg-destructive/10 border-destructive/20 mb-6 rounded-xl border p-4">
-                      <div className="flex items-center space-x-3 space-x-reverse">
-                        <AlertCircle className="text-destructive h-5 w-5 flex-shrink-0" />
-                        <p className="text-destructive font-medium">{uploadError}</p>
-                      </div>
-                    </div>
-                  )}
+
                 </>
               )}
             </div>

@@ -111,7 +111,7 @@ export const getCVById = query({
   },
 });
 
-// Mutation to delete a CV (soft delete)
+// Mutation to delete a CV (hard delete - removes file from storage)
 export const deleteCV = mutation({
   args: { cvId: v.id("cvUploads") },
   handler: async (ctx, args) => {
@@ -125,13 +125,18 @@ export const deleteCV = mutation({
       throw new Error("CV not found or access denied");
     }
 
-    // Soft delete
-    await ctx.db.patch(args.cvId, {
-      isActive: false,
-      lastAccessedAt: Date.now(),
-    });
+    try {
+      // Delete the actual file from storage
+      await ctx.storage.delete(cv.storageId);
+      
+      // Remove the database record
+      await ctx.db.delete(args.cvId);
 
-    return true;
+      return true;
+    } catch (error) {
+      console.error("Error deleting CV:", error);
+      throw new Error("Failed to delete CV");
+    }
   },
 });
 

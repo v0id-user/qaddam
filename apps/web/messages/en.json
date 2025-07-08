@@ -162,7 +162,17 @@
         "invalid_type": "Only PDF files are allowed",
         "file_too_large": "File size must be less than 5MB",
         "too_many_files": "Only one file is allowed",
-        "upload_failed": "Failed to upload file"
+        "upload_failed": "Failed to upload file",
+        "delete_failed": "Failed to delete CV",
+        "view_failed": "Failed to open CV"
+      },
+      "uploading": {
+        "title": "Uploading CV...",
+        "subtitle": "Please wait while we upload your resume"
+      },
+      "success": {
+        "cv_uploaded": "CV uploaded successfully!",
+        "cv_deleted": "CV deleted successfully!"
       },
       "delete_file": "Delete file"
     },
