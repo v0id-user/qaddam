@@ -4,7 +4,7 @@ import { internalAction } from "./_generated/server";
 import { v } from 'convex/values'
 import { openai } from "@ai-sdk/openai"
 import { z } from "zod";
-import { JobResult, JobSearchResults } from "./types/jobs";
+import type { JobResult, JobSearchResults } from "./types/jobs";
 import { generateObject } from 'ai';
 
 export const workflow = new WorkflowManager(components.workflow);

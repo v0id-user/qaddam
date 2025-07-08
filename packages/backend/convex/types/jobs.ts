@@ -13,6 +13,7 @@ export type JobResult = {
   url: string;
   postedDate: string;
   matchScore: number;
+  
   // AI Analysis fields
   benefits: string[];
   matchedSkills: string[];

@@ -18,6 +18,7 @@
     "@convex-dev/workflow": "^0.2.4",
     "@noble/hashes": "^1.8.0",
     "ai": "^4.3.16",
+    "apify-client": "^2.12.6",
     "convex": "^1.25.0"
   }
 }
