@@ -1,9 +1,10 @@
 import { ApifyDriver } from "@/driver/apify";
+import { ActorClient, ApifyClient, ActorRun, ActorStartOptions, ActorCallOptions } from 'apify-client';
 
 export class Actor {
     private readonly actor_id: string;
     private readonly apifyDriver: ApifyDriver;
-    private readonly actorClient: any;
+    private readonly actorClient: ActorClient;
 
     constructor(actor_id: string, apifyDriver: ApifyDriver) {
         this.actor_id = actor_id;
@@ -15,19 +16,19 @@ export class Actor {
         return this.actor_id;
     }
 
-    getActor(): any {
+    getActor(): ActorClient {
         return this.actorClient;
     }
 
-    protected getClient(): any {
+    protected getClient(): ApifyClient {
         return this.apifyDriver.getClient();
     }
 
-    async call(input?: any, options?: any) {
+    async call(input?: Record<string, unknown>, options?: ActorCallOptions): Promise<ActorRun> {
         return await this.actorClient.call(input, options);
     }
 
-    async start(input?: any, options?: any) {
+    async start(input?: Record<string, unknown>, options?: ActorStartOptions): Promise<ActorRun> {
         return await this.actorClient.start(input, options);
     }
 }
