@@ -1,7 +1,9 @@
+"use node";
+
 import { ApifyDriver } from "@/driver/apify";
 import { Actor } from "@/driver/apify/actors";
 import { ActorRun } from "apify-client";
-import { JobSource } from "../types/job-source";
+import { JobSource } from "../types/job_source";
 import { JobSearchInput, JobSearchActor } from "../driver";
 
 export interface GoogleJobsInput extends JobSearchInput {

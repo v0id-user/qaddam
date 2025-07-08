@@ -1,3 +1,5 @@
+"use node";
+
 import { ApifyDriver } from "@/driver/apify";
 import {
 	ActorClient,

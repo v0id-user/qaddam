@@ -1,1 +1,3 @@
-export * from "./google-jobs";
+"use node";
+
+export * from "./google_jobs";
