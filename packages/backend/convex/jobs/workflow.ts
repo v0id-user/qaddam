@@ -13,10 +13,13 @@ export const jobSearchWorkflow = workflow.define({
 	},
 	handler: async (step, args): Promise<JobSearchResults> => {
 		// Step 1: Parse CV and extract profile
-		const cvProfile = await step.runAction(internal.jobs.actions.parse.aiParseCV, {
-			cv_storage_id: args.cv_storage_id,
-			userId: args.userId,
-		});
+		const cvProfile = await step.runAction(
+			internal.jobs.actions.parse.aiParseCV,
+			{
+				cv_storage_id: args.cv_storage_id,
+				userId: args.userId,
+			},
+		);
 
 		// Step 2: Tune job search parameters
 		const searchParams = await step.runAction(
@@ -28,10 +31,13 @@ export const jobSearchWorkflow = workflow.define({
 		);
 
 		// Step 3: Search for jobs
-		const jobResults = await step.runAction(internal.jobs.actions.searchJobs.aiSearchJobs, {
-			searchParams,
-			cvProfile,
-		});
+		const jobResults = await step.runAction(
+			internal.jobs.actions.searchJobs.aiSearchJobs,
+			{
+				searchParams,
+				cvProfile,
+			},
+		);
 
 		// Step 4: Combine and rank results
 		const finalResults = await step.runAction(
@@ -45,4 +51,4 @@ export const jobSearchWorkflow = workflow.define({
 
 		return finalResults;
 	},
-}); 
+});

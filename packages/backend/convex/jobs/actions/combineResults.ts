@@ -109,4 +109,4 @@ Job Results: ${JSON.stringify(args.jobResults, null, 2)}
 			},
 		} as JobSearchResults;
 	},
-}); 
+});

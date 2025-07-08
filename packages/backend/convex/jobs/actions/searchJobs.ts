@@ -90,4 +90,4 @@ export const aiSearchJobs = internalAction({
 			searchParams: args.searchParams,
 		};
 	},
-}); 
+});

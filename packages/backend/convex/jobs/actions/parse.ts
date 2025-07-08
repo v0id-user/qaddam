@@ -74,4 +74,4 @@ export const aiParseCV = internalAction({
 
 		return response.object;
 	},
-}); 
+});

@@ -102,4 +102,4 @@ ${xmlResults}
 
 		return response.object;
 	},
-}); 
+});
