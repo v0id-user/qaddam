@@ -1,1 +1,1 @@
-export * from './google-jobs' 
+export * from "./google-jobs";

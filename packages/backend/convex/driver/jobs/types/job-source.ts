@@ -1,4 +1,4 @@
 export interface JobSource {
-    source: 'linked-in' | 'indeed' | 'google';
-    searchUrl: string;
+	source: "linked-in" | "indeed" | "google";
+	searchUrl: string;
 }

@@ -1,2 +1,2 @@
-export { default as ApifyDriver } from './driver'
-export { Actor } from './actors/driver'
+export { default as ApifyDriver } from "./driver";
+export { Actor } from "./actors/driver";

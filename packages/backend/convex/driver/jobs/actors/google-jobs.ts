@@ -1,104 +1,109 @@
 import { ApifyDriver } from "@/driver/apify";
 import { Actor } from "@/driver/apify/actors";
-import { ActorRun } from 'apify-client';
+import { ActorRun } from "apify-client";
 import { JobSource } from "../types/job-source";
 import { JobSearchInput, JobSearchActor } from "../driver";
 
 export interface GoogleJobsInput extends JobSearchInput {
-    maxPagesPerQuery?: number;
-    csvFriendlyOutput?: boolean;
-    languageCode?: string;
-    saveHtml?: boolean;
+	maxPagesPerQuery?: number;
+	csvFriendlyOutput?: boolean;
+	languageCode?: string;
+	saveHtml?: boolean;
 }
 
 export interface JobHighlight {
-    title: string;
-    items: string[];
+	title: string;
+	items: string[];
 }
 
 export interface ApplyOption {
-    title: string;
-    link: string;
+	title: string;
+	link: string;
 }
 
 export interface JobMetadata {
-    postedAt?: string;
-    scheduleType?: string;
+	postedAt?: string;
+	scheduleType?: string;
 }
 
 export interface GoogleJob {
-    title: string;
-    companyName: string;
-    location: string;
-    via: string;
-    shareLink: string;
-    thumbnail?: string;
-    extras?: string[];
-    metadata?: JobMetadata;
-    description: string;
-    jobHighlights?: JobHighlight[];
-    applyOptions?: ApplyOption[];
+	title: string;
+	companyName: string;
+	location: string;
+	via: string;
+	shareLink: string;
+	thumbnail?: string;
+	extras?: string[];
+	metadata?: JobMetadata;
+	description: string;
+	jobHighlights?: JobHighlight[];
+	applyOptions?: ApplyOption[];
 }
 
 export interface CategoryOption {
-    name: string;
-    parameters: {
-        uds: string;
-        q: string;
-    };
-    link: string;
+	name: string;
+	parameters: {
+		uds: string;
+		q: string;
+	};
+	link: string;
 }
 
 export interface Category {
-    name: string;
-    parameters?: {
-        uds: string;
-        q: string;
-    };
-    link?: string;
-    options?: CategoryOption[];
+	name: string;
+	parameters?: {
+		uds: string;
+		q: string;
+	};
+	link?: string;
+	options?: CategoryOption[];
 }
 
 export interface GoogleJobsResult {
-    googleJobs: GoogleJob[];
-    categories: Category[];
-    pageNumber: number;
+	googleJobs: GoogleJob[];
+	categories: Category[];
+	pageNumber: number;
 }
 
-export class GoogleJobsActor extends Actor implements JobSearchActor<GoogleJobsInput, GoogleJobsResult> {
-    private static readonly ACTOR_ID: string = 'SpK8RxKhIgV6BWOz9';
-    
-    constructor(apifyDriver: ApifyDriver) {
-        super(GoogleJobsActor.ACTOR_ID, apifyDriver);
-    }
+export class GoogleJobsActor
+	extends Actor
+	implements JobSearchActor<GoogleJobsInput, GoogleJobsResult>
+{
+	private static readonly ACTOR_ID: string = "SpK8RxKhIgV6BWOz9";
 
-    async search(input: GoogleJobsInput): Promise<ActorRun> {
-        const jobInput = {
-            queries: input.queries,
-            maxPagesPerQuery: input.maxPagesPerQuery ?? 1,
-            csvFriendlyOutput: input.csvFriendlyOutput ?? false,
-            languageCode: input.languageCode ?? "",
-            saveHtml: input.saveHtml ?? false
-        };
+	constructor(apifyDriver: ApifyDriver) {
+		super(GoogleJobsActor.ACTOR_ID, apifyDriver);
+	}
 
-        return await this.call(jobInput);
-    }
+	async search(input: GoogleJobsInput): Promise<ActorRun> {
+		const jobInput = {
+			queries: input.queries,
+			maxPagesPerQuery: input.maxPagesPerQuery ?? 1,
+			csvFriendlyOutput: input.csvFriendlyOutput ?? false,
+			languageCode: input.languageCode ?? "",
+			saveHtml: input.saveHtml ?? false,
+		};
 
-    async getResults(run: ActorRun): Promise<GoogleJobsResult[]> {
-        const client = this.getClient();
-        const { items } = await client.dataset(run.defaultDatasetId).listItems();
-        return items as unknown as GoogleJobsResult[];
-    }
+		return await this.call(jobInput);
+	}
 
-    async searchAndGetResults(input: GoogleJobsInput): Promise<GoogleJobsResult[]> {
-        const run = await this.search(input);
-        return await this.getResults(run);
-    }
+	async getResults(run: ActorRun): Promise<GoogleJobsResult[]> {
+		const client = this.getClient();
+		const { items } = await client.dataset(run.defaultDatasetId).listItems();
+		return items as unknown as GoogleJobsResult[];
+	}
 
-    getJobSource(): JobSource {
-        return {
-            source: 'google',
-            searchUrl: 'https://www.google.com/search?q={query}&ibp=htl;jobs'
-        };
-    }
+	async searchAndGetResults(
+		input: GoogleJobsInput,
+	): Promise<GoogleJobsResult[]> {
+		const run = await this.search(input);
+		return await this.getResults(run);
+	}
+
+	getJobSource(): JobSource {
+		return {
+			source: "google",
+			searchUrl: "https://www.google.com/search?q={query}&ibp=htl;jobs",
+		};
+	}
 }

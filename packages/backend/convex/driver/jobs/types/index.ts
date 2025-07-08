@@ -1,2 +1,2 @@
-export * from '@/types/jobs'
-export * from './job-source'
+export * from "@/types/jobs";
+export * from "./job-source";
