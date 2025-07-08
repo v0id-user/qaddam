@@ -1,15 +1,21 @@
-import type { JobSource } from "../jobs/types";
 import { ApifyClient } from 'apify-client';
+import { Actor } from './actors/driver';
 
 export default class ApifyDriver {
-  private readonly jobSource: JobSource;
   private readonly client: ApifyClient;
-  
-  constructor(jobSource: JobSource) {
-    this.jobSource = jobSource;
+
+  constructor() {
     // Base client
     this.client = new ApifyClient({
         token: process.env.APIFY_API_TOKEN,
     }) 
+  }
+
+  getClient(): ApifyClient {
+    return this.client;
+  }
+
+  setActor(actorId: string): Actor {
+    return new Actor(actorId, this);
   }
 }
