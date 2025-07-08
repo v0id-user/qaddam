@@ -1,9 +1,9 @@
 "use node";
 
-import { internalAction } from "./_generated/server";
+import { internalAction } from "../_generated/server";
 import { v } from "convex/values";
-import JobSearchEngine from "./driver/jobs/driver";
-import { GoogleJobsActor } from "./driver/jobs/actors";
+import JobSearchEngine from "../driver/jobs/driver";
+import { GoogleJobsActor } from "../driver/jobs/actors";
 import { XMLBuilder } from "fast-xml-parser";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";

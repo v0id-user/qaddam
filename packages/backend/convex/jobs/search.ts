@@ -1,10 +1,10 @@
 import { WorkflowManager } from "@convex-dev/workflow";
-import { components, internal, api } from "./_generated/api";
-import { internalAction } from "./_generated/server";
+import { components, internal, api } from "../_generated/api";
+import { internalAction } from "../_generated/server";
 import { v } from "convex/values";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
-import type { JobResult, JobSearchResults } from "./types/jobs";
+import type { JobResult, JobSearchResults } from "../types/jobs";
 import { generateObject } from "ai";
 
 
@@ -289,14 +289,14 @@ export const jobSearchWorkflow = workflow.define({
 	},
 	handler: async (step, args): Promise<JobSearchResults> => {
 		// Step 1: Parse CV and extract profile
-		const cvProfile = await step.runAction(internal.jobSearch.aiParseCV, {
+		const cvProfile = await step.runAction(internal.jobs.search.aiParseCV, {
 			cv_storage_id: args.cv_storage_id,
 			userId: args.userId,
 		});
 
 		// Step 2: Tune job search parameters
 		const searchParams = await step.runAction(
-			internal.jobSearchNode.aiTuneJobSearch,
+			internal.jobs.searchNode.aiTuneJobSearch,
 			{
 				cvProfile,
 				userId: args.userId,
@@ -304,14 +304,14 @@ export const jobSearchWorkflow = workflow.define({
 		);
 
 		// Step 3: Search for jobs
-		const jobResults = await step.runAction(internal.jobSearch.aiSearchJobs, {
+		const jobResults = await step.runAction(internal.jobs.search.aiSearchJobs, {
 			searchParams,
 			cvProfile,
 		});
 
 		// Step 4: Combine and rank results
 		const finalResults = await step.runAction(
-			internal.jobSearch.aiCombineJobResults,
+			internal.jobs.search.aiCombineJobResults,
 			{
 				jobResults,
 				cvProfile,
