@@ -1,7 +1,7 @@
 import { WorkflowManager } from "@convex-dev/workflow";
 import { components, internal } from "@/_generated/api";
 import { v } from "convex/values";
-import { mutation } from "@/_generated/server";
+import { action } from "@/_generated/server";
 import type { WorkflowId } from "@convex-dev/workflow";
 export type { WorkflowId };
 
@@ -79,7 +79,7 @@ export const jobSearchWorkflow = workflow.define({
 });
 
 // Public mutation to start the job search workflow
-export const startJobSearchWorkflow = mutation({
+export const startJobSearchWorkflow = action({
 	args: {
 		cv_storage_id: v.id("_storage"),
 		userId: v.id("users"),

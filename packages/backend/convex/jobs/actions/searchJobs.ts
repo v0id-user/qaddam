@@ -158,23 +158,31 @@ export const aiSearchJobs = internalAction({
 					(keyword) => jobText.includes(keyword.toLowerCase()),
 				);
 
-				// Enhanced match score calculation
-				const skillMatchRatio =
+				// Enhanced match score calculation with capped ratios
+				const skillMatchRatio = Math.min(
 					matchedSkills.length /
-					Math.max(searchParams.technical_skills.length, 1);
-				const titleMatchRatio =
+					Math.max(searchParams.technical_skills.length, 1),
+					1.0
+				);
+				const titleMatchRatio = Math.min(
 					matchedTitles.length /
-					Math.max(searchParams.job_title_keywords.length, 1);
-				const keywordMatchRatio =
+					Math.max(searchParams.job_title_keywords.length, 1),
+					1.0
+				);
+				const keywordMatchRatio = Math.min(
 					matchedKeywords.length /
-					Math.max(searchParams.primary_keywords.length, 1);
+					Math.max(searchParams.primary_keywords.length, 1),
+					1.0
+				);
 
-				const matchScore = Math.round(
+				// Calculate match score and cap between 0-100
+				const rawMatchScore = Math.round(
 					(skillMatchRatio * 40 +
 						titleMatchRatio * 30 +
 						keywordMatchRatio * 30) *
 						100,
 				);
+				const matchScore = Math.max(0, Math.min(rawMatchScore, 100));
 
 				return {
 					id: job._id,
@@ -192,7 +200,7 @@ export const aiSearchJobs = internalAction({
 					postedDate: job.datePosted
 						? new Date(job.datePosted).toISOString()
 						: new Date().toISOString(),
-					matchScore: Math.max(matchScore, 30), // Minimum 30% match
+					matchScore,
 					benefits: [], // Could be extracted from description
 					matchedSkills,
 					missingSkills: searchParams.technical_skills.filter(

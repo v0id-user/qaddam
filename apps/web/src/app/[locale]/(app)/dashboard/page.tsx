@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useMutation, useQuery } from 'convex/react';
+import { useAction, useMutation, useQuery } from 'convex/react';
 import { Button } from '@/components/ui/button';
 import { Upload, FileText, X, Brain, Target, Settings, Eye, Trash2, Search } from 'lucide-react';
 import WorkflowSteps from '@/components/dashboard/WorkflowSteps';
@@ -33,7 +33,7 @@ export default function DashboardPage() {
   const me = useQuery(api.users.getMe);
 
   // Workflow functions
-  const startWorkflow = useMutation(api.jobs.workflow.startJobSearchWorkflow);
+  const startWorkflow = useAction(api.jobs.workflow.startJobSearchWorkflow);
 
   const { getRootProps, getInputProps, isDragActive, isDragAccept } = useDropzone({
     accept: {
@@ -159,7 +159,7 @@ export default function DashboardPage() {
       const result = await startWorkflow({
         cv_storage_id: uploadedCVId,
         userId: me._id,
-      });
+      }) as WorkflowId;
 
       setWorkflowId(result);
       setCurrentStage('workflow');

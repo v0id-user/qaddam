@@ -34,7 +34,7 @@ export const jobSchemas = {
 	// User job applications tracking
 	userApplications: defineTable({
 		userId: v.id("users"),
-		jobPostId: v.id("jobPosts"),
+		jobPostId: v.id("jobListings"),
 		appliedAt: v.number(),
 		status: v.string(), // "applied", "viewed", "interview", "rejected", "offer"
 		notes: v.optional(v.string()),
@@ -49,7 +49,7 @@ export const jobSchemas = {
 	// User saved jobs
 	savedJobs: defineTable({
 		userId: v.id("users"),
-		jobPostId: v.id("jobPosts"),
+		jobPostId: v.id("jobListings"),
 		savedAt: v.number(),
 		notes: v.optional(v.string()),
 	})
