@@ -26,7 +26,6 @@ export const jobSearchWorkflow = workflow.define({
 			internal.jobs.actions.tuneSearch.aiTuneJobSearch,
 			{
 				cvProfile,
-				userId: args.userId,
 			},
 		);
 

@@ -26,7 +26,6 @@ test("job search ai search", {
 			preferredLocations: ["Riyadh", "Dubai"],
 			remotePreference: true,
 		}),
-		userId: undefined
 	});
 
 	console.log(result);

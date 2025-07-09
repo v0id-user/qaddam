@@ -51,7 +51,15 @@ export const jobSchemas = {
 		sourceLogo: v.optional(v.string()),
 		sourceDescription: v.optional(v.string()),
 		sourceLocation: v.optional(v.string()),
-	}),
+	})
+		.searchIndex("search_description", {
+			searchField: "description",
+			filterFields: ["location", "source", "sourceName"],
+		})
+		.searchIndex("search_name", {
+			searchField: "name",
+			filterFields: ["location", "source", "sourceName"],
+		}),
 
 	// User job applications tracking
 	userApplications: defineTable({
