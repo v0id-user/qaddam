@@ -42,8 +42,11 @@ export const aiCombineJobResults = internalAction({
 			model: openai.chat("gpt-4o-mini", {
 				structuredOutputs: true,
 			}),
-			schemaName: "Job Ranking and Insights",
-			prompt: `
+			schemaName: "Job_Ranking_and_Insights",
+			messages: [
+				{
+					role: "system",
+					content: `
 <agent>
   <name>JobRankingAgent</name>
   <description>
@@ -65,13 +68,19 @@ export const aiCombineJobResults = internalAction({
     <rule>Provide reasoning for job rankings and match scores</rule>
   </rules>
 </agent>
-
+					`,
+				},
+				{
+					role: "user",
+					content: `
 Based on the following data, rank and analyze job results:
 
 CV Profile: ${JSON.stringify(args.cvProfile, null, 2)}
 Search Parameters: ${JSON.stringify(args.searchParams, null, 2)}
 Job Results: ${JSON.stringify(args.jobResults, null, 2)}
-            `.trim(),
+					`,
+				},
+			],
 			schema: z.object({
 				ranked_jobs: z.array(
 					z.object({

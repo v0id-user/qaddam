@@ -31,29 +31,7 @@ export const aiTuneJobSearch = internalAction({
 			model: openai.chat("gpt-4o-mini", {
 				structuredOutputs: true,
 			}),
-			schemaName: "CV Keywords Extraction",
-			prompt: `
-Analyze the following structured CV profile and extract search keywords for finding relevant job listings in our database:
-
-Skills: ${args.cvProfile.skills.join(", ")}
-Experience Level: ${args.cvProfile.experience_level}
-Previous Job Titles: ${args.cvProfile.job_titles.join(", ")}
-Industries: ${args.cvProfile.industries.join(", ")}
-Existing Keywords: ${args.cvProfile.keywords.join(", ")}
-Education: ${args.cvProfile.education}
-Years of Experience: ${args.cvProfile.years_of_experience}
-Preferred Locations: ${args.cvProfile.preferred_locations.join(", ")}
-
-Extract specific keywords that would be found in job titles and job descriptions. Focus on:
-1. Core technical skills from the skills list
-2. Job titles and role names that would appear in job postings
-3. Industry terms commonly used in job descriptions
-4. Experience level indicators based on years of experience
-5. Domain expertise that appears in job requirements
-
-Provide keywords that are likely to appear in actual job postings and descriptions.
-Important: Extract only concrete, searchable terms - avoid soft skills or abstract concepts.
-            `.trim(),
+			schemaName: "CV_Keywords_Extraction",
 			messages: [
 				{
 					role: "system",
@@ -85,6 +63,31 @@ Important: Extract only concrete, searchable terms - avoid soft skills or abstra
   </rules>
 </agent>
                     `,
+				},
+				{
+					role: "user",
+					content: `
+Analyze the following structured CV profile and extract search keywords for finding relevant job listings in our database:
+
+Skills: ${args.cvProfile.skills.join(", ")}
+Experience Level: ${args.cvProfile.experience_level}
+Previous Job Titles: ${args.cvProfile.job_titles.join(", ")}
+Industries: ${args.cvProfile.industries.join(", ")}
+Existing Keywords: ${args.cvProfile.keywords.join(", ")}
+Education: ${args.cvProfile.education}
+Years of Experience: ${args.cvProfile.years_of_experience}
+Preferred Locations: ${args.cvProfile.preferred_locations.join(", ")}
+
+Extract specific keywords that would be found in job titles and job descriptions. Focus on:
+1. Core technical skills from the skills list
+2. Job titles and role names that would appear in job postings
+3. Industry terms commonly used in job descriptions
+4. Experience level indicators based on years of experience
+5. Domain expertise that appears in job requirements
+
+Provide keywords that are likely to appear in actual job postings and descriptions.
+Important: Extract only concrete, searchable terms - avoid soft skills or abstract concepts.
+					`,
 				},
 			],
 			schema: z.object({

@@ -22,8 +22,11 @@ export const aiParseCV = internalAction({
 			model: openai.chat("gpt-4o-mini", {
 				structuredOutputs: true,
 			}),
-			schemaName: "Job Search keywords From CV",
-			prompt: `
+			schemaName: "Job_Search_Keywords_From_CV",
+			messages: [
+				{
+					role: "system", 
+					content: `
 <agent>
   <name>JobSearchProfileAgent</name>
   <description>
@@ -46,7 +49,20 @@ export const aiParseCV = internalAction({
     <rule>Output structured JSON data that can be consumed by search algorithms</rule>
   </rules>
 </agent>
-            `.trim(),
+					`,
+				},
+				{
+					role: "user",
+					content: "Please analyze this CV and extract the structured profile information.",
+					experimental_attachments: [
+						{
+							name: "cv.pdf",
+							contentType: "application/pdf",
+							url: cv,
+						},
+					],
+				},
+			],
 			schema: z.object({
 				skills: z.array(z.string()),
 				experience_level: z.enum(["entry", "mid", "senior", "executive"]),
@@ -57,19 +73,6 @@ export const aiParseCV = internalAction({
 				years_of_experience: z.number(),
 				preferred_locations: z.array(z.string()),
 			}),
-			messages: [
-				{
-					role: "user",
-					content: "",
-					experimental_attachments: [
-						{
-							name: "cv.pdf",
-							contentType: "application/pdf",
-							url: cv,
-						},
-					],
-				},
-			],
 		});
 
 		return response.object;
