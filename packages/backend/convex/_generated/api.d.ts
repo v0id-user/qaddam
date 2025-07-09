@@ -15,6 +15,7 @@ import type * as driver_apify_driver from "../driver/apify/driver.js";
 import type * as driver_apify_index from "../driver/apify/index.js";
 import type * as driver_jobs_actors_google_jobs from "../driver/jobs/actors/google_jobs.js";
 import type * as driver_jobs_actors_index from "../driver/jobs/actors/index.js";
+import type * as driver_jobs_actors_linkedin_jobs from "../driver/jobs/actors/linkedin_jobs.js";
 import type * as driver_jobs_driver from "../driver/jobs/driver.js";
 import type * as driver_jobs_index from "../driver/jobs/index.js";
 import type * as driver_jobs_types_index from "../driver/jobs/types/index.js";
@@ -58,6 +59,7 @@ declare const fullApi: ApiFromModules<{
   "driver/apify/index": typeof driver_apify_index;
   "driver/jobs/actors/google_jobs": typeof driver_jobs_actors_google_jobs;
   "driver/jobs/actors/index": typeof driver_jobs_actors_index;
+  "driver/jobs/actors/linkedin_jobs": typeof driver_jobs_actors_linkedin_jobs;
   "driver/jobs/driver": typeof driver_jobs_driver;
   "driver/jobs/index": typeof driver_jobs_index;
   "driver/jobs/types/index": typeof driver_jobs_types_index;
