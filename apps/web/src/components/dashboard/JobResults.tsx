@@ -18,9 +18,6 @@ interface JobResultsProps {
 }
 
 const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
-  if (!workflowId) {
-    return null;
-  }
 
   const t = useTranslations('dashboard');
   const [selectedJob, setSelectedJob] = useState<JobResult | null>(null);
@@ -29,6 +26,11 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
   const jobResults = useQuery(api.jobs.data.getJobResults, {
     workflowId,
   });
+
+
+  if (!workflowId) {
+    return null;
+  }
 
   const handleJobClick = (job: JobResult) => {
     setSelectedJob(job);
@@ -60,7 +62,7 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
           <Button
             onClick={onBackToUpload}
             variant="outline"
-            className="border-primary text-primary hover:bg-primary/5 rounded-full mt-4"
+            className="border-primary text-primary hover:bg-primary/5 mt-4 rounded-full"
           >
             <Upload className="mr-2 h-4 w-4" />
             {t('job_results.upload_new_cv')}
@@ -74,28 +76,29 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
   const totalFound = searchResults?.totalFound || 0;
 
   // Simple mapping from database fields to JobResult structure
-  const jobsData: JobResult[] = jobs?.map((job) => ({
-    id: job.externalId,
-    title: job.title,
-    company: job.company,
-    location: job.location,
-    description: job.description,
-    requirements: job.requirements,
-    salary: job.salary,
-    type: job.type as JobType,
-    remote: job.remote,
-    url: job.url,
-    postedDate: job.postedDate,
-    matchScore: job.matchScore,
-    benefits: job.benefits,
-    matchedSkills: job.matchedSkills,
-    missingSkills: job.missingSkills,
-    experienceMatch: job.experienceMatch,
-    locationMatch: job.locationMatch,
-    aiMatchReasons: job.aiMatchReasons,
-    aiConcerns: job.aiConcerns,
-    aiRecommendation: job.aiRecommendation as JobResult['aiRecommendation'],
-  })) || [];
+  const jobsData: JobResult[] =
+    jobs?.map(job => ({
+      id: job.externalId,
+      title: job.title,
+      company: job.company,
+      location: job.location,
+      description: job.description,
+      requirements: job.requirements,
+      salary: job.salary,
+      type: job.type as JobType,
+      remote: job.remote,
+      url: job.url,
+      postedDate: job.postedDate,
+      matchScore: job.matchScore,
+      benefits: job.benefits,
+      matchedSkills: job.matchedSkills,
+      missingSkills: job.missingSkills,
+      experienceMatch: job.experienceMatch,
+      locationMatch: job.locationMatch,
+      aiMatchReasons: job.aiMatchReasons,
+      aiConcerns: job.aiConcerns,
+      aiRecommendation: job.aiRecommendation as JobResult['aiRecommendation'],
+    })) || [];
 
   return (
     <div className="from-accent/30 via-background to-secondary/20 min-h-screen bg-gradient-to-br px-6 py-24">

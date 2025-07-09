@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useMutation, useQuery, useAction } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { Button } from '@/components/ui/button';
 import { Upload, FileText, X, Brain, Target, Settings, Eye, Trash2, Search } from 'lucide-react';
 import WorkflowSteps from '@/components/dashboard/WorkflowSteps';
@@ -161,7 +161,7 @@ export default function DashboardPage() {
         userId: me._id,
       });
 
-      setWorkflowId(result.workflowId);
+      setWorkflowId(result);
       setCurrentStage('workflow');
 
       console.log('Workflow started successfully:', result);
@@ -171,8 +171,8 @@ export default function DashboardPage() {
     }
   };
 
-  const handleWorkflowComplete = (results: any) => {
-    console.log('Workflow completed with results:', results);
+  const handleWorkflowComplete = () => {
+    console.log('Workflow completed with results');
     setCurrentStage('results');
     toast.success('🎉 Job search completed!');
   };

@@ -10,7 +10,7 @@ import type { WorkflowId } from '@qaddam/backend/convex/jobs/workflow';
 
 interface WorkflowStepsProps {
   workflowId: WorkflowId;
-  onComplete: (results: any) => void;
+  onComplete: () => void;
 }
 
 const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
@@ -47,10 +47,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
   ]);
 
   // Get workflow progress from Convex
-  const workflowProgress = useQuery(
-    api.jobs.data.getWorkflowStatus,
-    { workflowId }
-  );
+  const workflowProgress = useQuery(api.jobs.data.getWorkflowStatus, { workflowId });
 
   // Update steps based on workflow progress
   useEffect(() => {
@@ -60,12 +57,12 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
 
     // Update step statuses based on workflow progress
     setSteps(prev =>
-      prev.map((step, index) => {
+      prev.map((step) => {
         const progressStep = workflowProgress.status === 'completed' ? 'finished' : 'not_started';
         if (progressStep) {
           return {
             ...step,
-              status: progressStep,
+            status: progressStep,
           };
         }
         return step;
@@ -76,7 +73,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
     if (workflowProgress.status === 'completed') {
       console.log('Workflow completed with results:', workflowProgress.result);
       setTimeout(() => {
-        onComplete(workflowProgress);
+        onComplete();
       }, 1000);
     } else if (workflowProgress.status === 'failed') {
       console.error('Workflow failed:', workflowProgress);
