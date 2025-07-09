@@ -206,7 +206,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
             <Button onClick={onClose} variant="outline" className="flex-1">
               {t('job_results.match_insights.close')}
             </Button>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 flex-1">
+            <Button onClick={() => window.open(job.url, '_blank')} className="bg-primary text-primary-foreground hover:bg-primary/90 flex-1">
               {t('job_results.apply_now')}
             </Button>
           </div>

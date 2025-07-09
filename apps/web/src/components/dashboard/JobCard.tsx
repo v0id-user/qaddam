@@ -122,7 +122,7 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
         <div className="bg-accent/20 h-2 w-full rounded-full">
           <div
             className="bg-primary h-2 rounded-full transition-all duration-300"
-            style={{ width: `${job.matchScore}%` }}
+            style={{ width: `${Math.min(job.matchScore, 100)}%` }}
           />
         </div>
       </div>
@@ -156,6 +156,7 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
           <ExternalLink className="ml-2 h-4 w-4" />
         </Button>
         <Button
+          onClick={() => window.open(job.url, '_blank')}
           size="sm"
           variant="outline"
           className="border-primary text-primary hover:bg-primary/5 flex-1"
