@@ -3,11 +3,11 @@
 import { internalAction } from "@/_generated/server";
 import { v } from "convex/values";
 import JobSearchEngine from "@/driver/jobs/driver";
-import { GoogleJobsActor } from "@/driver/jobs/actors";
 import { XMLBuilder } from "fast-xml-parser";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
+import { LinkedInJobsActor } from "@/driver/jobs/actors/linkedin_jobs";
 
 // Step 2: Job search tuning based on user preferences and CV
 export const aiTuneJobSearch = internalAction({
@@ -16,14 +16,19 @@ export const aiTuneJobSearch = internalAction({
 		userId: v.optional(v.id("users")),
 	},
 	handler: async (ctx, args): Promise<any> => {
-		const jobSearch = new JobSearchEngine(GoogleJobsActor);
+		const jobSearch = new JobSearchEngine(LinkedInJobsActor);
 		const searchRun = await jobSearch.search({
-			queries: "software engineer",
-			maxPagesPerQuery: 1,
-			csvFriendlyOutput: false,
-			languageCode: "en",
+			count: 100,
+			countryCode: 10,
+			scrapeCompany: true,
+			urls: [
+				"https://www.linkedin.com/jobs/search/?position=1&pageNum=0",
+				"https://www.linkedin.com/jobs/search?keywords=Software%20Engineer&location=United%20States&geoId=103644278&position=1&pageNum=0"
+			],
 		});
 		const results = await jobSearch.getResults(searchRun);
+
+        return results;
 
 		// Convert results to XML string
 		const xmlResults = new XMLBuilder().build(results);

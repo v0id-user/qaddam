@@ -8,18 +8,22 @@ import { JobSearchInput, JobSearchActor } from "../driver";
 
 /*
  * Google Jobs Actor
- *
+ * 
  * Inputs:
- * - maxPagesPerQuery: number
- * - csvFriendlyOutput: boolean
- * - languageCode: string
- * - saveHtml: boolean
- **/
+ * - queries: string (newline separated queries)
+ * - maxPagesPerQuery: number (default: 1)
+ * - csvFriendlyOutput: boolean (default: false)
+ * - languageCode: string (default: '')
+ * - saveHtml: boolean (default: false)
+ * - remoteOnly: boolean (default: false)
+ */
 export interface GoogleJobsInput extends JobSearchInput {
+	queries: string;
 	maxPagesPerQuery?: number;
 	csvFriendlyOutput?: boolean;
 	languageCode?: string;
 	saveHtml?: boolean;
+	remoteOnly?: boolean;
 }
 
 export interface JobHighlight {
@@ -76,6 +80,12 @@ export interface GoogleJobsResult {
 	pageNumber: number;
 }
 
+/**
+ * @deprecated This actor is no longer functional. We need to either:
+ * 1. Find a new working Apify actor for Google Jobs
+ * 2. Build our own scraping solution
+ * Please do not use this class until a replacement is implemented.
+ */
 export class GoogleJobsActor
 	extends Actor
 	implements JobSearchActor<GoogleJobsInput, GoogleJobsResult>

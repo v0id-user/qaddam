@@ -2,7 +2,7 @@ import { internalAction } from "@/_generated/server";
 import { v } from "convex/values";
 import type { JobResult } from "@/types/jobs";
 
-// Step 3: Search for jobs using optimized parameters
+// Step 3: Tune the search with AI
 export const aiSearchJobs = internalAction({
 	args: {
 		searchParams: v.any(), // Tuned parameters from step 2

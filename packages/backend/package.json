@@ -27,6 +27,7 @@
 		"apify-client": "^2.12.6",
 		"convex": "^1.25.0",
 		"convex-test": "^0.0.37",
+		"dotenv": "^17.1.0",
 		"fast-xml-parser": "^5.2.5",
 		"vitest": "^3.2.4"
 	}

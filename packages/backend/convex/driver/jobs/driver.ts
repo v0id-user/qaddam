@@ -19,7 +19,8 @@ export interface JobSearchActor<TInput, TResult> {
  * Base input interface that all job search inputs must implement
  */
 export interface JobSearchInput {
-	queries: string;
+	// Don't use or remove this field
+	__EMPTY_INPUT?: boolean;
 }
 
 /**
