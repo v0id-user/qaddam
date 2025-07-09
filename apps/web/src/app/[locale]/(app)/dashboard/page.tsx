@@ -24,7 +24,6 @@ export default function DashboardPage() {
   } | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [workflowId, setWorkflowId] = useState<string | null>(null);
-  const [workflowResults, setWorkflowResults] = useState<any>(null);
 
   const generateUploadUrl = useMutation(api.upload.generateUploadUrl);
   const saveCV = useMutation(api.upload.saveCV);
@@ -173,7 +172,6 @@ export default function DashboardPage() {
 
   const handleWorkflowComplete = (results: any) => {
     console.log('Workflow completed with results:', results);
-    setWorkflowResults(results);
     setCurrentStage('results');
     toast.success('🎉 Job search completed!');
   };
@@ -184,7 +182,6 @@ export default function DashboardPage() {
     setUploadedCVId(null);
     setCvData(null);
     setWorkflowId(null);
-    setWorkflowResults(null);
   };
 
   // Render based on current stage
@@ -193,7 +190,7 @@ export default function DashboardPage() {
   }
 
   if (currentStage === 'results') {
-    return <JobResults jobResults={workflowResults} onBackToUpload={handleBackToUpload} />;
+    return <JobResults workflowId={workflowId} onBackToUpload={handleBackToUpload} />;
   }
 
   return (

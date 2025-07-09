@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { MapPin, Clock, Briefcase, ExternalLink, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import type { JobResult } from './types';
+import type { JobResult } from '@qaddam/backend/convex/types/jobs';
 
 interface JobCardProps {
   job: JobResult;

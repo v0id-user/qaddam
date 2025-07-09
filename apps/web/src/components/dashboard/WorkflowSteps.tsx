@@ -47,7 +47,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
 
   // Get workflow progress from Convex
   const workflowProgress = useQuery(
-    api.jobs.workflow.getWorkflowStatus,
+    api.jobs.data.getWorkflowStatus,
     workflowId ? { workflowId } : 'skip'
   );
 
@@ -60,11 +60,11 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
     // Update step statuses based on workflow progress
     setSteps(prev =>
       prev.map((step, index) => {
-        const progressStep = workflowProgress.steps.find((s: any) => s.key === step.key);
+        const progressStep = workflowProgress.status === 'completed' ? 'finished' : 'not_started';
         if (progressStep) {
           return {
             ...step,
-            status: progressStep.status,
+              status: progressStep,
           };
         }
         return step;
@@ -72,13 +72,13 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
     );
 
     // Check if workflow is completed
-    if (workflowProgress.isComplete && workflowProgress.result) {
+    if (workflowProgress.status === 'completed') {
       console.log('Workflow completed with results:', workflowProgress.result);
       setTimeout(() => {
-        onComplete(workflowProgress.result);
+        onComplete(workflowProgress);
       }, 1000);
-    } else if (workflowProgress.isError) {
-      console.error('Workflow failed:', workflowProgress.error);
+    } else if (workflowProgress.status === 'failed') {
+      console.error('Workflow failed:', workflowProgress);
       // Handle error state
     }
   }, [workflowProgress, workflowId, onComplete]);
@@ -214,7 +214,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
         </div>
 
         {/* Error State */}
-        {workflowProgress?.isError && (
+        {workflowProgress?.status === 'failed' && (
           <div className="mt-8 rounded-2xl border-2 border-red-500 bg-red-50 p-6">
             <div className="flex items-center space-x-3">
               <div className="rounded-full bg-red-100 p-2">
@@ -222,7 +222,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-red-800">Workflow Error</h3>
-                <p className="text-red-700">{workflowProgress.error}</p>
+                <p className="text-red-700">{workflowProgress.status}</p>
               </div>
             </div>
           </div>

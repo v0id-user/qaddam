@@ -63,6 +63,7 @@ export const jobSearchWorkflow = workflow.define({
 			},
 		);
 
+		// Step 5: Save results
 		const savedResults = await step.runAction(
 			internal.jobs.actions.saveResults.aiSaveJobResults,
 			{
@@ -100,60 +101,3 @@ export const startJobSearchWorkflow = mutation({
 	},
 });
 
-// Simple status check using workflow.status
-export const getWorkflowStatus = mutation({
-	args: {
-		workflowId: v.string(),
-	},
-	handler: async (ctx, args) => {
-		try {
-			// Note: We'll use the workflowId as string for now and cast if needed
-			const status = await workflow.status(ctx, args.workflowId as any);
-
-			return {
-				workflowId: args.workflowId,
-				status: status.type,
-			};
-		} catch (error) {
-			console.error("Error getting workflow status:", error);
-			return {
-				workflowId: args.workflowId,
-				status: "error",
-				result: null,
-			};
-		}
-	},
-});
-
-// Simple progress check for UI
-export const getWorkflowProgress = query({
-	args: {
-		workflowId: v.string(),
-	},
-	handler: async (ctx, args) => {
-		// For now, return a simple mock progress structure
-		// This will be updated once the workflow is working
-		const stepNames = [
-			"aiParseCV",
-			"aiTuneJobSearch",
-			"aiSearchJobs",
-			"aiCombineJobResults",
-			"aiSaveJobResults",
-		];
-
-		const steps = stepNames.map((stepName, index) => ({
-			key: stepName,
-			status: "not_started" as const,
-			stepNumber: index,
-		}));
-
-		return {
-			workflowId: args.workflowId,
-			steps,
-			isComplete: false,
-			isError: false,
-			result: null,
-			error: null,
-		};
-	},
-});

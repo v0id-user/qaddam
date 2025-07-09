@@ -27,6 +27,7 @@ import type * as jobs_actions_parse from "../jobs/actions/parse.js";
 import type * as jobs_actions_saveResults from "../jobs/actions/saveResults.js";
 import type * as jobs_actions_searchJobs from "../jobs/actions/searchJobs.js";
 import type * as jobs_actions_tuneSearch from "../jobs/actions/tuneSearch.js";
+import type * as jobs_data from "../jobs/data.js";
 import type * as jobs_workflow from "../jobs/workflow.js";
 import type * as schemas_auth from "../schemas/auth.js";
 import type * as schemas_index from "../schemas/index.js";
@@ -73,6 +74,7 @@ declare const fullApi: ApiFromModules<{
   "jobs/actions/saveResults": typeof jobs_actions_saveResults;
   "jobs/actions/searchJobs": typeof jobs_actions_searchJobs;
   "jobs/actions/tuneSearch": typeof jobs_actions_tuneSearch;
+  "jobs/data": typeof jobs_data;
   "jobs/workflow": typeof jobs_workflow;
   "schemas/auth": typeof schemas_auth;
   "schemas/index": typeof schemas_index;
