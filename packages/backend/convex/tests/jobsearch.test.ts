@@ -4,9 +4,10 @@ import { convexTest } from "convex-test";
 import { expect, test } from "vitest";
 import { internal } from "@/_generated/api";
 import schema from "@/schema";
+import { modules } from "@/test.setup";
 
 test("job search ai search", async () => {
-	const t = convexTest(schema);
+	const t = convexTest(schema,modules);
 	const result = await t.action(internal.jobs.actions.searchJobs.aiSearchJobs, {
 		searchParams: {
 			jobTitle: "Frontend Developer",

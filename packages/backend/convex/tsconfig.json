@@ -23,6 +23,6 @@
 			"@/*": ["./*"]
 		}
 	},
-	"include": ["./**/*"],
+	"include": ["./**/*", "../vitest.config.mts"],
 	"exclude": ["./_generated"]
 }
