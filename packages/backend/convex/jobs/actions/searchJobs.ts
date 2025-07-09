@@ -46,7 +46,16 @@ export const aiSearchJobs = internalAction({
 			job_title_keywords: v.array(v.string()),
 			technical_skills: v.array(v.string()),
 		}), // Tuned parameters from step 2
-		cvProfile: v.string(), // Original profile from step 1
+		cvProfile: v.object({
+			skills: v.array(v.string()),
+			experience_level: v.string(),
+			job_titles: v.array(v.string()),
+			industries: v.array(v.string()),
+			keywords: v.array(v.string()),
+			education: v.string(),
+			years_of_experience: v.number(),
+			preferred_locations: v.array(v.string()),
+		}), // Original profile from step 1
 	},
 	handler: async (ctx, args): Promise<{
 		jobs: JobResult[];

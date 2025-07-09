@@ -20,6 +20,11 @@ export type JobResult = {
 	missingSkills: string[];
 	experienceMatch: string;
 	locationMatch: string;
+	
+	// AI Ranking fields (from combineResults.ts)
+	aiMatchReasons?: string[];
+	aiConcerns?: string[];
+	aiRecommendation?: "highly_recommended" | "recommended" | "consider" | "not_recommended";
 };
 
 export type JobSearchResults = {

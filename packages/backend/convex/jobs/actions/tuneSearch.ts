@@ -9,24 +9,46 @@ import { z } from "zod";
 // Step 2: Extract keywords from CV for database job searching
 export const aiTuneJobSearch = internalAction({
 	args: {
-		cvProfile: v.string(), // CV content/profile from step 1
+		cvProfile: v.object({
+			skills: v.array(v.string()),
+			experience_level: v.string(),
+			job_titles: v.array(v.string()),
+			industries: v.array(v.string()),
+			keywords: v.array(v.string()),
+			education: v.string(),
+			years_of_experience: v.number(),
+			preferred_locations: v.array(v.string()),
+		}), // CV profile object from step 1
 	},
-	handler: async (ctx, args): Promise<any> => {
+	handler: async (ctx, args): Promise<{
+		primary_keywords: string[];
+		secondary_keywords: string[];
+		search_terms: string[];
+		job_title_keywords: string[];
+		technical_skills: string[];
+	}> => {
 		const response = await generateObject({
 			model: openai.chat("gpt-4o-mini", {
 				structuredOutputs: true,
 			}),
 			schemaName: "CV Keywords Extraction",
 			prompt: `
-Analyze the following CV profile and extract search keywords for finding relevant job listings in our database:
+Analyze the following structured CV profile and extract search keywords for finding relevant job listings in our database:
 
-${args.cvProfile}
+Skills: ${args.cvProfile.skills.join(", ")}
+Experience Level: ${args.cvProfile.experience_level}
+Previous Job Titles: ${args.cvProfile.job_titles.join(", ")}
+Industries: ${args.cvProfile.industries.join(", ")}
+Existing Keywords: ${args.cvProfile.keywords.join(", ")}
+Education: ${args.cvProfile.education}
+Years of Experience: ${args.cvProfile.years_of_experience}
+Preferred Locations: ${args.cvProfile.preferred_locations.join(", ")}
 
 Extract specific keywords that would be found in job titles and job descriptions. Focus on:
-1. Core technical skills (programming languages, frameworks, tools)
+1. Core technical skills from the skills list
 2. Job titles and role names that would appear in job postings
 3. Industry terms commonly used in job descriptions
-4. Experience level indicators (junior, senior, lead, manager, etc.)
+4. Experience level indicators based on years of experience
 5. Domain expertise that appears in job requirements
 
 Provide keywords that are likely to appear in actual job postings and descriptions.
