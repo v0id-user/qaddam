@@ -7,6 +7,7 @@ import { LinkedInJob } from "@/driver/jobs/actors/linkedin_jobs";
 interface SimpleJobData {
 	url: string;
 	title: string;
+	descriptionHtml: string;
 	description: string;
 	company: string;
 	location: string;
@@ -23,6 +24,7 @@ export const migrateJobs = internalMutation({
 			v.object({
 				url: v.string(),
 				title: v.string(),
+				descriptionHtml: v.string(),
 				description: v.string(),
 				company: v.string(),
 				location: v.string(),
@@ -58,6 +60,7 @@ export const migrateJobs = internalMutation({
 
 				const jobId = await ctx.db.insert("jobListings", {
 					name: jobData.title,
+					descriptionHtml: jobData.descriptionHtml,
 					description: jobData.description,
 					location: jobData.location,
 					salary: jobData.salary,
@@ -134,7 +137,8 @@ function extractEssentialJobData(rawJob: any): SimpleJobData | null {
 		return {
 			url: rawJob.link,
 			title: rawJob.title,
-			description: rawJob.descriptionText || rawJob.descriptionHtml || "",
+			descriptionHtml: rawJob.descriptionHtml,
+			description: rawJob.descriptionText || "",
 			company: rawJob.companyName || "Unknown Company",
 			location: rawJob.location || "Unknown Location",
 			salary,
@@ -152,10 +156,10 @@ function extractEssentialJobData(rawJob: any): SimpleJobData | null {
 export const migrateJobsAction = internalAction({
 	handler: async (ctx): Promise<GenericId<"jobListings">[]> => {
 		const linkedInJobsStorageIds = [
-			"kg289qvfpr29xfpgdkfm2qdd6x7kdamg",
-			"kg26e0c88f978pm0a44w7n4bv97kdkkn",
-			"kg225yest0wpyw6z1tj8twjsg57kctsr",
-			"kg23h0bdjh3rpqr67a9xm71y497kcedd",
+			"kg24ag2b5pz9zzb7d6mt0ncefd7kdwxt",
+			"kg26h3j1qk72w9j51m2mh8n8ds7kd4ep",
+			"kg260jn45jwst3mfznpcw30ep17kd4yc",
+			"kg20c664skkzh7wcy3kx41fn5h7kdb5r",
 		];
 
 		// Get all jobs dataset files from the storage

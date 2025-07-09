@@ -147,7 +147,15 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       </div>
 
       {/* Description */}
-      <p className="text-muted-foreground mb-6 line-clamp-3 text-sm">{job.description}</p>
+      <div 
+        className="text-muted-foreground mb-6 line-clamp-3 text-sm prose prose-sm max-w-none"
+        dangerouslySetInnerHTML={{ 
+          __html: job.descriptionHtml.replace(/<br>/g, '<br />')
+            .replace(/<ul>/g, '<ul class="list-disc pl-4 my-2">')
+            .replace(/<li>/g, '<li class="my-1">')
+            .replace(/<strong>/g, '<strong class="font-semibold block mt-4 mb-2">')
+        }} 
+      />
 
       {/* Actions */}
       <div className="flex space-x-3 space-x-reverse">

@@ -190,6 +190,7 @@ export const aiSearchJobs = internalAction({
 					company: job.sourceName || "Unknown Company",
 					location: job.location || job.sourceLocation || "Remote",
 					description: job.description,
+					descriptionHtml: job.descriptionHtml,
 					requirements: [], // Extract from description if needed
 					salary: job.salary
 						? `${job.salary} ${job.currency || "USD"}`

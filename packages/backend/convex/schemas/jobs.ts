@@ -5,6 +5,7 @@ export const jobSchemas = {
 	jobListings: defineTable({
 		// Basic job details
 		name: v.string(),
+		descriptionHtml: v.string(),
 		description: v.string(),
 		location: v.optional(v.string()),
 		salary: v.optional(v.number()),
@@ -104,6 +105,7 @@ export const jobSchemas = {
 		company: v.string(),
 		location: v.string(),
 		description: v.string(),
+		descriptionHtml: v.string(),
 		requirements: v.array(v.string()),
 		salary: v.optional(v.string()),
 		type: v.string(), // JobType

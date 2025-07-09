@@ -6,6 +6,7 @@ export type JobResult = {
 	company: string;
 	location: string;
 	description: string;
+	descriptionHtml: string;
 	requirements: string[];
 	salary?: string;
 	type: JobType;

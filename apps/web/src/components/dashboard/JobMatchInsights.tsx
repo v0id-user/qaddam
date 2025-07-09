@@ -196,7 +196,16 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
             <h4 className="text-foreground mb-4 text-lg font-bold">
               {t('job_results.job_details.description')}
             </h4>
-            <p className="text-muted-foreground text-sm leading-relaxed">{job.description}</p>
+            <div 
+              className="text-muted-foreground text-sm leading-relaxed prose prose-sm max-w-none"
+              dir="auto"
+              dangerouslySetInnerHTML={{ 
+                __html: job.descriptionHtml.replace(/<br>/g, '<br />')
+                  .replace(/<ul>/g, '<ul class="list-disc pl-4 my-2">')
+                  .replace(/<li>/g, '<li class="my-1">')
+                  .replace(/<strong>/g, '<strong class="font-semibold block mt-4 mb-2">')
+              }} 
+            />
           </div>
         </div>
 

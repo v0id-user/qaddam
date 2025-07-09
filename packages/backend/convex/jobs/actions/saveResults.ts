@@ -118,6 +118,7 @@ export const saveJobResult = internalMutation({
 			company: job.company,
 			location: job.location,
 			description: job.description,
+			descriptionHtml: job.descriptionHtml,
 			requirements: job.requirements,
 			salary: job.salary,
 			type: job.type,

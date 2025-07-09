@@ -112,7 +112,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
   const progressPercentage = (completedSteps / steps.length) * 100;
 
   return (
-    <div className="from-accent/30 via-background to-secondary/20 min-h-screen bg-gradient-to-br px-6 py-24">
+    <div className="from-accent/30 via-background to-secondary/20 min-h-screen bg-gradient-to-br px-6 py-24 rounded-xl">
       <div className="mx-auto max-w-4xl">
         {/* Header */}
         <div className="mb-16 text-center">

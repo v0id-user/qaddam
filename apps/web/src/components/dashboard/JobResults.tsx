@@ -45,7 +45,7 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
   // Show loading state if data is still loading
   if (jobResults === undefined) {
     return (
-      <div className="from-accent/30 via-background to-secondary/20 min-h-screen bg-gradient-to-br px-6 py-24">
+      <div className="from-accent/30 via-background to-secondary/20 min-h-screen bg-gradient-to-br px-6 py-24 rounded-xl">
         <div className="mx-auto max-w-6xl text-center">
           <div className="text-foreground text-xl">Loading job results...</div>
         </div>
@@ -56,7 +56,7 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
   // Show no results if query returned null
   if (jobResults === null) {
     return (
-      <div className="from-accent/30 via-background to-secondary/20 min-h-screen bg-gradient-to-br px-6 py-24">
+      <div className="from-accent/30 via-background to-secondary/20 min-h-screen bg-gradient-to-br px-6 py-24 rounded-xl">
         <div className="mx-auto max-w-6xl text-center">
           <div className="text-foreground text-xl">No job results found for this workflow.</div>
           <Button
@@ -83,6 +83,7 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
       company: job.company,
       location: job.location,
       description: job.description,
+      descriptionHtml: job.descriptionHtml,
       requirements: job.requirements,
       salary: job.salary,
       type: job.type as JobType,
@@ -101,7 +102,7 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
     })) || [];
 
   return (
-    <div className="from-accent/30 via-background to-secondary/20 min-h-screen bg-gradient-to-br px-6 py-24">
+    <div className="from-accent/30 via-background to-secondary/20 min-h-screen bg-gradient-to-br px-6 py-24 rounded-xl">
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-16 text-center">
