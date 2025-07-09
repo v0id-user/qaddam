@@ -1,6 +1,6 @@
 import { query } from "../_generated/server";
 import { v } from "convex/values";
-import { workflow } from "./workflow";
+import { workflow, WorkflowId } from "./workflow";
 
 export const getJobResults = query({
   args: { workflowId: v.string() },
@@ -34,12 +34,12 @@ export const getJobResults = query({
 // Simple status check using workflow.status
 export const getWorkflowStatus = query({
 	args: {
-		workflowId: v.string(),
+		workflowId: v.any(),
 	},
 	handler: async (ctx, args) => {
 		try {
 			// Note: We'll use the workflowId as string for now and cast if needed
-			const status = await workflow.status(ctx, args.workflowId as any);
+			const status = await workflow.status(ctx, args.workflowId as WorkflowId);
 
 			return {
 				workflowId: args.workflowId,

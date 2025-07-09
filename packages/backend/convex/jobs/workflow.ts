@@ -1,9 +1,9 @@
 import { WorkflowManager } from "@convex-dev/workflow";
 import { components, internal } from "@/_generated/api";
 import { v } from "convex/values";
-import type { JobSearchResults } from "@/types/jobs";
-import { mutation, query } from "@/_generated/server";
-import { WorkflowId } from "@convex-dev/workflow";
+import { mutation } from "@/_generated/server";
+import type { WorkflowId } from "@convex-dev/workflow";
+export type { WorkflowId };
 
 export const workflow = new WorkflowManager(components.workflow, {
 	workpoolOptions: {

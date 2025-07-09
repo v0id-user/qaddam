@@ -10,9 +10,10 @@ import type { JobResult } from './types';
 import { useQuery } from 'convex/react';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import type { JobType } from '@qaddam/backend/convex/types/jobs';
+import type { WorkflowId } from '@qaddam/backend/convex/jobs/workflow';
 
 interface JobResultsProps {
-  workflowId: string | null;
+  workflowId: WorkflowId;
   onBackToUpload: () => void;
 }
 

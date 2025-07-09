@@ -12,6 +12,7 @@ import type { DashboardStage } from '@/components/dashboard/types';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import type { Id } from '@qaddam/backend/convex/_generated/dataModel';
 import { toast } from 'react-hot-toast';
+import type { WorkflowId } from '@qaddam/backend/convex/jobs/workflow';
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
@@ -23,7 +24,7 @@ export default function DashboardPage() {
     storageId: string;
   } | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [workflowId, setWorkflowId] = useState<string | null>(null);
+  const [workflowId, setWorkflowId] = useState<WorkflowId | null>(null);
 
   const generateUploadUrl = useMutation(api.upload.generateUploadUrl);
   const saveCV = useMutation(api.upload.saveCV);
@@ -186,11 +187,11 @@ export default function DashboardPage() {
 
   // Render based on current stage
   if (currentStage === 'workflow') {
-    return <WorkflowSteps workflowId={workflowId} onComplete={handleWorkflowComplete} />;
+    return <WorkflowSteps workflowId={workflowId!} onComplete={handleWorkflowComplete} />;
   }
 
   if (currentStage === 'results') {
-    return <JobResults workflowId={workflowId} onBackToUpload={handleBackToUpload} />;
+    return <JobResults workflowId={workflowId!} onBackToUpload={handleBackToUpload} />;
   }
 
   return (

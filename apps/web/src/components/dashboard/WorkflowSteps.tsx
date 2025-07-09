@@ -6,9 +6,10 @@ import { FileText, Search, Target, Combine, CheckCircle, Clock, Circle } from 'l
 import { useQuery } from 'convex/react';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import type { Step, StepStatus } from './types';
+import type { WorkflowId } from '@qaddam/backend/convex/jobs/workflow';
 
 interface WorkflowStepsProps {
-  workflowId: string | null;
+  workflowId: WorkflowId;
   onComplete: (results: any) => void;
 }
 
@@ -48,7 +49,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
   // Get workflow progress from Convex
   const workflowProgress = useQuery(
     api.jobs.data.getWorkflowStatus,
-    workflowId ? { workflowId } : 'skip'
+    { workflowId }
   );
 
   // Update steps based on workflow progress
