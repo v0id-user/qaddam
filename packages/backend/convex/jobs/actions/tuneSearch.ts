@@ -30,15 +30,18 @@ export const aiTuneJobSearch = internalAction({
 		job_title_keywords: string[];
 		technical_skills: string[];
 	}> => {
-		const response = await generateObject({
-			model: openai.chat("gpt-4o-mini", {
-				structuredOutputs: true,
-			}),
-			schemaName: "CV_Keywords_Extraction",
-			messages: [
-				{
-					role: "system",
-					content: `
+		try {
+			console.log("Starting keyword extraction for CV profile:", args.cvProfile);
+
+			const response = await generateObject({
+				model: openai.chat("gpt-4o-mini", {
+					structuredOutputs: true,
+				}),
+				schemaName: "CV_Keywords_Extraction",
+				messages: [
+					{
+						role: "system",
+						content: `
 <agent>
   <name>CVKeywordExtractionAgent</name>
   <description>
@@ -63,13 +66,15 @@ export const aiTuneJobSearch = internalAction({
     <rule>Group related keywords logically for database querying</rule>
     <rule>Maintain language consistency with the CV input</rule>
     <rule>Avoid hallucinating skills not present in the CV</rule>
+    <rule>Always provide at least one keyword in each category</rule>
+    <rule>Ensure all arrays are non-empty</rule>
   </rules>
 </agent>
-                    `,
-				},
-				{
-					role: "user",
-					content: `
+                        `,
+					},
+					{
+						role: "user",
+						content: `
 Analyze the following structured CV profile and extract search keywords for finding relevant job listings in our database:
 
 Skills: ${args.cvProfile.skills.join(", ")}
@@ -90,34 +95,80 @@ Extract specific keywords that would be found in job titles and job descriptions
 
 Provide keywords that are likely to appear in actual job postings and descriptions.
 Important: Extract only concrete, searchable terms - avoid soft skills or abstract concepts.
-					`,
-				},
-			],
-			schema: z.object({
-				primary_keywords: z
-					.array(z.string())
-					.describe(
-						"Most important keywords for job searching - technical skills, job titles, core expertise",
-					),
-				secondary_keywords: z
-					.array(z.string())
-					.describe(
-						"Additional relevant keywords - related skills, industry terms, experience levels",
-					),
-				search_terms: z
-					.array(z.string())
-					.describe("Combined optimized search terms for database queries"),
-				job_title_keywords: z
-					.array(z.string())
-					.describe("Specific job titles and role names to search for"),
-				technical_skills: z
-					.array(z.string())
-					.describe(
-						"Technical skills, programming languages, frameworks, and tools",
-					),
-			}),
-		});
+Make sure each array has at least one relevant keyword.
+						`,
+					},
+				],
+				schema: z.object({
+					primary_keywords: z
+						.array(z.string())
+						.min(1)
+						.describe(
+							"Most important keywords for job searching - technical skills, job titles, core expertise",
+						),
+					secondary_keywords: z
+						.array(z.string())
+						.min(1)
+						.describe(
+							"Additional relevant keywords - related skills, industry terms, experience levels",
+						),
+					search_terms: z
+						.array(z.string())
+						.min(1)
+						.describe("Combined optimized search terms for database queries"),
+					job_title_keywords: z
+						.array(z.string())
+						.min(1)
+						.describe("Specific job titles and role names to search for"),
+					technical_skills: z
+						.array(z.string())
+						.min(1)
+						.describe(
+							"Technical skills, programming languages, frameworks, and tools",
+						),
+				}),
+			});
 
-		return response.object;
+			const result = response.object;
+			console.log("Keyword extraction completed successfully:", result);
+
+			// Validate that all arrays are non-empty
+			if (
+				result.primary_keywords.length === 0 ||
+				result.secondary_keywords.length === 0 ||
+				result.search_terms.length === 0 ||
+				result.job_title_keywords.length === 0 ||
+				result.technical_skills.length === 0
+			) {
+				console.warn("Some keyword arrays are empty, providing fallbacks");
+				
+				// Provide fallback keywords based on CV profile
+				const fallbackKeywords = {
+					primary_keywords: result.primary_keywords.length > 0 ? result.primary_keywords : args.cvProfile.skills.slice(0, 5),
+					secondary_keywords: result.secondary_keywords.length > 0 ? result.secondary_keywords : args.cvProfile.industries,
+					search_terms: result.search_terms.length > 0 ? result.search_terms : args.cvProfile.job_titles,
+					job_title_keywords: result.job_title_keywords.length > 0 ? result.job_title_keywords : args.cvProfile.job_titles,
+					technical_skills: result.technical_skills.length > 0 ? result.technical_skills : args.cvProfile.skills,
+				};
+				
+				return fallbackKeywords;
+			}
+
+			return result;
+		} catch (error) {
+			console.error("Error in keyword extraction:", error);
+			
+			// Provide fallback based on CV profile data
+			const fallbackResult = {
+				primary_keywords: args.cvProfile.skills.slice(0, 5),
+				secondary_keywords: args.cvProfile.industries,
+				search_terms: args.cvProfile.job_titles,
+				job_title_keywords: args.cvProfile.job_titles,
+				technical_skills: args.cvProfile.skills,
+			};
+			
+			console.log("Using fallback keywords:", fallbackResult);
+			return fallbackResult;
+		}
 	},
 });

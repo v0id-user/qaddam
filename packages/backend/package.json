@@ -25,6 +25,7 @@
 		"@noble/hashes": "^1.8.0",
 		"ai": "^4.3.16",
 		"apify-client": "^2.12.6",
+		"consola": "^3.4.2",
 		"convex": "^1.25.0",
 		"convex-test": "^0.0.37",
 		"dotenv": "^17.1.0",

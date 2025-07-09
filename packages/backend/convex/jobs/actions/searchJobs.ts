@@ -4,13 +4,32 @@ import { v } from "convex/values";
 import type { JobResult } from "@/types/jobs";
 import type { Doc } from "@/_generated/dataModel";
 
+// Internal query to get all jobs for testing/debugging
+export const getAllJobListings = internalQuery({
+	args: {},
+	handler: async (ctx): Promise<Doc<"jobListings">[]> => {
+		return await ctx.db.query("jobListings").take(100);
+	},
+});
+
+// Internal query to count total jobs in database
+export const countJobListings = internalQuery({
+	args: {},
+	handler: async (ctx): Promise<number> => {
+		const jobs = await ctx.db.query("jobListings").collect();
+		return jobs.length;
+	},
+});
+
 // Internal query to search the database
 export const searchJobListings = internalQuery({
 	args: {
 		searchQuery: v.string(),
 	},
 	handler: async (ctx, args): Promise<Doc<"jobListings">[]> => {
-		// Search in job descriptions
+		console.log(`Searching for: "${args.searchQuery}"`);
+
+		// Search in job descriptions - following Convex docs exactly
 		const descriptionResults = await ctx.db
 			.query("jobListings")
 			.withSearchIndex("search_description", (q) =>
@@ -18,11 +37,17 @@ export const searchJobListings = internalQuery({
 			)
 			.take(50);
 
-		// Search in job names/titles
+		console.log(`Description search found: ${descriptionResults.length} results`);
+
+		// Search in job names/titles - following Convex docs exactly
 		const nameResults = await ctx.db
 			.query("jobListings")
-			.withSearchIndex("search_name", (q) => q.search("name", args.searchQuery))
+			.withSearchIndex("search_name", (q) => 
+				q.search("name", args.searchQuery)
+			)
 			.take(50);
+
+		console.log(`Name search found: ${nameResults.length} results`);
 
 		// Combine and deduplicate results
 		const allResults = [...descriptionResults, ...nameResults];
@@ -30,7 +55,55 @@ export const searchJobListings = internalQuery({
 			(job, index, self) => index === self.findIndex((j) => j._id === job._id),
 		);
 
+		console.log(`Total unique results: ${uniqueResults.length}`);
+
+		// If no results from search indexes, try simple text matching
+		if (uniqueResults.length === 0) {
+			console.log("No search results found, trying simple text matching...");
+			const allJobs = await ctx.db.query("jobListings").take(100);
+			console.log(`Found ${allJobs.length} total jobs in database`);
+			
+			if (allJobs.length === 0) {
+				console.log("⚠️ Database is empty! Need to run migration first.");
+				return [];
+			}
+			
+			// Filter jobs that contain any of the search terms (case insensitive)
+			const searchTerms = args.searchQuery.toLowerCase().split(' ').filter(term => term.length > 2);
+			const filteredJobs = allJobs.filter((job) => {
+				const jobText = `${job.name} ${job.description} ${job.sourceName || ''} ${job.location || ''}`.toLowerCase();
+				return searchTerms.some(term => jobText.includes(term));
+			});
+			
+			console.log(`Filtered jobs: ${filteredJobs.length}`);
+			return filteredJobs;
+		}
+
 		return uniqueResults;
+	},
+});
+
+// Internal action to ensure we have data (run migration if needed)
+export const ensureJobData = internalAction({
+	args: {},
+	handler: async (ctx): Promise<{ hasData: boolean; jobCount: number }> => {
+		const jobCount = await ctx.runQuery(internal.jobs.actions.searchJobs.countJobListings, {});
+		
+		if (jobCount === 0) {
+			console.log("No jobs found in database. Running migration...");
+			try {
+				await ctx.runAction(internal.scripts.saveJobs.migrateJobsAction, {});
+				const newJobCount = await ctx.runQuery(internal.jobs.actions.searchJobs.countJobListings, {});
+				console.log(`Migration completed. Jobs in database: ${newJobCount}`);
+				return { hasData: newJobCount > 0, jobCount: newJobCount };
+			} catch (error) {
+				console.error("Migration failed:", error);
+				return { hasData: false, jobCount: 0 };
+			}
+		}
+		
+		console.log(`Found ${jobCount} jobs in database`);
+		return { hasData: true, jobCount };
 	},
 });
 
@@ -63,54 +136,77 @@ export const aiSearchJobs = internalAction({
 		totalFound: number;
 		searchParams: typeof args.searchParams;
 	}> => {
-		const { searchParams } = args;
-		const allSearchTerms = [
-			...searchParams.primary_keywords,
-			...searchParams.search_terms,
-			...searchParams.job_title_keywords,
-			...searchParams.technical_skills,
-		];
-
-		if (allSearchTerms.length === 0) {
+		console.log("Starting job search...");
+		
+		// Ensure we have data in the database
+		const dataStatus = await ctx.runAction(internal.jobs.actions.searchJobs.ensureJobData, {});
+		
+		if (!dataStatus.hasData) {
+			console.log("No job data available even after migration attempt");
 			return {
 				jobs: [],
 				totalFound: 0,
-				searchParams,
+				searchParams: args.searchParams,
 			};
 		}
 
-		// Create search query combining multiple terms
-		const searchQuery = allSearchTerms.slice(0, 8).join(" "); // Limit to 8 terms for Convex
+		const { searchParams } = args;
+		
+		// Try different search strategies with single terms (Convex limit: 16 terms max)
+		const searchStrategies = [
+			// Strategy 1: Individual technical skills
+			...searchParams.technical_skills.slice(0, 3),
+			// Strategy 2: Job titles
+			...searchParams.job_title_keywords.slice(0, 2), 
+			// Strategy 3: Primary keywords
+			...searchParams.primary_keywords.slice(0, 3),
+		];
 
-		// Call the internal query to search the database
-		const uniqueResults = await ctx.runQuery(
-			internal.jobs.actions.searchJobs.searchJobListings,
-			{
-				searchQuery,
-			},
+		console.log("Search strategies:", searchStrategies);
+
+		const allResults: Doc<"jobListings">[] = [];
+		
+		// Try each search term individually (better for Convex search)
+		for (const searchTerm of searchStrategies) {
+			if (searchTerm && searchTerm.trim().length > 2) {
+				console.log(`Searching for individual term: "${searchTerm}"`);
+				const results = await ctx.runQuery(
+					internal.jobs.actions.searchJobs.searchJobListings,
+					{ searchQuery: searchTerm.trim() }
+				);
+				allResults.push(...results);
+			}
+		}
+
+		// Remove duplicates
+		const uniqueResults = allResults.filter(
+			(job, index, self) => index === self.findIndex((j) => j._id === job._id)
 		);
 
-		// Convert database results to JobResult format and add matching logic
+		console.log(`Found ${uniqueResults.length} unique job results`);
+
+		// Convert database results to JobResult format
 		const jobs: JobResult[] = uniqueResults.map(
 			(job: Doc<"jobListings">, index: number) => {
-				// Calculate basic match score based on keyword presence
-				const jobText = `${job.name} ${job.description}`.toLowerCase();
+				// Calculate match score based on keyword presence
+				const jobText = `${job.name} ${job.description} ${job.sourceName || ''}`.toLowerCase();
 				const matchedSkills = searchParams.technical_skills.filter((skill) =>
 					jobText.includes(skill.toLowerCase()),
 				);
 				const matchedTitles = searchParams.job_title_keywords.filter((title) =>
 					jobText.includes(title.toLowerCase()),
 				);
+				const matchedKeywords = searchParams.primary_keywords.filter((keyword) =>
+					jobText.includes(keyword.toLowerCase()),
+				);
 
-				// Calculate match score (0-100)
-				const skillMatchRatio =
-					matchedSkills.length /
-					Math.max(searchParams.technical_skills.length, 1);
-				const titleMatchRatio =
-					matchedTitles.length /
-					Math.max(searchParams.job_title_keywords.length, 1);
+				// Enhanced match score calculation
+				const skillMatchRatio = matchedSkills.length / Math.max(searchParams.technical_skills.length, 1);
+				const titleMatchRatio = matchedTitles.length / Math.max(searchParams.job_title_keywords.length, 1);
+				const keywordMatchRatio = matchedKeywords.length / Math.max(searchParams.primary_keywords.length, 1);
+				
 				const matchScore = Math.round(
-					(skillMatchRatio * 60 + titleMatchRatio * 40) * 100,
+					(skillMatchRatio * 40 + titleMatchRatio * 30 + keywordMatchRatio * 30) * 100
 				);
 
 				return {
@@ -129,7 +225,7 @@ export const aiSearchJobs = internalAction({
 					postedDate: job.datePosted
 						? new Date(job.datePosted).toISOString()
 						: new Date().toISOString(),
-					matchScore: Math.max(matchScore, 50 + (50 - index)), // Ensure relevance order
+					matchScore: Math.max(matchScore, 30), // Minimum 30% match
 					benefits: [], // Could be extracted from description
 					matchedSkills,
 					missingSkills: searchParams.technical_skills.filter(
@@ -144,10 +240,12 @@ export const aiSearchJobs = internalAction({
 		// Sort by match score (descending)
 		jobs.sort((a, b) => b.matchScore - a.matchScore);
 
+		console.log(`Returning ${jobs.length} processed jobs`);
+
 		return {
 			jobs: jobs.slice(0, 20), // Limit to top 20 results
 			totalFound: jobs.length,
-			searchParams,
+			searchParams: args.searchParams,
 		};
 	},
 });

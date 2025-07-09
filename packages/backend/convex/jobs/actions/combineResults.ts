@@ -38,6 +38,38 @@ export const aiCombineJobResults = internalAction({
 		}), // Search parameters used
 	},
 	handler: async (ctx, args): Promise<JobSearchResults> => {
+		// If no jobs found, return empty results with default insights
+		if (!args.jobResults.jobs || args.jobResults.jobs.length === 0) {
+			return {
+				jobs: [],
+				totalFound: 0,
+				insights: {
+					total_relevant: 0,
+					avg_match_score: 0,
+					top_skills_in_demand: [],
+					salary_insights: "No salary data available",
+					market_observations: "No jobs found matching the search criteria",
+				},
+				searchParams: {
+					optimized_keywords: [
+						...args.searchParams.primary_keywords,
+						...args.searchParams.secondary_keywords,
+						...args.searchParams.search_terms,
+					],
+					target_job_titles: args.searchParams.job_title_keywords,
+					target_companies: [],
+					salary_range: {
+						min: 0,
+						max: 100000,
+						currency: "USD",
+					},
+					preferred_job_types: ["full_time"],
+					locations: args.cvProfile.preferred_locations,
+					search_strategy: "AI-optimized keyword matching based on CV analysis",
+				},
+			} as JobSearchResults;
+		}
+
 		const response = await generateObject({
 			model: openai.chat("gpt-4o-mini", {
 				structuredOutputs: true,
@@ -66,6 +98,7 @@ export const aiCombineJobResults = internalAction({
     <rule>Factor in salary expectations and career progression</rule>
     <rule>Remove obvious duplicates and spam postings</rule>
     <rule>Provide reasoning for job rankings and match scores</rule>
+    <rule>Always provide concerns array, even if empty</rule>
   </rules>
 </agent>
 					`,
@@ -87,7 +120,7 @@ Job Results: ${JSON.stringify(args.jobResults, null, 2)}
 						id: z.string(),
 						match_score: z.number().min(0).max(1),
 						match_reasons: z.array(z.string()),
-						concerns: z.array(z.string()).optional(),
+						concerns: z.array(z.string()), // Made required instead of optional
 						recommendation: z.enum([
 							"highly_recommended",
 							"recommended",
