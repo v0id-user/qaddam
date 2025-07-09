@@ -8,7 +8,7 @@ import { JobSearchInput, JobSearchActor } from "../driver";
 
 /*
  * Google Jobs Actor
- * 
+ *
  * Inputs:
  * - queries: string (newline separated queries)
  * - maxPagesPerQuery: number (default: 1)

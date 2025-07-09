@@ -14,22 +14,20 @@ export const searchJobListings = internalQuery({
 		const descriptionResults = await ctx.db
 			.query("jobListings")
 			.withSearchIndex("search_description", (q) =>
-				q.search("description", args.searchQuery)
+				q.search("description", args.searchQuery),
 			)
 			.take(50);
 
-		// Search in job names/titles  
+		// Search in job names/titles
 		const nameResults = await ctx.db
 			.query("jobListings")
-			.withSearchIndex("search_name", (q) =>
-				q.search("name", args.searchQuery)
-			)
+			.withSearchIndex("search_name", (q) => q.search("name", args.searchQuery))
 			.take(50);
 
 		// Combine and deduplicate results
 		const allResults = [...descriptionResults, ...nameResults];
-		const uniqueResults = allResults.filter((job, index, self) =>
-			index === self.findIndex(j => j._id === job._id)
+		const uniqueResults = allResults.filter(
+			(job, index, self) => index === self.findIndex((j) => j._id === job._id),
 		);
 
 		return uniqueResults;
@@ -57,7 +55,10 @@ export const aiSearchJobs = internalAction({
 			preferred_locations: v.array(v.string()),
 		}), // Original profile from step 1
 	},
-	handler: async (ctx, args): Promise<{
+	handler: async (
+		ctx,
+		args,
+	): Promise<{
 		jobs: JobResult[];
 		totalFound: number;
 		searchParams: typeof args.searchParams;
@@ -82,48 +83,63 @@ export const aiSearchJobs = internalAction({
 		const searchQuery = allSearchTerms.slice(0, 8).join(" "); // Limit to 8 terms for Convex
 
 		// Call the internal query to search the database
-		const uniqueResults = await ctx.runQuery(internal.jobs.actions.searchJobs.searchJobListings, {
-			searchQuery,
-		});
+		const uniqueResults = await ctx.runQuery(
+			internal.jobs.actions.searchJobs.searchJobListings,
+			{
+				searchQuery,
+			},
+		);
 
 		// Convert database results to JobResult format and add matching logic
-		const jobs: JobResult[] = uniqueResults.map((job: Doc<"jobListings">, index: number) => {
-			// Calculate basic match score based on keyword presence
-			const jobText = `${job.name} ${job.description}`.toLowerCase();
-			const matchedSkills = searchParams.technical_skills.filter(skill =>
-				jobText.includes(skill.toLowerCase())
-			);
-			const matchedTitles = searchParams.job_title_keywords.filter(title =>
-				jobText.includes(title.toLowerCase())
-			);
-			
-			// Calculate match score (0-100)
-			const skillMatchRatio = matchedSkills.length / Math.max(searchParams.technical_skills.length, 1);
-			const titleMatchRatio = matchedTitles.length / Math.max(searchParams.job_title_keywords.length, 1);
-			const matchScore = Math.round((skillMatchRatio * 60 + titleMatchRatio * 40) * 100);
+		const jobs: JobResult[] = uniqueResults.map(
+			(job: Doc<"jobListings">, index: number) => {
+				// Calculate basic match score based on keyword presence
+				const jobText = `${job.name} ${job.description}`.toLowerCase();
+				const matchedSkills = searchParams.technical_skills.filter((skill) =>
+					jobText.includes(skill.toLowerCase()),
+				);
+				const matchedTitles = searchParams.job_title_keywords.filter((title) =>
+					jobText.includes(title.toLowerCase()),
+				);
 
-			return {
-				id: job._id,
-				title: job.name,
-				company: job.sourceName || "Unknown Company",
-				location: job.location || job.sourceLocation || "Remote",
-				description: job.description,
-				requirements: [], // Extract from description if needed
-				salary: job.salary ? `${job.salary} ${job.currency || "USD"}` : "Salary not specified",
-				type: "full_time", // Default, could be extracted from description
-				remote: job.location?.toLowerCase().includes("remote") || false,
-				url: job.sourceUrl || "",
-				postedDate: job.datePosted ? new Date(job.datePosted).toISOString() : new Date().toISOString(),
-				matchScore: Math.max(matchScore, 50 + (50 - index)), // Ensure relevance order
-				benefits: [], // Could be extracted from description
-				matchedSkills,
-				missingSkills: searchParams.technical_skills.filter(skill => 
-					!matchedSkills.includes(skill)
-				),
-				experienceMatch: "Experience match analysis needed",
-				locationMatch: "Location analysis needed",
-			};
-		});
+				// Calculate match score (0-100)
+				const skillMatchRatio =
+					matchedSkills.length /
+					Math.max(searchParams.technical_skills.length, 1);
+				const titleMatchRatio =
+					matchedTitles.length /
+					Math.max(searchParams.job_title_keywords.length, 1);
+				const matchScore = Math.round(
+					(skillMatchRatio * 60 + titleMatchRatio * 40) * 100,
+				);
+
+				return {
+					id: job._id,
+					title: job.name,
+					company: job.sourceName || "Unknown Company",
+					location: job.location || job.sourceLocation || "Remote",
+					description: job.description,
+					requirements: [], // Extract from description if needed
+					salary: job.salary
+						? `${job.salary} ${job.currency || "USD"}`
+						: "Salary not specified",
+					type: "full_time", // Default, could be extracted from description
+					remote: job.location?.toLowerCase().includes("remote") || false,
+					url: job.sourceUrl || "",
+					postedDate: job.datePosted
+						? new Date(job.datePosted).toISOString()
+						: new Date().toISOString(),
+					matchScore: Math.max(matchScore, 50 + (50 - index)), // Ensure relevance order
+					benefits: [], // Could be extracted from description
+					matchedSkills,
+					missingSkills: searchParams.technical_skills.filter(
+						(skill) => !matchedSkills.includes(skill),
+					),
+					experienceMatch: "Experience match analysis needed",
+					locationMatch: "Location analysis needed",
+				};
+			},
+		);
 
 		// Sort by match score (descending)
 		jobs.sort((a, b) => b.matchScore - a.matchScore);

@@ -25,7 +25,7 @@ export const aiParseCV = internalAction({
 			schemaName: "Job_Search_Keywords_From_CV",
 			messages: [
 				{
-					role: "system", 
+					role: "system",
 					content: `
 <agent>
   <name>JobSearchProfileAgent</name>
@@ -53,7 +53,8 @@ export const aiParseCV = internalAction({
 				},
 				{
 					role: "user",
-					content: "Please analyze this CV and extract the structured profile information.",
+					content:
+						"Please analyze this CV and extract the structured profile information.",
 					experimental_attachments: [
 						{
 							name: "cv.pdf",

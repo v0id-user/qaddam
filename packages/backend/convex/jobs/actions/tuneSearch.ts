@@ -20,7 +20,10 @@ export const aiTuneJobSearch = internalAction({
 			preferred_locations: v.array(v.string()),
 		}), // CV profile object from step 1
 	},
-	handler: async (ctx, args): Promise<{
+	handler: async (
+		ctx,
+		args,
+	): Promise<{
 		primary_keywords: string[];
 		secondary_keywords: string[];
 		search_terms: string[];
@@ -93,10 +96,14 @@ Important: Extract only concrete, searchable terms - avoid soft skills or abstra
 			schema: z.object({
 				primary_keywords: z
 					.array(z.string())
-					.describe("Most important keywords for job searching - technical skills, job titles, core expertise"),
+					.describe(
+						"Most important keywords for job searching - technical skills, job titles, core expertise",
+					),
 				secondary_keywords: z
 					.array(z.string())
-					.describe("Additional relevant keywords - related skills, industry terms, experience levels"),
+					.describe(
+						"Additional relevant keywords - related skills, industry terms, experience levels",
+					),
 				search_terms: z
 					.array(z.string())
 					.describe("Combined optimized search terms for database queries"),
@@ -105,7 +112,9 @@ Important: Extract only concrete, searchable terms - avoid soft skills or abstra
 					.describe("Specific job titles and role names to search for"),
 				technical_skills: z
 					.array(z.string())
-					.describe("Technical skills, programming languages, frameworks, and tools"),
+					.describe(
+						"Technical skills, programming languages, frameworks, and tools",
+					),
 			}),
 		});
 
