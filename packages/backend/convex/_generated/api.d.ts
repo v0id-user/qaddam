@@ -24,6 +24,7 @@ import type * as healthCheck from "../healthCheck.js";
 import type * as http from "../http.js";
 import type * as jobs_actions_combineResults from "../jobs/actions/combineResults.js";
 import type * as jobs_actions_parse from "../jobs/actions/parse.js";
+import type * as jobs_actions_saveResults from "../jobs/actions/saveResults.js";
 import type * as jobs_actions_searchJobs from "../jobs/actions/searchJobs.js";
 import type * as jobs_actions_tuneSearch from "../jobs/actions/tuneSearch.js";
 import type * as jobs_workflow from "../jobs/workflow.js";
@@ -69,6 +70,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   "jobs/actions/combineResults": typeof jobs_actions_combineResults;
   "jobs/actions/parse": typeof jobs_actions_parse;
+  "jobs/actions/saveResults": typeof jobs_actions_saveResults;
   "jobs/actions/searchJobs": typeof jobs_actions_searchJobs;
   "jobs/actions/tuneSearch": typeof jobs_actions_tuneSearch;
   "jobs/workflow": typeof jobs_workflow;

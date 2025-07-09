@@ -110,13 +110,18 @@ const mockJobs: JobResult[] = [
 ];
 
 interface JobResultsProps {
+  jobResults?: any;
   onBackToUpload: () => void;
 }
 
-const JobResults = ({ onBackToUpload }: JobResultsProps) => {
+const JobResults = ({ jobResults, onBackToUpload }: JobResultsProps) => {
   const t = useTranslations('dashboard');
   const [selectedJob, setSelectedJob] = useState<JobResult | null>(null);
   const [isInsightsOpen, setIsInsightsOpen] = useState(false);
+
+  // Use real job results if available, fallback to mock data
+  const jobs = jobResults?.jobs || mockJobs;
+  const jobCount = jobResults?.totalFound || mockJobs.length;
 
   const handleJobClick = (job: JobResult) => {
     setSelectedJob(job);
@@ -142,7 +147,7 @@ const JobResults = ({ onBackToUpload }: JobResultsProps) => {
           <div className="mb-6 flex items-center justify-center gap-4">
             <div className="bg-primary/10 inline-flex items-center rounded-full px-4 py-2">
               <span className="text-primary font-semibold">
-                {t('job_results.found_jobs', { count: mockJobs.length })}
+                {t('job_results.found_jobs', { count: jobCount })}
               </span>
             </div>
             <Button
@@ -158,7 +163,7 @@ const JobResults = ({ onBackToUpload }: JobResultsProps) => {
 
         {/* Job Cards Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {mockJobs.map(job => (
+          {jobs.map((job: JobResult) => (
             <JobCard key={job.id} job={job} onClick={() => handleJobClick(job)} />
           ))}
         </div>

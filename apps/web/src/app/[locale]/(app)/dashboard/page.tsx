@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useMutation, useQuery } from 'convex/react';
+import { useMutation, useQuery, useAction } from 'convex/react';
 import { Button } from '@/components/ui/button';
 import { Upload, FileText, X, Brain, Target, Settings, Eye, Trash2, Search } from 'lucide-react';
 import WorkflowSteps from '@/components/dashboard/WorkflowSteps';
@@ -23,12 +23,17 @@ export default function DashboardPage() {
     storageId: string;
   } | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [workflowId, setWorkflowId] = useState<string | null>(null);
+  const [workflowResults, setWorkflowResults] = useState<any>(null);
 
   const generateUploadUrl = useMutation(api.upload.generateUploadUrl);
   const saveCV = useMutation(api.upload.saveCV);
   const getCVDownloadUrl = useMutation(api.upload.getCVDownloadUrl);
   const deleteCV = useMutation(api.upload.deleteCV);
   const me = useQuery(api.users.getMe);
+
+  // Workflow functions
+  const startWorkflow = useMutation(api.jobs.workflow.startJobSearchWorkflow);
 
   const { getRootProps, getInputProps, isDragActive, isDragAccept } = useDropzone({
     accept: {
@@ -141,14 +146,36 @@ export default function DashboardPage() {
     }
   };
 
-  const handleStartJobSearch = () => {
-    console.log('Starting job search workflow with CV:', uploadedCVId);
-    setCurrentStage('workflow');
+  const handleStartJobSearch = async () => {
+    if (!uploadedCVId || !me) {
+      toast.error('CV or user not found');
+      return;
+    }
+
+    try {
+      console.log('Starting job search workflow with CV:', uploadedCVId);
+      toast.success('🚀 Starting job search workflow...');
+
+      const result = await startWorkflow({
+        cv_storage_id: uploadedCVId,
+        userId: me._id,
+      });
+
+      setWorkflowId(result.workflowId);
+      setCurrentStage('workflow');
+
+      console.log('Workflow started successfully:', result);
+    } catch (error) {
+      console.error('Error starting workflow:', error);
+      toast.error('Failed to start job search workflow');
+    }
   };
 
-  const handleWorkflowComplete = () => {
-    console.log('Workflow completed, showing results');
+  const handleWorkflowComplete = (results: any) => {
+    console.log('Workflow completed with results:', results);
+    setWorkflowResults(results);
     setCurrentStage('results');
+    toast.success('🎉 Job search completed!');
   };
 
   const handleBackToUpload = () => {
@@ -156,15 +183,17 @@ export default function DashboardPage() {
     setSelectedFile(null);
     setUploadedCVId(null);
     setCvData(null);
+    setWorkflowId(null);
+    setWorkflowResults(null);
   };
 
   // Render based on current stage
   if (currentStage === 'workflow') {
-    return <WorkflowSteps onComplete={handleWorkflowComplete} />;
+    return <WorkflowSteps workflowId={workflowId} onComplete={handleWorkflowComplete} />;
   }
 
   if (currentStage === 'results') {
-    return <JobResults onBackToUpload={handleBackToUpload} />;
+    return <JobResults jobResults={workflowResults} onBackToUpload={handleBackToUpload} />;
   }
 
   return (

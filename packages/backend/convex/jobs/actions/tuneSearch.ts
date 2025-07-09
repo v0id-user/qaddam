@@ -31,7 +31,10 @@ export const aiTuneJobSearch = internalAction({
 		technical_skills: string[];
 	}> => {
 		try {
-			console.log("Starting keyword extraction for CV profile:", args.cvProfile);
+			console.log(
+				"Starting keyword extraction for CV profile:",
+				args.cvProfile,
+			);
 
 			const response = await generateObject({
 				model: openai.chat("gpt-4o-mini", {
@@ -141,23 +144,38 @@ Make sure each array has at least one relevant keyword.
 				result.technical_skills.length === 0
 			) {
 				console.warn("Some keyword arrays are empty, providing fallbacks");
-				
+
 				// Provide fallback keywords based on CV profile
 				const fallbackKeywords = {
-					primary_keywords: result.primary_keywords.length > 0 ? result.primary_keywords : args.cvProfile.skills.slice(0, 5),
-					secondary_keywords: result.secondary_keywords.length > 0 ? result.secondary_keywords : args.cvProfile.industries,
-					search_terms: result.search_terms.length > 0 ? result.search_terms : args.cvProfile.job_titles,
-					job_title_keywords: result.job_title_keywords.length > 0 ? result.job_title_keywords : args.cvProfile.job_titles,
-					technical_skills: result.technical_skills.length > 0 ? result.technical_skills : args.cvProfile.skills,
+					primary_keywords:
+						result.primary_keywords.length > 0
+							? result.primary_keywords
+							: args.cvProfile.skills.slice(0, 5),
+					secondary_keywords:
+						result.secondary_keywords.length > 0
+							? result.secondary_keywords
+							: args.cvProfile.industries,
+					search_terms:
+						result.search_terms.length > 0
+							? result.search_terms
+							: args.cvProfile.job_titles,
+					job_title_keywords:
+						result.job_title_keywords.length > 0
+							? result.job_title_keywords
+							: args.cvProfile.job_titles,
+					technical_skills:
+						result.technical_skills.length > 0
+							? result.technical_skills
+							: args.cvProfile.skills,
 				};
-				
+
 				return fallbackKeywords;
 			}
 
 			return result;
 		} catch (error) {
 			console.error("Error in keyword extraction:", error);
-			
+
 			// Provide fallback based on CV profile data
 			const fallbackResult = {
 				primary_keywords: args.cvProfile.skills.slice(0, 5),
@@ -166,7 +184,7 @@ Make sure each array has at least one relevant keyword.
 				job_title_keywords: args.cvProfile.job_titles,
 				technical_skills: args.cvProfile.skills,
 			};
-			
+
 			console.log("Using fallback keywords:", fallbackResult);
 			return fallbackResult;
 		}

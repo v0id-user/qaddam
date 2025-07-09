@@ -3,39 +3,41 @@
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { FileText, Search, Target, Combine, CheckCircle, Clock, Circle } from 'lucide-react';
+import { useQuery } from 'convex/react';
+import { api } from '@qaddam/backend/convex/_generated/api';
 import type { Step, StepStatus } from './types';
 
 interface WorkflowStepsProps {
-  onComplete: () => void;
+  workflowId: string | null;
+  onComplete: (results: any) => void;
 }
 
-const WorkflowSteps = ({ onComplete }: WorkflowStepsProps) => {
+const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
   const t = useTranslations('dashboard');
-  const [currentStep, setCurrentStep] = useState(0);
   const [steps, setSteps] = useState<Step[]>([
     {
-      key: 'parsing',
+      key: 'aiParseCV',
       title: t('workflow.steps.parsing.title'),
       description: t('workflow.steps.parsing.description'),
       icon: <FileText className="h-8 w-8" />,
       status: 'not_started',
     },
     {
-      key: 'tuning',
+      key: 'aiTuneJobSearch',
       title: t('workflow.steps.tuning.title'),
       description: t('workflow.steps.tuning.description'),
       icon: <Target className="h-8 w-8" />,
       status: 'not_started',
     },
     {
-      key: 'searching',
+      key: 'aiSearchJobs',
       title: t('workflow.steps.searching.title'),
       description: t('workflow.steps.searching.description'),
       icon: <Search className="h-8 w-8" />,
       status: 'not_started',
     },
     {
-      key: 'combining',
+      key: 'aiCombineJobResults',
       title: t('workflow.steps.combining.title'),
       description: t('workflow.steps.combining.description'),
       icon: <Combine className="h-8 w-8" />,
@@ -43,39 +45,43 @@ const WorkflowSteps = ({ onComplete }: WorkflowStepsProps) => {
     },
   ]);
 
-  // Simulate workflow progress
+  // Get workflow progress from Convex
+  const workflowProgress = useQuery(
+    api.jobs.workflow.getWorkflowStatus,
+    workflowId ? { workflowId } : 'skip'
+  );
+
+  // Update steps based on workflow progress
   useEffect(() => {
-    const processStep = (stepIndex: number) => {
-      // Mark current step as pending
-      setSteps(prev =>
-        prev.map((step, index) =>
-          index === stepIndex ? { ...step, status: 'pending' as StepStatus } : step
-        )
-      );
+    if (!workflowProgress || !workflowId) return;
 
-      // After 2 seconds, mark as finished and move to next
-      setTimeout(() => {
-        setSteps(prev =>
-          prev.map((step, index) =>
-            index === stepIndex ? { ...step, status: 'finished' as StepStatus } : step
-          )
-        );
+    console.log('Workflow progress update:', workflowProgress);
 
-        if (stepIndex < steps.length - 1) {
-          setCurrentStep(stepIndex + 1);
-        } else {
-          // All steps completed
-          setTimeout(() => {
-            onComplete();
-          }, 1000);
+    // Update step statuses based on workflow progress
+    setSteps(prev =>
+      prev.map((step, index) => {
+        const progressStep = workflowProgress.steps.find((s: any) => s.key === step.key);
+        if (progressStep) {
+          return {
+            ...step,
+            status: progressStep.status,
+          };
         }
-      }, 2000);
-    };
+        return step;
+      })
+    );
 
-    if (currentStep < steps.length) {
-      processStep(currentStep);
+    // Check if workflow is completed
+    if (workflowProgress.isComplete && workflowProgress.result) {
+      console.log('Workflow completed with results:', workflowProgress.result);
+      setTimeout(() => {
+        onComplete(workflowProgress.result);
+      }, 1000);
+    } else if (workflowProgress.isError) {
+      console.error('Workflow failed:', workflowProgress.error);
+      // Handle error state
     }
-  }, [currentStep, steps.length, onComplete]);
+  }, [workflowProgress, workflowId, onComplete]);
 
   const getStatusIcon = (status: StepStatus) => {
     switch (status) {
@@ -103,6 +109,10 @@ const WorkflowSteps = ({ onComplete }: WorkflowStepsProps) => {
     }
   };
 
+  // Calculate progress percentage
+  const completedSteps = steps.filter(step => step.status === 'finished').length;
+  const progressPercentage = (completedSteps / steps.length) * 100;
+
   return (
     <div className="from-accent/30 via-background to-secondary/20 min-h-screen bg-gradient-to-br px-6 py-24">
       <div className="mx-auto max-w-4xl">
@@ -112,6 +122,9 @@ const WorkflowSteps = ({ onComplete }: WorkflowStepsProps) => {
             {t('workflow.title')}
           </h1>
           <p className="text-muted-foreground text-xl leading-relaxed">{t('workflow.subtitle')}</p>
+          {workflowId && (
+            <p className="text-muted-foreground mt-2 text-sm">Workflow ID: {workflowId}</p>
+          )}
         </div>
 
         {/* Progress Bar */}
@@ -125,8 +138,13 @@ const WorkflowSteps = ({ onComplete }: WorkflowStepsProps) => {
           <div className="bg-accent/20 h-2 w-full rounded-full">
             <div
               className="bg-primary h-2 rounded-full transition-all duration-1000 ease-out"
-              style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+              style={{ width: `${progressPercentage}%` }}
             />
+          </div>
+          <div className="mt-2 text-center">
+            <span className="text-primary text-sm font-medium">
+              {completedSteps} of {steps.length} steps completed
+            </span>
           </div>
         </div>
 
@@ -194,6 +212,21 @@ const WorkflowSteps = ({ onComplete }: WorkflowStepsProps) => {
             </div>
           ))}
         </div>
+
+        {/* Error State */}
+        {workflowProgress?.isError && (
+          <div className="mt-8 rounded-2xl border-2 border-red-500 bg-red-50 p-6">
+            <div className="flex items-center space-x-3">
+              <div className="rounded-full bg-red-100 p-2">
+                <Circle className="h-6 w-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-red-800">Workflow Error</h3>
+                <p className="text-red-700">{workflowProgress.error}</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

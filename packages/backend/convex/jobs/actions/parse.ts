@@ -93,24 +93,32 @@ export const aiParseCV = internalAction({
 				result.preferred_locations.length === 0
 			) {
 				console.warn("Some required arrays are empty, providing fallbacks");
-				
+
 				// Provide fallback data
 				const fallbackResult = {
 					...result,
 					skills: result.skills.length > 0 ? result.skills : ["General Skills"],
-					job_titles: result.job_titles.length > 0 ? result.job_titles : ["Professional"],
-					industries: result.industries.length > 0 ? result.industries : ["General"],
-					keywords: result.keywords.length > 0 ? result.keywords : ["experience", "professional"],
-					preferred_locations: result.preferred_locations.length > 0 ? result.preferred_locations : ["Any Location"],
+					job_titles:
+						result.job_titles.length > 0 ? result.job_titles : ["Professional"],
+					industries:
+						result.industries.length > 0 ? result.industries : ["General"],
+					keywords:
+						result.keywords.length > 0
+							? result.keywords
+							: ["experience", "professional"],
+					preferred_locations:
+						result.preferred_locations.length > 0
+							? result.preferred_locations
+							: ["Any Location"],
 				};
-				
+
 				return fallbackResult;
 			}
 
 			return result;
 		} catch (error) {
 			console.error("Error in CV parsing:", error);
-			
+
 			// Provide fallback profile data
 			const fallbackProfile = {
 				skills: ["General Skills"],
@@ -122,7 +130,7 @@ export const aiParseCV = internalAction({
 				years_of_experience: 0,
 				preferred_locations: ["Any Location"],
 			};
-			
+
 			console.log("Using fallback CV profile:", fallbackProfile);
 			return fallbackProfile;
 		}

@@ -31,14 +31,14 @@ export const searchJobListings = internalQuery({
 			)
 			.take(50);
 
-		console.log(`Description search found: ${descriptionResults.length} results`);
+		console.log(
+			`Description search found: ${descriptionResults.length} results`,
+		);
 
 		// Search in job names/titles
 		const nameResults = await ctx.db
 			.query("jobListings")
-			.withSearchIndex("search_name", (q) => 
-				q.search("name", args.searchQuery)
-			)
+			.withSearchIndex("search_name", (q) => q.search("name", args.searchQuery))
 			.take(50);
 
 		console.log(`Name search found: ${nameResults.length} results`);
@@ -54,15 +54,21 @@ export const searchJobListings = internalQuery({
 		// If no results from search indexes, try simple text matching
 		if (uniqueResults.length === 0) {
 			console.log("No search results found, trying simple text matching...");
-			
+
 			// Filter jobs that contain any of the search terms (case insensitive)
-			const searchTerms = args.searchQuery.toLowerCase().split(' ').filter(term => term.length > 2);
+			const searchTerms = args.searchQuery
+				.toLowerCase()
+				.split(" ")
+				.filter((term) => term.length > 2);
 			const filteredJobs = allJobsInDb.filter((job) => {
-				const jobText = `${job.name} ${job.description} ${job.sourceName || ''} ${job.location || ''}`.toLowerCase();
-				return searchTerms.some(term => jobText.includes(term));
+				const jobText =
+					`${job.name} ${job.description} ${job.sourceName || ""} ${job.location || ""}`.toLowerCase();
+				return searchTerms.some((term) => jobText.includes(term));
 			});
-			
-			console.log(`Filtered jobs: ${filteredJobs.length} from total ${allJobsInDb.length} jobs`);
+
+			console.log(
+				`Filtered jobs: ${filteredJobs.length} from total ${allJobsInDb.length} jobs`,
+			);
 			return filteredJobs;
 		}
 
@@ -102,13 +108,13 @@ export const aiSearchJobs = internalAction({
 		console.log("Starting job search...");
 
 		const { searchParams } = args;
-		
+
 		// Try different search strategies with single terms (Convex limit: 16 terms max)
 		const searchStrategies = [
 			// Strategy 1: Individual technical skills
 			...searchParams.technical_skills.slice(0, 3),
 			// Strategy 2: Job titles
-			...searchParams.job_title_keywords.slice(0, 2), 
+			...searchParams.job_title_keywords.slice(0, 2),
 			// Strategy 3: Primary keywords
 			...searchParams.primary_keywords.slice(0, 3),
 		];
@@ -116,14 +122,14 @@ export const aiSearchJobs = internalAction({
 		console.log("Search strategies:", searchStrategies);
 
 		const allResults: Doc<"jobListings">[] = [];
-		
+
 		// Try each search term individually (better for Convex search)
 		for (const searchTerm of searchStrategies) {
 			if (searchTerm && searchTerm.trim().length > 2) {
 				console.log(`Searching for individual term: "${searchTerm}"`);
 				const results = await ctx.runQuery(
 					internal.jobs.actions.searchJobs.searchJobListings,
-					{ searchQuery: searchTerm.trim() }
+					{ searchQuery: searchTerm.trim() },
 				);
 				allResults.push(...results);
 			}
@@ -131,7 +137,7 @@ export const aiSearchJobs = internalAction({
 
 		// Remove duplicates
 		const uniqueResults = allResults.filter(
-			(job, index, self) => index === self.findIndex((j) => j._id === job._id)
+			(job, index, self) => index === self.findIndex((j) => j._id === job._id),
 		);
 
 		console.log(`Found ${uniqueResults.length} unique job results`);
@@ -140,24 +146,34 @@ export const aiSearchJobs = internalAction({
 		const jobs: JobResult[] = uniqueResults.map(
 			(job: Doc<"jobListings">, index: number) => {
 				// Calculate match score based on keyword presence
-				const jobText = `${job.name} ${job.description} ${job.sourceName || ''}`.toLowerCase();
+				const jobText =
+					`${job.name} ${job.description} ${job.sourceName || ""}`.toLowerCase();
 				const matchedSkills = searchParams.technical_skills.filter((skill) =>
 					jobText.includes(skill.toLowerCase()),
 				);
 				const matchedTitles = searchParams.job_title_keywords.filter((title) =>
 					jobText.includes(title.toLowerCase()),
 				);
-				const matchedKeywords = searchParams.primary_keywords.filter((keyword) =>
-					jobText.includes(keyword.toLowerCase()),
+				const matchedKeywords = searchParams.primary_keywords.filter(
+					(keyword) => jobText.includes(keyword.toLowerCase()),
 				);
 
 				// Enhanced match score calculation
-				const skillMatchRatio = matchedSkills.length / Math.max(searchParams.technical_skills.length, 1);
-				const titleMatchRatio = matchedTitles.length / Math.max(searchParams.job_title_keywords.length, 1);
-				const keywordMatchRatio = matchedKeywords.length / Math.max(searchParams.primary_keywords.length, 1);
-				
+				const skillMatchRatio =
+					matchedSkills.length /
+					Math.max(searchParams.technical_skills.length, 1);
+				const titleMatchRatio =
+					matchedTitles.length /
+					Math.max(searchParams.job_title_keywords.length, 1);
+				const keywordMatchRatio =
+					matchedKeywords.length /
+					Math.max(searchParams.primary_keywords.length, 1);
+
 				const matchScore = Math.round(
-					(skillMatchRatio * 40 + titleMatchRatio * 30 + keywordMatchRatio * 30) * 100
+					(skillMatchRatio * 40 +
+						titleMatchRatio * 30 +
+						keywordMatchRatio * 30) *
+						100,
 				);
 
 				return {

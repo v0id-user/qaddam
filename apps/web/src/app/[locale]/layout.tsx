@@ -5,7 +5,7 @@ import { ConvexAuthNextjsServerProvider } from '@convex-dev/auth/nextjs/server';
 import { NextIntlClientProvider } from 'next-intl';
 import Providers from '@/components/providers';
 import { Toaster } from 'react-hot-toast';
-import {getTranslations} from 'next-intl/server';
+import { getTranslations } from 'next-intl/server';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

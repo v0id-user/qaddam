@@ -36,7 +36,7 @@ test(
 	},
 	async () => {
 		const t = convexTest(schema, modules);
-		
+
 		// Test with mock CV profile input
 		const result = await t.action(
 			internal.jobs.actions.tuneSearch.aiTuneJobSearch,
@@ -183,7 +183,7 @@ test(
 		console.log("Step 2 - Search Jobs completed:", searchResult);
 		expect(searchResult).toBeDefined();
 		expect(searchResult.jobs).toBeInstanceOf(Array);
-		
+
 		// Step 3: Test result combination with actual search results
 		const finalResult = await t.action(
 			internal.jobs.actions.combineResults.aiCombineJobResults,
