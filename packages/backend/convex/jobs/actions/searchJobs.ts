@@ -12,15 +12,6 @@ export const getAllJobListings = internalQuery({
 	},
 });
 
-// Internal query to count total jobs in database
-export const countJobListings = internalQuery({
-	args: {},
-	handler: async (ctx): Promise<number> => {
-		const jobs = await ctx.db.query("jobListings").collect();
-		return jobs.length;
-	},
-});
-
 // Internal query to search the database
 export const searchJobListings = internalQuery({
 	args: {
@@ -63,11 +54,6 @@ export const searchJobListings = internalQuery({
 			const allJobs = await ctx.db.query("jobListings").take(100);
 			console.log(`Found ${allJobs.length} total jobs in database`);
 			
-			if (allJobs.length === 0) {
-				console.log("⚠️ Database is empty! Need to run migration first.");
-				return [];
-			}
-			
 			// Filter jobs that contain any of the search terms (case insensitive)
 			const searchTerms = args.searchQuery.toLowerCase().split(' ').filter(term => term.length > 2);
 			const filteredJobs = allJobs.filter((job) => {
@@ -80,30 +66,6 @@ export const searchJobListings = internalQuery({
 		}
 
 		return uniqueResults;
-	},
-});
-
-// Internal action to ensure we have data (run migration if needed)
-export const ensureJobData = internalAction({
-	args: {},
-	handler: async (ctx): Promise<{ hasData: boolean; jobCount: number }> => {
-		const jobCount = await ctx.runQuery(internal.jobs.actions.searchJobs.countJobListings, {});
-		
-		if (jobCount === 0) {
-			console.log("No jobs found in database. Running migration...");
-			try {
-				await ctx.runAction(internal.scripts.saveJobs.migrateJobsAction, {});
-				const newJobCount = await ctx.runQuery(internal.jobs.actions.searchJobs.countJobListings, {});
-				console.log(`Migration completed. Jobs in database: ${newJobCount}`);
-				return { hasData: newJobCount > 0, jobCount: newJobCount };
-			} catch (error) {
-				console.error("Migration failed:", error);
-				return { hasData: false, jobCount: 0 };
-			}
-		}
-		
-		console.log(`Found ${jobCount} jobs in database`);
-		return { hasData: true, jobCount };
 	},
 });
 
@@ -137,18 +99,6 @@ export const aiSearchJobs = internalAction({
 		searchParams: typeof args.searchParams;
 	}> => {
 		console.log("Starting job search...");
-		
-		// Ensure we have data in the database
-		const dataStatus = await ctx.runAction(internal.jobs.actions.searchJobs.ensureJobData, {});
-		
-		if (!dataStatus.hasData) {
-			console.log("No job data available even after migration attempt");
-			return {
-				jobs: [],
-				totalFound: 0,
-				searchParams: args.searchParams,
-			};
-		}
 
 		const { searchParams } = args;
 		
