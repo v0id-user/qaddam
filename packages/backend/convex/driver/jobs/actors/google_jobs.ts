@@ -7,14 +7,14 @@ import { JobSource } from "../types/job_source";
 import { JobSearchInput, JobSearchActor } from "../driver";
 
 /*
-* Google Jobs Actor
-*
-* Inputs:
-* - maxPagesPerQuery: number
-* - csvFriendlyOutput: boolean
-* - languageCode: string
-* - saveHtml: boolean
-**/
+ * Google Jobs Actor
+ *
+ * Inputs:
+ * - maxPagesPerQuery: number
+ * - csvFriendlyOutput: boolean
+ * - languageCode: string
+ * - saveHtml: boolean
+ **/
 export interface GoogleJobsInput extends JobSearchInput {
 	maxPagesPerQuery?: number;
 	csvFriendlyOutput?: boolean;

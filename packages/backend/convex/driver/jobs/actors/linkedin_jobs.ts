@@ -6,29 +6,28 @@ import { ActorRun } from "apify-client";
 import { JobSource } from "../types/job_source";
 import { JobSearchActor, JobSearchInput } from "@/driver/jobs";
 
-
 /*
-* LinkedIn Jobs Actor
-*
-* Inputs:
-* - urls: string[]
-* - countryCode: number
-* - scrapeCompany: boolean
-* - count: number
-**/
+ * LinkedIn Jobs Actor
+ *
+ * Inputs:
+ * - urls: string[]
+ * - countryCode: number
+ * - scrapeCompany: boolean
+ * - count: number
+ **/
 
 export interface LinkedInJobsInput extends JobSearchInput {
-    urls: string[];
-    countryCode: number;
-    scrapeCompany: boolean;
-    count: number;
+	urls: string[];
+	countryCode: number;
+	scrapeCompany: boolean;
+	count: number;
 }
 
 /**
-* LinkedIn Job
-*
-* This is the type of the job object that is returned by the LinkedIn Jobs Actor.
-**/
+ * LinkedIn Job
+ *
+ * This is the type of the job object that is returned by the LinkedIn Jobs Actor.
+ **/
 export interface LinkedInJob {
 	id: string;
 	link: string;
@@ -61,9 +60,11 @@ export interface LinkedInJobsResult {
 	linkedInJobs: LinkedInJob[];
 }
 
-export class LinkedInJobsActor extends Actor implements JobSearchActor<LinkedInJobsInput, LinkedInJobsResult> {
-
-    private static readonly ACTOR_ID: string = "hKByXkMQaC5Qt9UMN";
+export class LinkedInJobsActor
+	extends Actor
+	implements JobSearchActor<LinkedInJobsInput, LinkedInJobsResult>
+{
+	private static readonly ACTOR_ID: string = "hKByXkMQaC5Qt9UMN";
 
 	constructor(apifyDriver: ApifyDriver) {
 		super(LinkedInJobsActor.ACTOR_ID, apifyDriver);
