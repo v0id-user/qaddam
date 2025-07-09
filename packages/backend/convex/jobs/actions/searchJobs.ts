@@ -18,9 +18,12 @@ export const searchJobListings = internalQuery({
 		searchQuery: v.string(),
 	},
 	handler: async (ctx, args): Promise<Doc<"jobListings">[]> => {
+		// Query all jobs first to get total count
+		const allJobsInDb = await ctx.db.query("jobListings").collect();
+		console.log(`Total jobs in database: ${allJobsInDb.length}`);
 		console.log(`Searching for: "${args.searchQuery}"`);
 
-		// Search in job descriptions - following Convex docs exactly
+		// Search in job descriptions
 		const descriptionResults = await ctx.db
 			.query("jobListings")
 			.withSearchIndex("search_description", (q) =>
@@ -30,7 +33,7 @@ export const searchJobListings = internalQuery({
 
 		console.log(`Description search found: ${descriptionResults.length} results`);
 
-		// Search in job names/titles - following Convex docs exactly
+		// Search in job names/titles
 		const nameResults = await ctx.db
 			.query("jobListings")
 			.withSearchIndex("search_name", (q) => 
@@ -51,17 +54,15 @@ export const searchJobListings = internalQuery({
 		// If no results from search indexes, try simple text matching
 		if (uniqueResults.length === 0) {
 			console.log("No search results found, trying simple text matching...");
-			const allJobs = await ctx.db.query("jobListings").take(100);
-			console.log(`Found ${allJobs.length} total jobs in database`);
 			
 			// Filter jobs that contain any of the search terms (case insensitive)
 			const searchTerms = args.searchQuery.toLowerCase().split(' ').filter(term => term.length > 2);
-			const filteredJobs = allJobs.filter((job) => {
+			const filteredJobs = allJobsInDb.filter((job) => {
 				const jobText = `${job.name} ${job.description} ${job.sourceName || ''} ${job.location || ''}`.toLowerCase();
 				return searchTerms.some(term => jobText.includes(term));
 			});
 			
-			console.log(`Filtered jobs: ${filteredJobs.length}`);
+			console.log(`Filtered jobs: ${filteredJobs.length} from total ${allJobsInDb.length} jobs`);
 			return filteredJobs;
 		}
 
