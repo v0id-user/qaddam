@@ -54,6 +54,19 @@ export interface LinkedInJob {
 	companyDescription?: string;
 	companyWebsite?: string;
 	companyEmployeesCount?: number;
+	// Additional fields that may appear in the data
+	companyAddress?: {
+		addressCountry?: string;
+		addressLocality?: string;
+		addressRegion?: string;
+		postalCode?: string;
+		streetAddress?: string;
+		type?: string;
+	};
+	companySlogan?: string;
+	inputUrl?: string;
+	refId?: string;
+	trackingId?: string;
 }
 
 export interface LinkedInJobsResult {

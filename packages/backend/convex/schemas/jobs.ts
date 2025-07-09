@@ -32,6 +32,27 @@ export const jobSchemas = {
 		.index("by_location", ["location"])
 		.index("by_experience", ["experienceLevel"]),
 
+	jobListings: defineTable({
+		// Basic job details
+		name: v.string(),
+		description: v.string(),
+		location: v.optional(v.string()),
+		salary: v.optional(v.number()),
+		currency: v.optional(v.string()),
+
+		// Source metadata
+		source: v.optional(v.string()),
+		sourceId: v.optional(v.string()),
+		datePosted: v.optional(v.number()),
+		sourceUrl: v.optional(v.string()),
+
+		// Source company details
+		sourceName: v.optional(v.string()),
+		sourceLogo: v.optional(v.string()),
+		sourceDescription: v.optional(v.string()),
+		sourceLocation: v.optional(v.string()),
+	}),
+
 	// User job applications tracking
 	userApplications: defineTable({
 		userId: v.id("users"),
