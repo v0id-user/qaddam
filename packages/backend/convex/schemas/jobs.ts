@@ -99,20 +99,8 @@ export const jobSchemas = {
 	jobSearchJobResults: defineTable({
 		jobSearchResultsId: v.id("jobSearchResults"),
 
-		// Basic job info
-		externalId: v.string(),
-		title: v.string(),
-		company: v.string(),
-		location: v.string(),
-		description: v.string(),
-		descriptionHtml: v.string(),
-		requirements: v.array(v.string()),
-		salary: v.optional(v.string()),
-		type: v.string(), // JobType
-		remote: v.boolean(),
-		url: v.string(),
-		postedDate: v.string(),
-		matchScore: v.number(),
+		// Job listing
+		jobListingId: v.id("jobListings"),
 
 		// AI Analysis
 		benefits: v.array(v.string()),
@@ -130,7 +118,7 @@ export const jobSchemas = {
 		createdAt: v.number(),
 	})
 		.index("by_search_results", ["jobSearchResultsId"])
-		.index("by_match_score", ["matchScore"])
+		.index("by_job_listing", ["jobListingId"])
 		.index("by_recommendation", ["aiRecommendation"])
 		.index("by_created_date", ["createdAt"]),
 };
