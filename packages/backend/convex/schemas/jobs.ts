@@ -99,6 +99,7 @@ export const jobSchemas = {
 	jobSearchJobResults: defineTable({
 		jobSearchResultsId: v.id("jobSearchResults"),
 
+		userId: v.id("users"),
 		// Job listing
 		jobListingId: v.id("jobListings"),
 
@@ -118,6 +119,7 @@ export const jobSchemas = {
 		createdAt: v.number(),
 	})
 		.index("by_search_results", ["jobSearchResultsId"])
+		.index("by_user", ["userId"])
 		.index("by_job_listing", ["jobListingId"])
 		.index("by_recommendation", ["aiRecommendation"])
 		.index("by_created_date", ["createdAt"]),

@@ -1,19 +1,9 @@
+import { Id } from "@/_generated/dataModel";
+
 export type JobType = "full_time" | "part_time" | "contract" | "remote";
 
 export type JobResult = {
-	id: string;
-	title: string;
-	company: string;
-	location: string;
-	description: string;
-	descriptionHtml: string;
-	requirements: string[];
-	salary?: string;
-	type: JobType;
-	remote: boolean;
-	url: string;
-	postedDate: string;
-	matchScore: number;
+	jobListingId: Id<"jobListings">;
 
 	// AI Analysis fields
 	benefits: string[];

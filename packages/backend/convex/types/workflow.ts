@@ -1,0 +1,6 @@
+export type WorkflowStage =
+	| "PARSING_CV"
+	| "SEARCHING_JOBS"
+	| "ANALYZING_RESULTS"
+	| "RECOMMENDING_JOBS"
+	| "SAVING_RESULTS";

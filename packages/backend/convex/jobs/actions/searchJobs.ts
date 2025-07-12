@@ -143,7 +143,7 @@ export const aiSearchJobs = internalAction({
 		console.log(`Found ${uniqueResults.length} unique job results`);
 
 		// Convert database results to JobResult format
-		const jobs: JobResult[] = uniqueResults.map(
+		const jobResults: JobResult[] = uniqueResults.map(
 			(job: Doc<"jobListings">, index: number) => {
 				// Calculate match score based on keyword presence
 				const jobText =
@@ -161,47 +161,22 @@ export const aiSearchJobs = internalAction({
 				// Enhanced match score calculation with capped ratios
 				const skillMatchRatio = Math.min(
 					matchedSkills.length /
-					Math.max(searchParams.technical_skills.length, 1),
-					1.0
+						Math.max(searchParams.technical_skills.length, 1),
+					1.0,
 				);
 				const titleMatchRatio = Math.min(
 					matchedTitles.length /
-					Math.max(searchParams.job_title_keywords.length, 1),
-					1.0
+						Math.max(searchParams.job_title_keywords.length, 1),
+					1.0,
 				);
 				const keywordMatchRatio = Math.min(
 					matchedKeywords.length /
-					Math.max(searchParams.primary_keywords.length, 1),
-					1.0
+						Math.max(searchParams.primary_keywords.length, 1),
+					1.0,
 				);
-
-				// Calculate match score and cap between 0-100
-				const rawMatchScore = Math.round(
-					(skillMatchRatio * 40 +
-						titleMatchRatio * 30 +
-						keywordMatchRatio * 30) *
-						100,
-				);
-				const matchScore = Math.max(0, Math.min(rawMatchScore, 100));
 
 				return {
-					id: job._id,
-					title: job.name,
-					company: job.sourceName || "Unknown Company",
-					location: job.location || job.sourceLocation || "Remote",
-					description: job.description,
-					descriptionHtml: job.descriptionHtml,
-					requirements: [], // Extract from description if needed
-					salary: job.salary
-						? `${job.salary} ${job.currency || "USD"}`
-						: "Salary not specified",
-					type: "full_time", // Default, could be extracted from description
-					remote: job.location?.toLowerCase().includes("remote") || false,
-					url: job.sourceUrl || "",
-					postedDate: job.datePosted
-						? new Date(job.datePosted).toISOString()
-						: new Date().toISOString(),
-					matchScore,
+					jobListingId: job._id,
 					benefits: [], // Could be extracted from description
 					matchedSkills,
 					missingSkills: searchParams.technical_skills.filter(
@@ -213,14 +188,11 @@ export const aiSearchJobs = internalAction({
 			},
 		);
 
-		// Sort by match score (descending)
-		jobs.sort((a, b) => b.matchScore - a.matchScore);
-
-		console.log(`Returning ${jobs.length} processed jobs`);
+		console.log(`Returning ${jobResults.length} processed jobs`);
 
 		return {
-			jobs: jobs.slice(0, 20), // Limit to top 20 results
-			totalFound: jobs.length,
+			jobs: jobResults.slice(0, 20), // Limit to top 20 results
+			totalFound: jobResults.length,
 			searchParams: args.searchParams,
 		};
 	},

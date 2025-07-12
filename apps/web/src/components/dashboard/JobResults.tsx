@@ -73,22 +73,9 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
   const { searchResults, jobResults: jobs } = jobResults;
   const totalFound = searchResults?.totalFound || 0;
 
-  // Simple mapping from database fields to JobResult structure
   const jobsData: JobResult[] =
-    jobs?.map(job => ({
-      id: job.externalId,
-      title: job.title,
-      company: job.company,
-      location: job.location,
-      description: job.description,
-      descriptionHtml: job.descriptionHtml,
-      requirements: job.requirements,
-      salary: job.salary,
-      type: job.type as JobType,
-      remote: job.remote,
-      url: job.url,
-      postedDate: job.postedDate,
-      matchScore: job.matchScore,
+    jobs?.map((job: JobResult) => ({
+      jobListingId: job.jobListingId,
       benefits: job.benefits,
       matchedSkills: job.matchedSkills,
       missingSkills: job.missingSkills,
@@ -130,7 +117,7 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
         {/* Job Cards Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {jobsData?.map((job: JobResult) => (
-            <JobCard key={job.id} job={job} onClick={() => handleJobClick(job)} />
+            <JobCard key={job.jobListingId} job={job} onClick={() => handleJobClick(job)} />
           ))}
         </div>
 

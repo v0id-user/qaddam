@@ -5,6 +5,8 @@ import { MapPin, Clock, Briefcase, ExternalLink, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import type { JobResult } from '@qaddam/backend/convex/types/jobs';
+import { api } from '@qaddam/backend/convex/_generated/api';
+import { useQuery } from 'convex/react';
 
 interface JobCardProps {
   job: JobResult;
@@ -14,6 +16,10 @@ interface JobCardProps {
 const JobCard = ({ job, onClick }: JobCardProps) => {
   const t = useTranslations('dashboard');
   const [isSaved, setIsSaved] = useState(false);
+
+  const jobListing = useQuery(api.jobs.data.getJobListing, {
+    jobListingId: job.jobListingId,
+  });
 
   const getMatchScoreColor = (score: number) => {
     if (score >= 90) return 'text-green-600 bg-green-100';
@@ -64,12 +70,12 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       <div className="mb-4 flex items-start justify-between">
         <div className="flex-1">
           <h3 className="text-foreground group-hover:text-primary mb-1 text-xl font-bold transition-colors">
-            {job.title}
+            {jobListing?.name}
           </h3>
-          <p className="text-muted-foreground mb-2 font-medium">{job.company}</p>
+          <p className="text-muted-foreground mb-2 font-medium">{jobListing?.sourceName}</p>
           <div className="text-muted-foreground flex items-center space-x-2 space-x-reverse text-sm">
             <MapPin className="h-4 w-4" />
-            <span>{job.location}</span>
+            <span>{jobListing?.location}</span>
           </div>
         </div>
 
@@ -90,19 +96,21 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       {/* Job Details */}
       <div className="mb-6 space-y-3">
         <div className="flex items-center space-x-2 space-x-reverse">
-          <span className={`rounded-full px-3 py-1 text-sm font-medium ${getTypeColor(job.type)}`}>
-            {t(`job_results.job_types.${job.type}`)}
+          <span
+            className={`rounded-full px-3 py-1 text-sm font-medium ${getTypeColor(jobListing?.type)}`}
+          >
+            {t(`job_results.job_types.${jobListing?.type}`)}
           </span>
           <div className="text-muted-foreground flex items-center space-x-1 space-x-reverse text-sm">
             <Clock className="h-4 w-4" />
-            <span>{formatDate(job.postedDate)}</span>
+            <span>{formatDate(jobListing?.datePosted)}</span>
           </div>
         </div>
 
         <div className="flex items-center space-x-2 space-x-reverse">
           <Briefcase className="text-muted-foreground h-4 w-4" />
           <span className="text-foreground font-medium">
-            {job.salary || t('job_results.salary_not_specified')}
+            {jobListing?.salary || t('job_results.salary_not_specified')}
           </span>
         </div>
       </div>
@@ -114,15 +122,15 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
             {t('job_results.match_score')}
           </span>
           <span
-            className={`rounded-full px-2 py-1 text-sm font-bold ${getMatchScoreColor(job.matchScore)}`}
+            className={`rounded-full px-2 py-1 text-sm font-bold ${getMatchScoreColor(jobListing?.matchScore)}`}
           >
-            {job.matchScore}%
+            {jobListing?.matchScore}%
           </span>
         </div>
         <div className="bg-accent/20 h-2 w-full rounded-full">
           <div
             className="bg-primary h-2 rounded-full transition-all duration-300"
-            style={{ width: `${Math.min(job.matchScore, 100)}%` }}
+            style={{ width: `${Math.min(jobListing?.matchScore, 100)}%` }}
           />
         </div>
       </div>
@@ -130,19 +138,17 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       {/* Skills Preview */}
       <div className="mb-6">
         <div className="flex flex-wrap gap-2">
-          {job.matchedSkills.slice(0, 3).map((skill, index) => (
+          {[1, 2, 3].map((_, index) => (
             <span
               key={index}
               className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800"
             >
-              {skill}
+              {t('job_results.placeholder_skill')}
             </span>
           ))}
-          {job.matchedSkills.length > 3 && (
-            <span className="bg-accent/20 text-muted-foreground rounded-full px-2 py-1 text-xs font-medium">
-              {t('job_results.skills.more_skills', { count: job.matchedSkills.length - 3 })}
-            </span>
-          )}
+          <span className="bg-accent/20 text-muted-foreground rounded-full px-2 py-1 text-xs font-medium">
+            {t('job_results.skills.more_skills', { count: 2 })}
+          </span>
         </div>
       </div>
 
@@ -150,7 +156,7 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       <div
         className="text-muted-foreground prose prose-sm mb-6 line-clamp-3 max-w-none text-sm"
         dangerouslySetInnerHTML={{
-          __html: job.descriptionHtml
+          __html: jobListing?.descriptionHtml
             .replace(/<br>/g, '<br />')
             .replace(/<ul>/g, '<ul class="list-disc pl-4 my-2">')
             .replace(/<li>/g, '<li class="my-1">')
@@ -165,7 +171,8 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
           <ExternalLink className="ml-2 h-4 w-4" />
         </Button>
         <Button
-          onClick={() => window.open(job.url, '_blank')}
+          onClick={() => window.open(jobListing?.sourceUrl || '', '_blank')}
+          disabled={!jobListing?.sourceUrl}
           size="sm"
           variant="outline"
           className="border-primary text-primary hover:bg-primary/5 flex-1"

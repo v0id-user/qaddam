@@ -35,6 +35,7 @@ export const aiSaveJobResults = internalAction({
 				await ctx.runMutation(internal.jobs.actions.saveResults.saveJobResult, {
 					jobSearchResultsId,
 					job,
+					userId: args.userId,
 					createdAt: now,
 				});
 			}
@@ -104,28 +105,17 @@ export const saveJobResult = internalMutation({
 	args: {
 		jobSearchResultsId: v.id("jobSearchResults"),
 		job: v.any(),
+		userId: v.id("users"),
 		createdAt: v.number(),
 	},
 	handler: async (ctx, args) => {
 		const job = args.job as JobSearchResults["jobs"][0];
-
 		return await ctx.db.insert("jobSearchJobResults", {
+			userId: args.userId,
 			jobSearchResultsId: args.jobSearchResultsId,
 
 			// Basic job info
-			externalId: job.id,
-			title: job.title,
-			company: job.company,
-			location: job.location,
-			description: job.description,
-			descriptionHtml: job.descriptionHtml,
-			requirements: job.requirements,
-			salary: job.salary,
-			type: job.type,
-			remote: job.remote,
-			url: job.url,
-			postedDate: job.postedDate,
-			matchScore: job.matchScore,
+			jobListingId: job.jobListingId,
 
 			// AI Analysis
 			benefits: job.benefits,
