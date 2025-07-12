@@ -16,7 +16,6 @@ interface JobCardProps {
 const JobCard = ({ job, onClick }: JobCardProps) => {
   const t = useTranslations('dashboard');
   const [isSaved, setIsSaved] = useState(false);
-
   const jobListing = useQuery(api.jobs.data.getJobListing, {
     jobListingId: job.jobListingId,
   });
