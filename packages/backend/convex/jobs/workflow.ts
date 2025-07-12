@@ -50,6 +50,7 @@ export const jobSearchWorkflow = workflow.define({
 			{
 				searchParams,
 				cvProfile,
+				userId: args.userId,
 			},
 		);
 

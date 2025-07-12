@@ -77,9 +77,20 @@ export const searchJobListings = internalQuery({
 	},
 });
 
+// Internal query to get survey results
+export const getSurveyResults = internalQuery({
+	args: {
+		userId: v.id("users"),
+	},
+	handler: async (ctx, args): Promise<Doc<"userSurveys">[]> => {
+		return await ctx.db.query("userSurveys").withIndex("by_user", (q) => q.eq("userId", args.userId)).take(1);
+	},
+});
+
 // Step 3: Search with the AI keywords
 export const aiSearchJobs = internalAction({
 	args: {
+		userId: v.id("users"),
 		searchParams: v.object({
 			primary_keywords: v.array(v.string()),
 			secondary_keywords: v.array(v.string()),
@@ -163,29 +174,48 @@ export const aiSearchJobs = internalAction({
 		const jobResults: JobResult[] = [];
 		console.log("Processing jobs for AI analysis...");
 		
-		for (const [index, job] of uniqueResults.entries()) {
-			if (index % 5 === 0) {
-				console.log(`Processing job ${index + 1}/${uniqueResults.length}...`);
-			}
-
-			// Calculate match score based on keyword presence
-			const jobText =
-				`${job.name} ${job.description} ${job.sourceName || ""}`.toLowerCase();
+		// Prepare job data for batched processing
+		const jobsToProcess = uniqueResults.map((job, index) => {
+			const jobText = `${job.name} ${job.description} ${job.sourceName || ""}`.toLowerCase();
 			const matchedSkills = searchParams.technical_skills.filter((skill) =>
 				jobText.includes(skill.toLowerCase()),
 			);
 
-			console.log(`  Job ${index + 1}: "${job.name.slice(0, 30)}..." - ${matchedSkills.length} skills matched`);
+			return {
+				job,
+				index,
+				jobText,
+				matchedSkills,
+				missingSkills: searchParams.technical_skills.filter(
+					(skill) => !matchedSkills.includes(skill),
+				),
+			};
+		});
 
-			const experienceMatchResult = await generateObject({
-				model: openai.chat("gpt-4o-mini", {
-					structuredOutputs: true,
-				}),
-				schemaName: "Experience_Match_Analysis",
-				messages: [
-					{
-						role: "system",
-						content: `
+		// Batch AI requests in chunks to avoid overwhelming the API
+		const BATCH_SIZE = 10;
+		const chunks = [];
+		for (let i = 0; i < jobsToProcess.length; i += BATCH_SIZE) {
+			chunks.push(jobsToProcess.slice(i, i + BATCH_SIZE));
+		}
+
+		console.log(`Processing ${jobsToProcess.length} jobs in ${chunks.length} batches of ${BATCH_SIZE}`);
+
+		// Process each chunk in parallel
+		for (const [chunkIndex, chunk] of chunks.entries()) {
+			console.log(`Processing batch ${chunkIndex + 1}/${chunks.length} (${chunk.length} jobs)...`);
+
+			// Create promises for all jobs in this chunk
+			const batchPromises = chunk.map(async ({ job, index, jobText, matchedSkills, missingSkills }) => {
+				const experienceMatchResult = await generateObject({
+					model: openai.chat("gpt-4o-mini", {
+						structuredOutputs: true,
+					}),
+					schemaName: "Experience_Match_Analysis",
+					messages: [
+						{
+							role: "system",
+							content: `
 <agent>
   <name>ExperienceMatchAgent</name>
   <description>
@@ -206,11 +236,11 @@ export const aiSearchJobs = internalAction({
     <rule>Be specific about any experience gaps</rule>
   </rules>
 </agent>
-							`,
-					},
-					{
-						role: "user",
-						content: `
+								`,
+						},
+						{
+							role: "user",
+							content: `
 Analyze the experience match between this job listing and candidate profile:
 
 Job Description: ${jobText}
@@ -222,51 +252,179 @@ Candidate Profile:
 - Skills: ${args.cvProfile.skills.join(", ")}
 
 Determine if the candidate's experience level matches the job requirements.
-							`,
-					}
-				],
-				schema: z.object({
-					match_level: z.enum([
-						"excellent_match",
-						"good_match", 
-						"partial_match",
-						"mismatch"
-					]),
-					match_score: z.number().min(0).max(1),
-					match_reasons: z.array(z.string()).min(1),
-					experience_gaps: z.array(z.string()),
-					recommendation: z.string()
-				})
-			});
+								`,
+						}
+					],
+					schema: z.object({
+						match_level: z.enum([
+							"excellent_match",
+							"good_match", 
+							"partial_match",
+							"mismatch"
+						]),
+						match_score: z.number().min(0).max(1),
+						match_reasons: z.array(z.string()).min(1),
+						experience_gaps: z.array(z.string()),
+						recommendation: z.string()
+					})
+				});
 
-			// Check location match
-			let locationMatch = "no_location_provided";
-			if (args.cvProfile.preferred_locations.length > 0) {
-				const jobLocation = (job.location || "").toLowerCase();
-				const matchingLocation = args.cvProfile.preferred_locations.some(
-					location => jobLocation.includes(location.toLowerCase())
+				// Check location match
+				let locationMatch = "no_location_provided";
+				if (args.cvProfile.preferred_locations.length > 0) {
+					const jobLocation = (job.location || "").toLowerCase();
+					const matchingLocation = args.cvProfile.preferred_locations.some(
+						location => jobLocation.includes(location.toLowerCase())
+					);
+					locationMatch = matchingLocation ? "location_match" : "location_mismatch";
+				}
+
+				console.log(`  Job ${index + 1}: "${job.name.slice(0, 30)}..." - ${matchedSkills.length} skills matched, Match: ${experienceMatchResult.object.match_level} (${experienceMatchResult.object.match_score})`);
+
+
+				// Get survey results
+				const surveyResults = await ctx.runQuery(
+					internal.jobs.actions.searchJobs.getSurveyResults,
+					{ userId: args.userId },
 				);
-				locationMatch = matchingLocation ? "location_match" : "location_mismatch";
-			}
 
-			console.log(`  → Match: ${experienceMatchResult.object.match_level} (${experienceMatchResult.object.match_score}), Location: ${locationMatch}`);
+				console.log(`  Survey results: ${surveyResults.length} results`);
+				// Extract location match score from survey results using AI
+				const locationMatchResult = await generateObject({
+					model: openai.chat("gpt-4o-mini", {
+						structuredOutputs: true,
+					}),
+					messages: [
+						{
+							role: "system",
+							content: `
+<agent>
+  <name>LocationMatchAgent</name>
+  <description>
+    An AI agent that analyzes location compatibility between job postings and candidate preferences.
+  </description>
 
-			jobResults.push({
-				jobListingId: job._id,
-				benefits: [], // Could be extracted from description
-				matchedSkills,
-				missingSkills: searchParams.technical_skills.filter(
-					(skill) => !matchedSkills.includes(skill),
-				),
-				experienceMatch: experienceMatchResult.object.match_level,
-				experienceMatchScore: experienceMatchResult.object.match_score,
-				experienceMatchReasons: experienceMatchResult.object.match_reasons,
+  <goals>
+    <goal>Evaluate location match between job and candidate preferences</goal>
+    <goal>Consider remote/hybrid/onsite work type preferences</goal>
+    <goal>Calculate accurate location match scores</goal>
+    <goal>Provide detailed reasoning for match decisions</goal>
+  </goals>
 
-				// TODO: Fill and fix this from the survey
-				locationMatchScore: 0,
-				locationMatchReasons: [],
-				locationMatch
+  <rules>
+    <rule>Compare job location against candidate's preferred locations</rule>
+    <rule>Factor in work type preferences (remote/hybrid/onsite)</rule>
+    <rule>Consider commute distance and accessibility</rule>
+    <rule>Handle cases with missing location data</rule>
+    <rule>Provide specific reasons for match scores</rule>
+    <rule>Use standardized location terminology</rule>
+  </rules>
+</agent>`
+						},
+						{
+							role: "user", 
+							content: `
+Job Location: ${job.location || "Not specified"}
+
+Candidate Preferences:
+- Preferred Locations: ${surveyResults[0]?.locations?.join(", ") || "None specified"}
+- Work Type: ${surveyResults[0]?.workType || "Not specified"}
+							`
+						}
+					],
+					schema: z.object({
+						match_score: z.number().min(0).max(1),
+						match_reasons: z.array(z.string()).min(1).describe("Specific reasons for the location match score"),
+						work_type_match: z.boolean().describe("Whether the work type (remote/hybrid/onsite) matches preferences")
+					})
+				});
+
+				// Extract benefits from job description using AI
+				const benefitsResult = await generateObject({
+					model: openai.chat("gpt-4o-mini", {
+						structuredOutputs: true,
+					}),
+					messages: [
+						{
+							role: "system",
+							content: `
+<agent>
+  <name>BenefitsExtractionAgent</name>
+  <description>
+    An AI agent that extracts and categorizes employee benefits from job descriptions.
+  </description>
+
+  <goals>
+    <goal>Identify all mentioned benefits in job descriptions</goal>
+    <goal>Categorize benefits into standardized types</goal>
+    <goal>Extract specific benefit details when available</goal>
+    <goal>Avoid hallucinating benefits not mentioned in the text</goal>
+  </goals>
+
+  <rules>
+    <rule>Only extract benefits explicitly mentioned in the job description</rule>
+    <rule>Use standardized benefit categories</rule>
+    <rule>Include specific details like amounts or percentages when mentioned</rule>
+    <rule>Group similar benefits together</rule>
+    <rule>Return empty array if no benefits are mentioned</rule>
+  </rules>
+</agent>`
+						},
+						{
+							role: "user",
+							content: `
+Extract all employee benefits mentioned in this job description:
+
+Job Title: ${job.name}
+Job Description: ${job.description}
+
+Extract only the benefits that are explicitly mentioned. Do not infer or add benefits not stated in the text.
+							`
+						}
+					],
+					schema: z.object({
+						benefits: z.array(z.object({
+							category: z.enum([
+								"health_insurance",
+								"retirement_savings",
+								"paid_time_off",
+								"flexible_work",
+								"professional_development",
+								"wellness",
+								"financial_perks",
+								"transportation",
+								"family_support",
+								"other"
+							]),
+							description: z.string().describe("The specific benefit as mentioned in the job description"),
+							details: z.string().optional().describe("Additional details like amounts, percentages, or specifics if mentioned")
+						})),
+						total_benefits_count: z.number().describe("Total number of benefits extracted")
+					})
+				});
+
+				return {
+					jobListingId: job._id,
+					benefits: benefitsResult.object.benefits.map(benefit => 
+						benefit.details ? `${benefit.description} (${benefit.details})` : benefit.description
+					),
+					matchedSkills,
+					missingSkills,
+					experienceMatch: experienceMatchResult.object.match_level,
+					experienceMatchScore: experienceMatchResult.object.match_score,
+					experienceMatchReasons: experienceMatchResult.object.match_reasons,
+					locationMatchScore: locationMatchResult.object.match_score,
+					locationMatchReasons: locationMatchResult.object.match_reasons,
+					locationMatch,
+					workTypeMatch: locationMatchResult.object.work_type_match
+				};
 			});
+
+			// Wait for all jobs in this batch to complete
+			const batchResults = await Promise.all(batchPromises);
+			jobResults.push(...batchResults);
+			
+			console.log(`Batch ${chunkIndex + 1} completed. Total processed: ${jobResults.length}/${jobsToProcess.length}`);
 		}
 
 		const finalResults = jobResults.slice(0, 20);
