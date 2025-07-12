@@ -181,13 +181,13 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       {job.aiMatchReasons && job.aiMatchReasons.length > 0 && (
         <div className="mb-6">
           <div className="text-sm font-medium text-green-700 mb-2">
-            Why this job matches:
+            {t('job_results.card_analysis.why_matches')}
           </div>
           <div className="text-sm text-green-600 bg-green-50 rounded-lg p-3">
             {job.aiMatchReasons[0]}
             {job.aiMatchReasons.length > 1 && (
               <span className="text-green-500 ml-2">
-                +{job.aiMatchReasons.length - 1} more reasons
+                {t('job_results.card_analysis.more_reasons', { count: job.aiMatchReasons.length - 1 })}
               </span>
             )}
           </div>
@@ -198,13 +198,13 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       {job.aiConcerns && job.aiConcerns.length > 0 && (
         <div className="mb-6">
           <div className="text-sm font-medium text-yellow-700 mb-2">
-            Areas to consider:
+            {t('job_results.card_analysis.areas_to_consider')}
           </div>
           <div className="text-sm text-yellow-600 bg-yellow-50 rounded-lg p-3">
             {job.aiConcerns[0]}
             {job.aiConcerns.length > 1 && (
               <span className="text-yellow-500 ml-2">
-                +{job.aiConcerns.length - 1} more
+                {t('job_results.card_analysis.more', { count: job.aiConcerns.length - 1 })}
               </span>
             )}
           </div>

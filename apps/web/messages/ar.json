@@ -243,6 +243,12 @@
       "skills": {
         "more_skills": "+{count} أكثر"
       },
+      "card_analysis": {
+        "why_matches": "لماذا تطابق هذه الوظيفة:",
+        "areas_to_consider": "نقاط للنظر فيها:",
+        "more_reasons": "+{count} أسباب أكثر",
+        "more": "+{count} أكثر"
+      },
       "job_details": {
         "requirements": "متطلبات الوظيفة",
         "benefits": "المزايا والفوائد",
@@ -255,7 +261,15 @@
         "experience_match": "تطابق الخبرة",
         "salary_range": "نطاق الراتب",
         "location_match": "تطابق الموقع",
-        "close": "إغلاق"
+        "close": "إغلاق",
+        "why_matches": "لماذا يطابق هذا:",
+        "location_analysis": "تحليل الموقع:",
+        "ai_recommendation": "توصية الذكاء الاصطناعي",
+        "ai_match_analysis": "تحليل المطابقة بالذكاء الاصطناعي",
+        "areas_to_consider": "نقاط للنظر فيها",
+        "work_type_match": "تطابق نوع العمل",
+        "matches_preference": "يطابق تفضيلك",
+        "may_not_match_preference": "قد لا يطابق تفضيلك"
       },
       "loading": {
         "title": "جاري تحميل نتائج الوظائف...",

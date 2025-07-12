@@ -243,6 +243,12 @@
       "skills": {
         "more_skills": "+{count} more"
       },
+      "card_analysis": {
+        "why_matches": "Why this job matches:",
+        "areas_to_consider": "Areas to consider:",
+        "more_reasons": "+{count} more reasons",
+        "more": "+{count} more"
+      },
       "job_details": {
         "requirements": "Job Requirements",
         "benefits": "Benefits & Perks",
@@ -255,7 +261,15 @@
         "experience_match": "Experience Match",
         "salary_range": "Salary Range",
         "location_match": "Location Match",
-        "close": "Close"
+        "close": "Close",
+        "why_matches": "Why this matches:",
+        "location_analysis": "Location analysis:",
+        "ai_recommendation": "AI Recommendation",
+        "ai_match_analysis": "AI Match Analysis",
+        "areas_to_consider": "Areas to Consider",
+        "work_type_match": "Work Type Match",
+        "matches_preference": "Matches your preference",
+        "may_not_match_preference": "May not match your preference"
       },
       "loading": {
         "title": "Loading job results...",

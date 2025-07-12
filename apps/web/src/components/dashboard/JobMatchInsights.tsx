@@ -159,7 +159,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
               <p className="text-muted-foreground text-sm mb-3">{job.experienceMatch}</p>
               {job.experienceMatchReasons && job.experienceMatchReasons.length > 0 && (
                 <div className="space-y-2">
-                  <h5 className="text-foreground font-semibold text-sm">Why this matches:</h5>
+                  <h5 className="text-foreground font-semibold text-sm">{t('job_results.match_insights.why_matches')}</h5>
                   <ul className="space-y-1">
                     {job.experienceMatchReasons.map((reason, index) => (
                       <li key={index} className="text-muted-foreground text-sm flex items-start">
@@ -183,7 +183,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
               <p className="text-muted-foreground text-sm mb-3">{jobListing.location}</p>
               {job.locationMatchReasons && job.locationMatchReasons.length > 0 && (
                 <div className="space-y-2">
-                  <h5 className="text-foreground font-semibold text-sm">Location analysis:</h5>
+                  <h5 className="text-foreground font-semibold text-sm">{t('job_results.match_insights.location_analysis')}</h5>
                   <ul className="space-y-1">
                     {job.locationMatchReasons.map((reason, index) => (
                       <li key={index} className="text-muted-foreground text-sm flex items-start">
@@ -204,7 +204,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
               <div className="mb-3 flex items-center space-x-3 space-x-reverse">
                 <TrendingUp className="h-6 w-6 text-green-600" />
                 <h4 className="text-foreground text-lg font-bold">
-                  AI Recommendation
+                  {t('job_results.match_insights.ai_recommendation')}
                 </h4>
               </div>
               <p className="text-muted-foreground text-sm capitalize">
@@ -230,11 +230,11 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
               <div className="mb-3 flex items-center space-x-3 space-x-reverse">
                 <CheckCircle className="h-6 w-6 text-orange-600" />
                 <h4 className="text-foreground text-lg font-bold">
-                  Work Type Match
+                  {t('job_results.match_insights.work_type_match')}
                 </h4>
               </div>
               <p className="text-muted-foreground text-sm">
-                {job.workTypeMatch ? 'Matches your preference' : 'May not match your preference'}
+                {job.workTypeMatch ? t('job_results.match_insights.matches_preference') : t('job_results.match_insights.may_not_match_preference')}
               </p>
             </div>
           </div>
@@ -246,7 +246,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
               <div className="bg-green-50 border-green-200 rounded-2xl border p-6">
                 <h4 className="text-green-800 mb-4 text-lg font-bold flex items-center">
                   <CheckCircle className="h-5 w-5 mr-2" />
-                  AI Match Analysis
+                  {t('job_results.match_insights.ai_match_analysis')}
                 </h4>
                 <div className="space-y-2">
                   {job.aiMatchReasons.map((reason, index) => (
@@ -264,7 +264,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
               <div className="bg-yellow-50 border-yellow-200 rounded-2xl border p-6">
                 <h4 className="text-yellow-800 mb-4 text-lg font-bold flex items-center">
                   <AlertCircle className="h-5 w-5 mr-2" />
-                  Areas to Consider
+                  {t('job_results.match_insights.areas_to_consider')}
                 </h4>
                 <div className="space-y-2">
                   {job.aiConcerns.map((concern, index) => (
