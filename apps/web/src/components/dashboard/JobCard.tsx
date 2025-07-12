@@ -60,6 +60,28 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
     setIsSaved(!isSaved);
   };
 
+  if (!jobListing) {
+    return (
+      <div className="border-border bg-card rounded-2xl border p-6 shadow-sm">
+        <div className="flex h-64 items-center justify-center">
+          <div className="space-y-4">
+            <div className="bg-accent rounded-full p-6">
+              <div className="border-primary h-14 w-14 animate-spin rounded-full border-t-2 border-b-2"></div>
+            </div>
+            <div className="space-y-2">
+              <p className="text-foreground text-xl font-semibold">
+                {t('job_results.loading.title')}
+              </p>
+              <p className="text-muted-foreground text-base">
+                {t('job_results.loading.subtitle')}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       onClick={onClick}
@@ -69,12 +91,12 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       <div className="mb-4 flex items-start justify-between">
         <div className="flex-1">
           <h3 className="text-foreground group-hover:text-primary mb-1 text-xl font-bold transition-colors">
-            {jobListing?.name}
+            {jobListing.name}
           </h3>
-          <p className="text-muted-foreground mb-2 font-medium">{jobListing?.sourceName}</p>
+          <p className="text-muted-foreground mb-2 font-medium">{jobListing.sourceName}</p>
           <div className="text-muted-foreground flex items-center space-x-2 space-x-reverse text-sm">
             <MapPin className="h-4 w-4" />
-            <span>{jobListing?.location}</span>
+            <span>{jobListing.location}</span>
           </div>
         </div>
 
@@ -96,20 +118,20 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       <div className="mb-6 space-y-3">
         <div className="flex items-center space-x-2 space-x-reverse">
           <span
-            className={`rounded-full px-3 py-1 text-sm font-medium ${getTypeColor(jobListing?.type)}`}
+            className={`rounded-full px-3 py-1 text-sm font-medium ${getTypeColor(jobListing.type)}`}
           >
-            {t(`job_results.job_types.${jobListing?.type}`)}
+            {t(`job_results.job_types.${jobListing.type}`)}
           </span>
           <div className="text-muted-foreground flex items-center space-x-1 space-x-reverse text-sm">
             <Clock className="h-4 w-4" />
-            <span>{formatDate(jobListing?.datePosted)}</span>
+            <span>{formatDate(jobListing.datePosted)}</span>
           </div>
         </div>
 
         <div className="flex items-center space-x-2 space-x-reverse">
           <Briefcase className="text-muted-foreground h-4 w-4" />
           <span className="text-foreground font-medium">
-            {jobListing?.salary || t('job_results.salary_not_specified')}
+            {jobListing.salary || t('job_results.salary_not_specified')}
           </span>
         </div>
       </div>
@@ -121,15 +143,15 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
             {t('job_results.match_score')}
           </span>
           <span
-            className={`rounded-full px-2 py-1 text-sm font-bold ${getMatchScoreColor(jobListing?.matchScore)}`}
+            className={`rounded-full px-2 py-1 text-sm font-bold ${getMatchScoreColor(jobListing.matchScore)}`}
           >
-            {jobListing?.matchScore}%
+            {jobListing.matchScore}%
           </span>
         </div>
         <div className="bg-accent/20 h-2 w-full rounded-full">
           <div
             className="bg-primary h-2 rounded-full transition-all duration-300"
-            style={{ width: `${Math.min(jobListing?.matchScore, 100)}%` }}
+            style={{ width: `${Math.min(jobListing.matchScore, 100)}%` }}
           />
         </div>
       </div>
@@ -155,7 +177,7 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       <div
         className="text-muted-foreground prose prose-sm mb-6 line-clamp-3 max-w-none text-sm"
         dangerouslySetInnerHTML={{
-          __html: jobListing?.descriptionHtml
+          __html: jobListing.descriptionHtml
             .replace(/<br>/g, '<br />')
             .replace(/<ul>/g, '<ul class="list-disc pl-4 my-2">')
             .replace(/<li>/g, '<li class="my-1">')
@@ -170,8 +192,8 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
           <ExternalLink className="ml-2 h-4 w-4" />
         </Button>
         <Button
-          onClick={() => window.open(jobListing?.sourceUrl || '', '_blank')}
-          disabled={!jobListing?.sourceUrl}
+          onClick={() => window.open(jobListing.sourceUrl || '', '_blank')}
+          disabled={!jobListing.sourceUrl}
           size="sm"
           variant="outline"
           className="border-primary text-primary hover:bg-primary/5 flex-1"

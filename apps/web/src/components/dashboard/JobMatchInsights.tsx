@@ -27,10 +27,33 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
       onClose();
     }
   };
-  
   const jobListing = useQuery(api.jobs.data.getJobListing, {
     jobListingId: job.jobListingId,
   });
+
+  if (!jobListing) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="bg-card max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl shadow-2xl">
+          <div className="flex h-96 items-center justify-center">
+            <div className="space-y-4">
+              <div className="bg-accent rounded-full p-6">
+                <div className="border-primary h-14 w-14 animate-spin rounded-full border-t-2 border-b-2"></div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-foreground text-xl font-semibold">
+                  {t('job_results.loading.title')}
+                </p>
+                <p className="text-muted-foreground text-base">
+                  {t('job_results.loading.subtitle')}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -46,9 +69,9 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
                 {t('job_results.match_insights.title')}
               </h2>
               <div className="flex items-center space-x-3 space-x-reverse">
-                <h3 className="text-foreground text-lg font-semibold">{jobListing?.name}</h3>
+                <h3 className="text-foreground text-lg font-semibold">{jobListing.name}</h3>
                 <span className="text-muted-foreground">@</span>
-                <span className="text-muted-foreground">{jobListing?.sourceName}</span>
+                <span className="text-muted-foreground">{jobListing.sourceName}</span>
               </div>
             </div>
             <button
@@ -69,13 +92,13 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
               <TrendingUp className="text-primary h-8 w-8" />
               <h3 className="text-foreground text-xl font-bold">{t('job_results.match_score')}</h3>
             </div>
-            <div className={`mb-2 text-4xl font-bold ${getMatchScoreColor(jobListing?.matchScore)}`}>
-              {jobListing?.matchScore}%
+            <div className={`mb-2 text-4xl font-bold ${getMatchScoreColor(jobListing.matchScore)}`}>
+              {jobListing.matchScore}%
             </div>
             <div className="bg-accent/20 mb-4 h-3 w-full rounded-full">
               <div
                 className="bg-primary h-3 rounded-full transition-all duration-300"
-                style={{ width: `${jobListing?.matchScore}%` }}
+                style={{ width: `${jobListing.matchScore}%` }}
               />
             </div>
           </div>
@@ -145,7 +168,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
                 </h4>
               </div>
               <p className="text-muted-foreground text-sm">
-                {jobListing?.salary || t('job_results.salary_not_specified')}
+                {jobListing.salary || t('job_results.salary_not_specified')}
               </p>
             </div>
 
@@ -157,7 +180,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
                   {t('job_results.match_insights.location_match')}
                 </h4>
               </div>
-              <p className="text-muted-foreground text-sm">{jobListing?.location}</p>
+              <p className="text-muted-foreground text-sm">{jobListing.location}</p>
             </div>
           </div>
 
@@ -202,7 +225,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
               className="text-muted-foreground prose prose-sm max-w-none text-sm leading-relaxed"
               dir="auto"
               dangerouslySetInnerHTML={{
-                __html: jobListing?.descriptionHtml
+                __html: jobListing.descriptionHtml
                   .replace(/<br>/g, '<br />')
                   .replace(/<ul>/g, '<ul class="list-disc pl-4 my-2">')
                   .replace(/<li>/g, '<li class="my-1">')
@@ -219,8 +242,8 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
               {t('job_results.match_insights.close')}
             </Button>
             <Button
-              onClick={() => window.open(jobListing?.sourceUrl || '', '_blank')}
-              disabled={!jobListing?.sourceUrl}
+              onClick={() => window.open(jobListing.sourceUrl || '', '_blank')}
+              disabled={!jobListing.sourceUrl}
               className="bg-primary text-primary-foreground hover:bg-primary/90 flex-1"
             >
               {t('job_results.apply_now')}
