@@ -135,6 +135,12 @@ Make sure each array has at least one relevant keyword.
 				}),
 			});
 
+			console.log("AI Keyword Extraction - Token usage:", {
+				promptTokens: response.usage?.promptTokens || 0,
+				completionTokens: response.usage?.completionTokens || 0,
+				totalTokens: response.usage?.totalTokens || 0
+			});
+
 			const result = response.object;
 			console.log(
 				"Keyword extraction completed:",

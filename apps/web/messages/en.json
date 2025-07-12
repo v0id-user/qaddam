@@ -282,8 +282,7 @@
       },
       "messages": {
         "workflow_starting": "🚀 Starting job search workflow...",
-        "workflow_completed": "🎉 Job search completed!",
-        "placeholder_requirement": "Placeholder requirement {index}"
+        "workflow_completed": "🎉 Job search completed!"
       }
     },
     "survey": {

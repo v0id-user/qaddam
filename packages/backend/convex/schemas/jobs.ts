@@ -105,6 +105,7 @@ export const jobSchemas = {
 
 		// AI Analysis
 		benefits: v.array(v.string()),
+		requirements: v.array(v.string()),
 		matchedSkills: v.array(v.string()),
 		missingSkills: v.array(v.string()),
 		experienceMatch: v.string(),

@@ -269,6 +269,12 @@ Determine if the candidate's experience level matches the job requirements.
 					})
 				});
 
+				console.log(`AI Experience Match [Job ${index + 1}] - Token usage:`, {
+					promptTokens: experienceMatchResult.usage?.promptTokens || 0,
+					completionTokens: experienceMatchResult.usage?.completionTokens || 0,
+					totalTokens: experienceMatchResult.usage?.totalTokens || 0
+				});
+
 				// Check location match
 				let locationMatch = "no_location_provided";
 				if (args.cvProfile.preferred_locations.length > 0) {
@@ -339,6 +345,12 @@ Candidate Preferences:
 					})
 				});
 
+				console.log(`AI Location Match [Job ${index + 1}] - Token usage:`, {
+					promptTokens: locationMatchResult.usage?.promptTokens || 0,
+					completionTokens: locationMatchResult.usage?.completionTokens || 0,
+					totalTokens: locationMatchResult.usage?.totalTokens || 0
+				});
+
 				// Extract benefits from job description using AI
 				const benefitsResult = await generateObject({
 					model: openai.chat("gpt-4o-mini", {
@@ -397,16 +409,101 @@ Extract only the benefits that are explicitly mentioned. Do not infer or add ben
 								"other"
 							]),
 							description: z.string().describe("The specific benefit as mentioned in the job description"),
-							details: z.string().optional().describe("Additional details like amounts, percentages, or specifics if mentioned")
+							details: z.string().nullable().describe("Additional details like amounts, percentages, or specifics if mentioned - null if not available")
 						})),
 						total_benefits_count: z.number().describe("Total number of benefits extracted")
 					})
+				});
+
+				console.log(`AI Benefits Extraction [Job ${index + 1}] - Token usage:`, {
+					promptTokens: benefitsResult.usage?.promptTokens || 0,
+					completionTokens: benefitsResult.usage?.completionTokens || 0,
+					totalTokens: benefitsResult.usage?.totalTokens || 0
+				});
+
+				// Extract job requirements using AI
+				const requirementsResult = await generateObject({
+					model: openai.chat("gpt-4o-mini", {
+						structuredOutputs: true,
+					}),
+					messages: [
+						{
+							role: "system",
+							content: `
+<agent>
+  <name>RequirementsExtractionAgent</name>
+  <description>
+    An AI agent that extracts and standardizes job requirements from job descriptions.
+  </description>
+
+  <goals>
+    <goal>Identify all explicit job requirements mentioned in job descriptions</goal>
+    <goal>Categorize requirements into skills, experience, education, and qualifications</goal>
+    <goal>Extract only requirements that are clearly stated, not implied</goal>
+    <goal>Format requirements in a clear, readable manner</goal>
+  </goals>
+
+  <rules>
+    <rule>Only extract requirements explicitly mentioned in the job description</rule>
+    <rule>Include years of experience, specific skills, education levels, certifications</rule>
+    <rule>Separate "required" from "preferred" qualifications when mentioned</rule>
+    <rule>Use clear, concise language for each requirement</rule>
+    <rule>Do not hallucinate or infer requirements not stated in the text</rule>
+    <rule>Return empty array if no clear requirements are mentioned</rule>
+  </rules>
+</agent>`
+						},
+						{
+							role: "user",
+							content: `
+Extract all job requirements mentioned in this job description:
+
+Job Title: ${job.name}
+Job Description: ${job.description}
+
+Extract only the requirements that are explicitly mentioned. Focus on:
+- Required skills and technologies
+- Years of experience needed
+- Education requirements
+- Certifications or qualifications
+- Any specific tools or software mentioned
+
+Do not infer requirements that aren't clearly stated.
+							`
+						}
+					],
+					schema: z.object({
+						requirements: z.array(z.object({
+							type: z.enum([
+								"technical_skill",
+								"experience",
+								"education",
+								"certification",
+								"soft_skill",
+								"tool_software",
+								"other"
+							]),
+							description: z.string().describe("The specific requirement as mentioned in the job description"),
+							required: z.boolean().describe("Whether this is a required or preferred qualification"),
+							details: z.string().nullable().describe("Additional details or context if mentioned")
+						})),
+						total_requirements_count: z.number().describe("Total number of requirements extracted")
+					})
+				});
+
+				console.log(`AI Requirements Extraction [Job ${index + 1}] - Token usage:`, {
+					promptTokens: requirementsResult.usage?.promptTokens || 0,
+					completionTokens: requirementsResult.usage?.completionTokens || 0,
+					totalTokens: requirementsResult.usage?.totalTokens || 0
 				});
 
 				return {
 					jobListingId: job._id,
 					benefits: benefitsResult.object.benefits.map(benefit => 
 						benefit.details ? `${benefit.description} (${benefit.details})` : benefit.description
+					),
+					requirements: requirementsResult.object.requirements.map(req => 
+						req.details ? `${req.description} (${req.details})` : req.description
 					),
 					matchedSkills,
 					missingSkills,

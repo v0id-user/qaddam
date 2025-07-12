@@ -154,6 +154,12 @@ Job Results: ${JSON.stringify(args.jobResults, null, 2)}
 			}),
 		});
 
+		console.log("AI Job Ranking - Token usage:", {
+			promptTokens: response.usage?.promptTokens || 0,
+			completionTokens: response.usage?.completionTokens || 0,
+			totalTokens: response.usage?.totalTokens || 0
+		});
+
 		console.log(
 			"AI ranking completed:",
 			`${response.object.ranked_jobs.length} ranked jobs,`,
@@ -252,7 +258,7 @@ Extract only information that is explicitly mentioned. Do not infer or estimate 
 						salary: z.object({
 							min: z.number().nullable().describe("Minimum salary mentioned, null if not specified"),
 							max: z.number().nullable().describe("Maximum salary mentioned, null if not specified"),
-							currency: z.string().default("USD").describe("Currency mentioned or USD as default"),
+							currency: z.string().nullable().describe("Currency mentioned, null if not specified"),
 							is_salary_mentioned: z.boolean().describe("Whether any salary information was found")
 						}),
 						company: z.object({
@@ -260,11 +266,17 @@ Extract only information that is explicitly mentioned. Do not infer or estimate 
 							is_company_mentioned: z.boolean().describe("Whether company name was found")
 						}),
 						job_type: z.object({
-							type: z.enum(["full_time", "part_time", "contract", "remote"]).describe("Primary job type"),
+							type: z.enum(["full_time", "part_time", "contract", "remote"]).nullable().describe("Primary job type, null if cannot be determined"),
 							is_remote: z.boolean().describe("Whether job mentions remote work"),
-							work_arrangement: z.string().describe("Work arrangement details if mentioned")
+							work_arrangement: z.string().nullable().describe("Work arrangement details if mentioned, null if not specified")
 						})
 					})
+				});
+
+				console.log(`AI Data Extraction [Job ${job.jobListingId}] - Token usage:`, {
+					promptTokens: extractionResult.usage?.promptTokens || 0,
+					completionTokens: extractionResult.usage?.completionTokens || 0,
+					totalTokens: extractionResult.usage?.totalTokens || 0
 				});
 
 				return {
@@ -285,7 +297,7 @@ Extract only information that is explicitly mentioned. Do not infer or estimate 
 						extractedData.salaries.push({
 							min: salary.min,
 							max: salary.max,
-							currency: salary.currency
+							currency: salary.currency || "USD"
 						});
 					}
 					
@@ -293,7 +305,9 @@ Extract only information that is explicitly mentioned. Do not infer or estimate 
 						extractedData.companies.push(company.name);
 					}
 					
-					extractedData.jobTypes.push(job_type.type);
+					if (job_type.type) {
+						extractedData.jobTypes.push(job_type.type);
+					}
 				}
 			}
 			
@@ -361,10 +375,15 @@ Extract only information that is explicitly mentioned. Do not infer or estimate 
 
 				return {
 					...job,
-					matchScore: job.experienceMatchScore, // Convert to percentage
+					matchScore: job.experienceMatchScore,
 					aiMatchReasons: job.experienceMatchReasons || [],
 					aiConcerns: job.missingSkills || [],
 					aiRecommendation: recommendation,
+					// Ensure all required fields are included
+					experienceMatchScore: job.experienceMatchScore,
+					experienceMatchReasons: job.experienceMatchReasons || [],
+					locationMatchScore: job.locationMatchScore || 0,
+					locationMatchReasons: job.locationMatchReasons || [],
 				};
 			})
 			.sort((a, b) => b.matchScore - a.matchScore);

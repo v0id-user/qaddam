@@ -85,6 +85,7 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
       locationMatchScore: job.locationMatchScore || 0,
       locationMatchReasons: job.locationMatchReasons || [],
       workTypeMatch: job.workTypeMatch || false,
+      requirements: job.requirements || [],
       aiMatchReasons: job.aiMatchReasons || [],
       aiConcerns: job.aiConcerns || [],
       aiRecommendation: job.aiRecommendation as JobResult['aiRecommendation'] || 'consider',

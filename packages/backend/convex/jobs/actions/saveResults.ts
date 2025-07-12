@@ -149,10 +149,16 @@ export const saveJobResult = internalMutation({
 
 			// AI Analysis
 			benefits: job.benefits,
+			requirements: job.requirements || [],
 			matchedSkills: job.matchedSkills,
 			missingSkills: job.missingSkills,
 			experienceMatch: job.experienceMatch,
+			experienceMatchScore: job.experienceMatchScore,
+			experienceMatchReasons: job.experienceMatchReasons || [],
 			locationMatch: job.locationMatch,
+			locationMatchScore: job.locationMatchScore || 0,
+			locationMatchReasons: job.locationMatchReasons || [],
+			workTypeMatch: job.workTypeMatch,
 
 			// AI Ranking
 			aiMatchReasons: job.aiMatchReasons,

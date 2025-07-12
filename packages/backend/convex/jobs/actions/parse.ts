@@ -87,6 +87,12 @@ export const aiParseCV = internalAction({
 				}),
 			});
 
+			console.log("AI CV Parsing - Token usage:", {
+				promptTokens: response.usage?.promptTokens || 0,
+				completionTokens: response.usage?.completionTokens || 0,
+				totalTokens: response.usage?.totalTokens || 0
+			});
+
 			const result = response.object;
 			console.log(
 				"CV parsing completed:",

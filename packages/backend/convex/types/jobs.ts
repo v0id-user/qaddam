@@ -16,6 +16,7 @@ export type JobResult = {
 	locationMatchScore: number;
 	locationMatchReasons: string[];
 	workTypeMatch?: boolean;
+	requirements: string[]; // AI-extracted job requirements
 
 	// AI Ranking fields (from combineResults.ts)
 	aiMatchReasons?: string[];

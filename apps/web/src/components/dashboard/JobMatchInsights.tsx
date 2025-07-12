@@ -284,12 +284,19 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
               {t('job_results.job_details.requirements')}
             </h4>
             <div className="space-y-2">
-              {[1, 2, 3].map((_, index) => (
-                <div key={index} className="flex items-center space-x-3 space-x-reverse">
-                  <div className="h-2 w-2 rounded-full bg-green-500" />
-                  <span className="text-muted-foreground text-sm">{t('job_results.messages.placeholder_requirement', { index: index + 1 })}</span>
+              {job.requirements && job.requirements.length > 0 ? (
+                job.requirements.map((requirement, index) => (
+                  <div key={index} className="flex items-start space-x-3 space-x-reverse">
+                    <div className="h-2 w-2 rounded-full bg-green-500 mt-2 flex-shrink-0" />
+                    <span className="text-muted-foreground text-sm">{requirement}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="flex items-center space-x-3 space-x-reverse">
+                  <div className="h-2 w-2 rounded-full bg-gray-400 mt-2 flex-shrink-0" />
+                  <span className="text-muted-foreground text-sm italic">No specific requirements mentioned in job description</span>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
