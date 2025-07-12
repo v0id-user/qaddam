@@ -156,10 +156,10 @@ export default function DashboardPage() {
       console.log('Starting job search workflow with CV:', uploadedCVId);
       toast.success('🚀 Starting job search workflow...');
 
-      const result = await startWorkflow({
+      const result = (await startWorkflow({
         cv_storage_id: uploadedCVId,
         userId: me._id,
-      }) as WorkflowId;
+      })) as WorkflowId;
 
       setWorkflowId(result);
       setCurrentStage('workflow');

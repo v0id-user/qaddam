@@ -196,15 +196,16 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
             <h4 className="text-foreground mb-4 text-lg font-bold">
               {t('job_results.job_details.description')}
             </h4>
-            <div 
-              className="text-muted-foreground text-sm leading-relaxed prose prose-sm max-w-none"
+            <div
+              className="text-muted-foreground prose prose-sm max-w-none text-sm leading-relaxed"
               dir="auto"
-              dangerouslySetInnerHTML={{ 
-                __html: job.descriptionHtml.replace(/<br>/g, '<br />')
+              dangerouslySetInnerHTML={{
+                __html: job.descriptionHtml
+                  .replace(/<br>/g, '<br />')
                   .replace(/<ul>/g, '<ul class="list-disc pl-4 my-2">')
                   .replace(/<li>/g, '<li class="my-1">')
-                  .replace(/<strong>/g, '<strong class="font-semibold block mt-4 mb-2">')
-              }} 
+                  .replace(/<strong>/g, '<strong class="font-semibold block mt-4 mb-2">'),
+              }}
             />
           </div>
         </div>
@@ -215,7 +216,10 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
             <Button onClick={onClose} variant="outline" className="flex-1">
               {t('job_results.match_insights.close')}
             </Button>
-            <Button onClick={() => window.open(job.url, '_blank')} className="bg-primary text-primary-foreground hover:bg-primary/90 flex-1">
+            <Button
+              onClick={() => window.open(job.url, '_blank')}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 flex-1"
+            >
               {t('job_results.apply_now')}
             </Button>
           </div>

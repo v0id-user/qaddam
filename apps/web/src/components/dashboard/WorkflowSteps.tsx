@@ -57,7 +57,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
 
     // Update step statuses based on workflow progress
     setSteps(prev =>
-      prev.map((step) => {
+      prev.map(step => {
         const progressStep = workflowProgress.status === 'completed' ? 'finished' : 'not_started';
         if (progressStep) {
           return {
@@ -112,7 +112,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
   const progressPercentage = (completedSteps / steps.length) * 100;
 
   return (
-    <div className="from-accent/30 via-background to-secondary/20 min-h-screen bg-gradient-to-br px-6 py-24 rounded-xl">
+    <div className="from-accent/30 via-background to-secondary/20 min-h-screen rounded-xl bg-gradient-to-br px-6 py-24">
       <div className="mx-auto max-w-4xl">
         {/* Header */}
         <div className="mb-16 text-center">
