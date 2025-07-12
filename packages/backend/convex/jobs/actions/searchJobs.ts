@@ -3,6 +3,9 @@ import { internal } from "@/_generated/api";
 import { v } from "convex/values";
 import type { JobResult } from "@/types/jobs";
 import type { Doc } from "@/_generated/dataModel";
+import { generateObject } from "ai";
+import { openai } from "@ai-sdk/openai";
+import { z } from "zod";
 
 // Internal query to get all jobs for testing/debugging
 export const getAllJobListings = internalQuery({
@@ -143,50 +146,105 @@ export const aiSearchJobs = internalAction({
 		console.log(`Found ${uniqueResults.length} unique job results`);
 
 		// Convert database results to JobResult format
-		const jobResults: JobResult[] = uniqueResults.map(
-			(job: Doc<"jobListings">, index: number) => {
-				// Calculate match score based on keyword presence
-				const jobText =
-					`${job.name} ${job.description} ${job.sourceName || ""}`.toLowerCase();
-				const matchedSkills = searchParams.technical_skills.filter((skill) =>
-					jobText.includes(skill.toLowerCase()),
-				);
-				const matchedTitles = searchParams.job_title_keywords.filter((title) =>
-					jobText.includes(title.toLowerCase()),
-				);
-				const matchedKeywords = searchParams.primary_keywords.filter(
-					(keyword) => jobText.includes(keyword.toLowerCase()),
-				);
+		const jobResults: JobResult[] = [];
+		
+		for (const job of uniqueResults) {
+			// Calculate match score based on keyword presence
+			const jobText =
+				`${job.name} ${job.description} ${job.sourceName || ""}`.toLowerCase();
+			const matchedSkills = searchParams.technical_skills.filter((skill) =>
+				jobText.includes(skill.toLowerCase()),
+			);
 
-				// Enhanced match score calculation with capped ratios
-				const skillMatchRatio = Math.min(
-					matchedSkills.length /
-						Math.max(searchParams.technical_skills.length, 1),
-					1.0,
-				);
-				const titleMatchRatio = Math.min(
-					matchedTitles.length /
-						Math.max(searchParams.job_title_keywords.length, 1),
-					1.0,
-				);
-				const keywordMatchRatio = Math.min(
-					matchedKeywords.length /
-						Math.max(searchParams.primary_keywords.length, 1),
-					1.0,
-				);
+			const experienceMatchResult = await generateObject({
+				model: openai.chat("gpt-4o-mini", {
+					structuredOutputs: true,
+				}),
+				schemaName: "Experience_Match_Analysis",
+				messages: [
+					{
+						role: "system",
+						content: `
+<agent>
+  <name>ExperienceMatchAgent</name>
+  <description>
+    An AI agent that analyzes job requirements and candidate experience to determine compatibility.
+  </description>
 
-				return {
-					jobListingId: job._id,
-					benefits: [], // Could be extracted from description
-					matchedSkills,
-					missingSkills: searchParams.technical_skills.filter(
-						(skill) => !matchedSkills.includes(skill),
-					),
-					experienceMatch: "Experience match analysis needed",
-					locationMatch: "Location analysis needed",
-				};
-			},
-		);
+  <goals>
+    <goal>Evaluate experience level match between job and candidate</goal>
+    <goal>Identify any experience gaps or mismatches</goal>
+    <goal>Provide specific reasons for the match assessment</goal>
+  </goals>
+
+  <rules>
+    <rule>Compare years of experience requirements objectively</rule>
+    <rule>Consider both direct and transferable experience</rule>
+    <rule>Evaluate seniority level compatibility</rule>
+    <rule>Provide clear match/mismatch reasoning</rule>
+    <rule>Be specific about any experience gaps</rule>
+  </rules>
+</agent>
+							`,
+					},
+					{
+						role: "user",
+						content: `
+Analyze the experience match between this job listing and candidate profile:
+
+Job Description: ${jobText}
+
+Candidate Profile:
+- Years of Experience: ${args.cvProfile.years_of_experience}
+- Experience Level: ${args.cvProfile.experience_level}
+- Previous Roles: ${args.cvProfile.job_titles.join(", ")}
+- Skills: ${args.cvProfile.skills.join(", ")}
+
+Determine if the candidate's experience level matches the job requirements.
+							`,
+					}
+				],
+				schema: z.object({
+					match_level: z.enum([
+						"excellent_match",
+						"good_match", 
+						"partial_match",
+						"mismatch"
+					]),
+					match_score: z.number().min(0).max(1),
+					match_reasons: z.array(z.string()).min(1),
+					experience_gaps: z.array(z.string()),
+					recommendation: z.string()
+				})
+			});
+
+			// Check location match
+			let locationMatch = "no_location_provided";
+			if (args.cvProfile.preferred_locations.length > 0) {
+				const jobLocation = (job.location || "").toLowerCase();
+				const matchingLocation = args.cvProfile.preferred_locations.some(
+					location => jobLocation.includes(location.toLowerCase())
+				);
+				locationMatch = matchingLocation ? "location_match" : "location_mismatch";
+			}
+
+			jobResults.push({
+				jobListingId: job._id,
+				benefits: [], // Could be extracted from description
+				matchedSkills,
+				missingSkills: searchParams.technical_skills.filter(
+					(skill) => !matchedSkills.includes(skill),
+				),
+				experienceMatch: experienceMatchResult.object.match_level,
+				experienceMatchScore: experienceMatchResult.object.match_score,
+				experienceMatchReasons: experienceMatchResult.object.match_reasons,
+
+				// TODO: Fill and fix this from the survey
+				locationMatchScore: 0,
+				locationMatchReasons: [],
+				locationMatch
+			});
+		}
 
 		console.log(`Returning ${jobResults.length} processed jobs`);
 

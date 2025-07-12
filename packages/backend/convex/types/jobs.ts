@@ -10,7 +10,11 @@ export type JobResult = {
 	matchedSkills: string[];
 	missingSkills: string[];
 	experienceMatch: string;
+	experienceMatchScore: number;
+	experienceMatchReasons: string[];
 	locationMatch: string;
+	locationMatchScore: number;
+	locationMatchReasons: string[];
 
 	// AI Ranking fields (from combineResults.ts)
 	aiMatchReasons?: string[];

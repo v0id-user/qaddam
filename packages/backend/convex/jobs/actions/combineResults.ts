@@ -118,15 +118,8 @@ Job Results: ${JSON.stringify(args.jobResults, null, 2)}
 				ranked_jobs: z.array(
 					z.object({
 						id: z.string(),
-						match_score: z.number().min(0).max(1),
 						match_reasons: z.array(z.string()),
 						concerns: z.array(z.string()), // Made required instead of optional
-						recommendation: z.enum([
-							"highly_recommended",
-							"recommended",
-							"consider",
-							"not_recommended",
-						]),
 					}),
 				),
 				insights: z.object({
@@ -139,19 +132,17 @@ Job Results: ${JSON.stringify(args.jobResults, null, 2)}
 			}),
 		});
 
-		// Merge AI rankings with original job data
-		const rankedJobsData = response.object.ranked_jobs;
 		const originalJobs = args.jobResults.jobs;
 
+		// TODO: This is made with an AI model for now, later make it manually with accuracy or keep it as is
 		const finalJobs = originalJobs
 			.map((job: JobResult) => {
-				const ranking = rankedJobsData.find((r) => r.id === job.id);
 				return {
 					...job,
-					matchScore: ranking ? ranking.match_score * 100 : job.matchScore, // Convert to percentage
-					aiMatchReasons: ranking?.match_reasons || [],
-					aiConcerns: ranking?.concerns || [],
-					aiRecommendation: ranking?.recommendation || "consider",
+					matchScore: job.experienceMatchScore, // Convert to percentage
+					aiMatchReasons: job.experienceMatchReasons || [],
+					aiConcerns: job.missingSkills || [],
+					aiRecommendation: job.locationMatch,
 				};
 			})
 			.sort((a: any, b: any) => b.matchScore - a.matchScore);
