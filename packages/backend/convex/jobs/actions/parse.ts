@@ -19,7 +19,13 @@ export const aiParseCV = internalAction({
 				throw new Error("CV file not found in storage");
 			}
 
-			console.log("Starting CV parsing for storage ID:", cv_storage_id);
+			console.log(
+				"Starting CV parsing:",
+				`storage ID: ${cv_storage_id.slice(0, 8)}...`,
+				`user: ${args.userId ? args.userId.slice(0, 8) + "..." : "anon"}`
+			);
+
+			console.log("Calling AI model for CV analysis...");
 
 			const response = await generateObject({
 				model: openai.chat("gpt-4o-mini", {
@@ -82,7 +88,21 @@ export const aiParseCV = internalAction({
 			});
 
 			const result = response.object;
-			console.log("CV parsing completed successfully:", result);
+			console.log(
+				"CV parsing completed:",
+				`${result.skills.length} skills,`,
+				`${result.job_titles.length} job titles,`,
+				`${result.industries.length} industries,`,
+				`${result.years_of_experience}y exp,`,
+				`level: ${result.experience_level}`
+			);
+
+			console.log("Sample extracted data:", {
+				skills: result.skills.slice(0, 3).join(", ") + "...",
+				titles: result.job_titles.slice(0, 2).join(", ") + "...",
+				industries: result.industries.slice(0, 2).join(", ") + "...",
+				locations: result.preferred_locations.slice(0, 2).join(", ") + "...",
+			});
 
 			// Validate that all required arrays are non-empty
 			if (
@@ -112,6 +132,11 @@ export const aiParseCV = internalAction({
 							: ["Any Location"],
 				};
 
+				console.log(
+					"Using fallback data:",
+					`${fallbackResult.skills.length} skills,`,
+					`${fallbackResult.job_titles.length} job titles`
+				);
 				return fallbackResult;
 			}
 
@@ -131,7 +156,12 @@ export const aiParseCV = internalAction({
 				preferred_locations: ["Any Location"],
 			};
 
-			console.log("Using fallback CV profile:", fallbackProfile);
+			console.log(
+				"Using fallback profile:",
+				`${fallbackProfile.skills.length} skills,`,
+				`${fallbackProfile.job_titles.length} job titles,`,
+				`level: ${fallbackProfile.experience_level}`
+			);
 			return fallbackProfile;
 		}
 	},

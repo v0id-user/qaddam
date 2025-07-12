@@ -23,8 +23,7 @@ export const searchJobListings = internalQuery({
 	handler: async (ctx, args): Promise<Doc<"jobListings">[]> => {
 		// Query all jobs first to get total count
 		const allJobsInDb = await ctx.db.query("jobListings").collect();
-		console.log(`Total jobs in database: ${allJobsInDb.length}`);
-		console.log(`Searching for: "${args.searchQuery}"`);
+		console.log(`DB search: ${allJobsInDb.length} total jobs, query="${args.searchQuery.slice(0, 30)}..."`);
 
 		// Search in job descriptions
 		const descriptionResults = await ctx.db
@@ -34,9 +33,7 @@ export const searchJobListings = internalQuery({
 			)
 			.take(50);
 
-		console.log(
-			`Description search found: ${descriptionResults.length} results`,
-		);
+		console.log(`Description search: ${descriptionResults.length} results`);
 
 		// Search in job names/titles
 		const nameResults = await ctx.db
@@ -44,7 +41,7 @@ export const searchJobListings = internalQuery({
 			.withSearchIndex("search_name", (q) => q.search("name", args.searchQuery))
 			.take(50);
 
-		console.log(`Name search found: ${nameResults.length} results`);
+		console.log(`Name search: ${nameResults.length} results`);
 
 		// Combine and deduplicate results
 		const allResults = [...descriptionResults, ...nameResults];
@@ -52,26 +49,27 @@ export const searchJobListings = internalQuery({
 			(job, index, self) => index === self.findIndex((j) => j._id === job._id),
 		);
 
-		console.log(`Total unique results: ${uniqueResults.length}`);
+		console.log(`Combined: ${uniqueResults.length} unique results`);
 
 		// If no results from search indexes, try simple text matching
 		if (uniqueResults.length === 0) {
-			console.log("No search results found, trying simple text matching...");
+			console.log("No search results, trying text matching...");
 
 			// Filter jobs that contain any of the search terms (case insensitive)
 			const searchTerms = args.searchQuery
 				.toLowerCase()
 				.split(" ")
 				.filter((term) => term.length > 2);
+			
+			console.log(`Text matching with ${searchTerms.length} terms: ${searchTerms.slice(0, 3).join(", ")}...`);
+			
 			const filteredJobs = allJobsInDb.filter((job) => {
 				const jobText =
 					`${job.name} ${job.description} ${job.sourceName || ""} ${job.location || ""}`.toLowerCase();
 				return searchTerms.some((term) => jobText.includes(term));
 			});
 
-			console.log(
-				`Filtered jobs: ${filteredJobs.length} from total ${allJobsInDb.length} jobs`,
-			);
+			console.log(`Text matching: ${filteredJobs.length} jobs matched`);
 			return filteredJobs;
 		}
 
@@ -108,7 +106,12 @@ export const aiSearchJobs = internalAction({
 		totalFound: number;
 		searchParams: typeof args.searchParams;
 	}> => {
-		console.log("Starting job search...");
+		console.log(
+			"Starting job search:",
+			`${args.searchParams.technical_skills.length} tech skills,`,
+			`${args.searchParams.job_title_keywords.length} job titles,`,
+			`${args.cvProfile.years_of_experience}y exp`
+		);
 
 		const { searchParams } = args;
 
@@ -122,18 +125,27 @@ export const aiSearchJobs = internalAction({
 			...searchParams.primary_keywords.slice(0, 3),
 		];
 
-		console.log("Search strategies:", searchStrategies);
+		console.log(
+			"Search strategies:",
+			`${searchStrategies.length} terms:`,
+			searchStrategies.slice(0, 3).join(", ") + "..."
+		);
 
 		const allResults: Doc<"jobListings">[] = [];
+		let searchCount = 0;
 
 		// Try each search term individually (better for Convex search)
 		for (const searchTerm of searchStrategies) {
 			if (searchTerm && searchTerm.trim().length > 2) {
-				console.log(`Searching for individual term: "${searchTerm}"`);
+				searchCount++;
+				console.log(`[${searchCount}/${searchStrategies.length}] Searching: "${searchTerm.slice(0, 20)}..."`);
+				
 				const results = await ctx.runQuery(
 					internal.jobs.actions.searchJobs.searchJobListings,
 					{ searchQuery: searchTerm.trim() },
 				);
+				
+				console.log(`  → Found ${results.length} results`);
 				allResults.push(...results);
 			}
 		}
@@ -143,18 +155,27 @@ export const aiSearchJobs = internalAction({
 			(job, index, self) => index === self.findIndex((j) => j._id === job._id),
 		);
 
-		console.log(`Found ${uniqueResults.length} unique job results`);
+		console.log(
+			`Search complete: ${uniqueResults.length} unique jobs from ${allResults.length} total results`
+		);
 
 		// Convert database results to JobResult format
 		const jobResults: JobResult[] = [];
+		console.log("Processing jobs for AI analysis...");
 		
-		for (const job of uniqueResults) {
+		for (const [index, job] of uniqueResults.entries()) {
+			if (index % 5 === 0) {
+				console.log(`Processing job ${index + 1}/${uniqueResults.length}...`);
+			}
+
 			// Calculate match score based on keyword presence
 			const jobText =
 				`${job.name} ${job.description} ${job.sourceName || ""}`.toLowerCase();
 			const matchedSkills = searchParams.technical_skills.filter((skill) =>
 				jobText.includes(skill.toLowerCase()),
 			);
+
+			console.log(`  Job ${index + 1}: "${job.name.slice(0, 30)}..." - ${matchedSkills.length} skills matched`);
 
 			const experienceMatchResult = await generateObject({
 				model: openai.chat("gpt-4o-mini", {
@@ -228,6 +249,8 @@ Determine if the candidate's experience level matches the job requirements.
 				locationMatch = matchingLocation ? "location_match" : "location_mismatch";
 			}
 
+			console.log(`  → Match: ${experienceMatchResult.object.match_level} (${experienceMatchResult.object.match_score}), Location: ${locationMatch}`);
+
 			jobResults.push({
 				jobListingId: job._id,
 				benefits: [], // Could be extracted from description
@@ -246,10 +269,14 @@ Determine if the candidate's experience level matches the job requirements.
 			});
 		}
 
-		console.log(`Returning ${jobResults.length} processed jobs`);
+		const finalResults = jobResults.slice(0, 20);
+		console.log(
+			`Returning ${finalResults.length} jobs:`,
+			`avg score: ${(finalResults.reduce((sum, job) => sum + job.experienceMatchScore, 0) / finalResults.length).toFixed(2)}`
+		);
 
 		return {
-			jobs: jobResults.slice(0, 20), // Limit to top 20 results
+			jobs: finalResults,
 			totalFound: jobResults.length,
 			searchParams: args.searchParams,
 		};

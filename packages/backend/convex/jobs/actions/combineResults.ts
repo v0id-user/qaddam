@@ -38,8 +38,16 @@ export const aiCombineJobResults = internalAction({
 		}), // Search parameters used
 	},
 	handler: async (ctx, args): Promise<JobSearchResults> => {
+		console.log(
+			"Starting job ranking:",
+			`${args.jobResults.jobs.length} jobs,`,
+			`${args.searchParams.primary_keywords.length} primary keywords,`,
+			`${args.cvProfile.skills.length} skills`
+		);
+
 		// If no jobs found, return empty results with default insights
 		if (!args.jobResults.jobs || args.jobResults.jobs.length === 0) {
+			console.log("No jobs found, returning empty results");
 			return {
 				jobs: [],
 				totalFound: 0,
@@ -69,6 +77,8 @@ export const aiCombineJobResults = internalAction({
 				},
 			} as JobSearchResults;
 		}
+
+		console.log("Calling AI ranking model for job analysis...");
 
 		const response = await generateObject({
 			model: openai.chat("gpt-4o-mini", {
@@ -132,7 +142,20 @@ Job Results: ${JSON.stringify(args.jobResults, null, 2)}
 			}),
 		});
 
+		console.log(
+			"AI ranking completed:",
+			`${response.object.ranked_jobs.length} ranked jobs,`,
+			`${response.object.insights.total_relevant} relevant,`,
+			`avg score: ${response.object.insights.avg_match_score}`
+		);
+
+		console.log(
+			"Top skills in demand:",
+			response.object.insights.top_skills_in_demand.slice(0, 3).join(", ") + "..."
+		);
+
 		const originalJobs = args.jobResults.jobs;
+		console.log("Processing original job results...");
 
 		// TODO: This is made with an AI model for now, later make it manually with accuracy or keep it as is
 		const finalJobs = originalJobs
@@ -145,7 +168,16 @@ Job Results: ${JSON.stringify(args.jobResults, null, 2)}
 					aiRecommendation: job.locationMatch,
 				};
 			})
-			.sort((a: any, b: any) => b.matchScore - a.matchScore);
+			.sort((a, b) => b.matchScore - a.matchScore);
+
+		console.log(
+			"Final processing complete:",
+			`${finalJobs.length} jobs,`,
+			`top score: ${finalJobs[0]?.matchScore || 0}`,
+			`lowest score: ${finalJobs[finalJobs.length - 1]?.matchScore || 0}`
+		);
+
+		// TODO: With AI extract location and location match score, and salary insights and market observations
 
 		return {
 			jobs: finalJobs,

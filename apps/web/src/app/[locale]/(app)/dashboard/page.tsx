@@ -148,13 +148,13 @@ export default function DashboardPage() {
 
   const handleStartJobSearch = async () => {
     if (!uploadedCVId || !me) {
-      toast.error('CV or user not found');
+      toast.error(t('job_results.errors.cv_not_found'));
       return;
     }
 
     try {
       console.log('Starting job search workflow with CV:', uploadedCVId);
-      toast.success('🚀 Starting job search workflow...');
+      toast.success(t('job_results.messages.workflow_starting'));
 
       const result = (await startWorkflow({
         cv_storage_id: uploadedCVId,
@@ -167,14 +167,14 @@ export default function DashboardPage() {
       console.log('Workflow started successfully:', result);
     } catch (error) {
       console.error('Error starting workflow:', error);
-      toast.error('Failed to start job search workflow');
+      toast.error(t('job_results.errors.workflow_start_failed'));
     }
   };
 
   const handleWorkflowComplete = () => {
     console.log('Workflow completed with results');
     setCurrentStage('results');
-    toast.success('🎉 Job search completed!');
+    toast.success(t('job_results.messages.workflow_completed'));
   };
 
   const handleBackToUpload = () => {

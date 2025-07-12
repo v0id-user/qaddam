@@ -16,7 +16,7 @@ interface JobCardProps {
 const JobCard = ({ job, onClick }: JobCardProps) => {
   const t = useTranslations('dashboard');
   const [isSaved, setIsSaved] = useState(false);
-  const jobListing = useQuery(api.jobs.data.getJobListing, {
+  const jobListing = useQuery(api.job_data.getJobListing, {
     jobListingId: job.jobListingId,
   });
 
@@ -42,8 +42,10 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatDate = (timestamp: number | undefined) => {
+    if (!timestamp) return t('job_results.date_format.unknown');
+    
+    const date = new Date(timestamp);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -118,9 +120,9 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       <div className="mb-6 space-y-3">
         <div className="flex items-center space-x-2 space-x-reverse">
           <span
-            className={`rounded-full px-3 py-1 text-sm font-medium ${getTypeColor(jobListing.type)}`}
+            className={`rounded-full px-3 py-1 text-sm font-medium ${getTypeColor('full_time')}`}
           >
-            {t(`job_results.job_types.${jobListing.type}`)}
+            {t('job_results.job_types.full_time')}
           </span>
           <div className="text-muted-foreground flex items-center space-x-1 space-x-reverse text-sm">
             <Clock className="h-4 w-4" />
@@ -131,7 +133,7 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
         <div className="flex items-center space-x-2 space-x-reverse">
           <Briefcase className="text-muted-foreground h-4 w-4" />
           <span className="text-foreground font-medium">
-            {jobListing.salary || t('job_results.salary_not_specified')}
+            {jobListing.salary ? `${jobListing.salary} ${jobListing.currency || ''}` : t('job_results.salary_not_specified')}
           </span>
         </div>
       </div>
@@ -143,15 +145,15 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
             {t('job_results.match_score')}
           </span>
           <span
-            className={`rounded-full px-2 py-1 text-sm font-bold ${getMatchScoreColor(jobListing.matchScore)}`}
+            className={`rounded-full px-2 py-1 text-sm font-bold ${getMatchScoreColor(job.experienceMatchScore)}`}
           >
-            {jobListing.matchScore}%
+            {job.experienceMatchScore}%
           </span>
         </div>
         <div className="bg-accent/20 h-2 w-full rounded-full">
           <div
             className="bg-primary h-2 rounded-full transition-all duration-300"
-            style={{ width: `${Math.min(jobListing.matchScore, 100)}%` }}
+            style={{ width: `${Math.min(job.experienceMatchScore, 100)}%` }}
           />
         </div>
       </div>
@@ -159,17 +161,19 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       {/* Skills Preview */}
       <div className="mb-6">
         <div className="flex flex-wrap gap-2">
-          {[1, 2, 3].map((_, index) => (
+          {job.matchedSkills.slice(0, 3).map((skill: string, index: number) => (
             <span
               key={index}
               className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800"
             >
-              {t('job_results.placeholder_skill')}
+              {skill}
             </span>
           ))}
-          <span className="bg-accent/20 text-muted-foreground rounded-full px-2 py-1 text-xs font-medium">
-            {t('job_results.skills.more_skills', { count: 2 })}
-          </span>
+          {job.matchedSkills.length > 3 && (
+            <span className="bg-accent/20 text-muted-foreground rounded-full px-2 py-1 text-xs font-medium">
+              {t('job_results.skills.more_skills', { count: job.matchedSkills.length - 3 })}
+            </span>
+          )}
         </div>
       </div>
 

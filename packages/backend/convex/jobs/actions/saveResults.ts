@@ -12,12 +12,18 @@ export const aiSaveJobResults = internalAction({
 		workflowId: v.string(),
 	},
 	handler: async (ctx, args): Promise<{ saved: boolean; resultId: string }> => {
-		console.log("Step 5: Saving job search results to database");
+		console.log(
+			"Step 5: Saving job search results:",
+			`${args.results.jobs.length} jobs,`,
+			`workflow: ${args.workflowId.slice(0, 8)}...`
+		);
 
 		const results = args.results as JobSearchResults;
 		const now = Date.now();
 
 		try {
+			console.log("Saving main job search results record...");
+			
 			// Save main job search results record
 			const jobSearchResultsId = await ctx.runMutation(
 				internal.jobs.actions.saveResults.saveJobSearchResults,
@@ -30,8 +36,15 @@ export const aiSaveJobResults = internalAction({
 				},
 			);
 
+			console.log(`Main record saved with ID: ${jobSearchResultsId}`);
+			console.log(`Saving ${results.jobs.length} individual job results...`);
+
 			// Save individual job results
-			for (const job of results.jobs) {
+			for (const [index, job] of results.jobs.entries()) {
+				if (index % 5 === 0) {
+					console.log(`  Saving job ${index + 1}/${results.jobs.length}...`);
+				}
+				
 				await ctx.runMutation(internal.jobs.actions.saveResults.saveJobResult, {
 					jobSearchResultsId,
 					job,
@@ -41,7 +54,9 @@ export const aiSaveJobResults = internalAction({
 			}
 
 			console.log(
-				`Saved ${results.jobs.length} job results for workflow ${args.workflowId}`,
+				`Save complete: ${results.jobs.length} job results saved`,
+				`for workflow ${args.workflowId.slice(0, 8)}...`,
+				`Total insights: ${results.insights.total_relevant} relevant jobs`
 			);
 
 			return {
@@ -66,6 +81,13 @@ export const saveJobSearchResults = internalMutation({
 	},
 	handler: async (ctx, args) => {
 		const results = args.results as JobSearchResults;
+
+		console.log(
+			"Inserting main record:",
+			`${results.totalFound} total found,`,
+			`${results.insights.total_relevant} relevant,`,
+			`${results.searchParams.optimized_keywords.length} keywords`
+		);
 
 		return await ctx.db.insert("jobSearchResults", {
 			userId: args.userId,
@@ -110,6 +132,14 @@ export const saveJobResult = internalMutation({
 	},
 	handler: async (ctx, args) => {
 		const job = args.job as JobSearchResults["jobs"][0];
+		
+		console.log(
+			"Inserting job result:",
+			`ID: ${job.jobListingId},`,
+			`match score: ${job.experienceMatchScore},`,
+			`${job.matchedSkills.length} matched skills`
+		);
+
 		return await ctx.db.insert("jobSearchJobResults", {
 			userId: args.userId,
 			jobSearchResultsId: args.jobSearchResultsId,

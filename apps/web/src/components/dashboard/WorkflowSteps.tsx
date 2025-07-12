@@ -47,7 +47,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
   ]);
 
   // Get workflow progress from Convex
-  const workflowProgress = useQuery(api.jobs.data.getWorkflowStatus, { workflowId });
+  const workflowProgress = useQuery(api.job_data.getWorkflowStatus, { workflowId });
 
   // Update steps based on workflow progress
   useEffect(() => {
@@ -121,7 +121,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
           </h1>
           <p className="text-muted-foreground text-xl leading-relaxed">{t('workflow.subtitle')}</p>
           {workflowId && (
-            <p className="text-muted-foreground mt-2 text-sm">Workflow ID: {workflowId}</p>
+            <p className="text-muted-foreground mt-2 text-sm">{t('workflow.workflow_id')} {workflowId}</p>
           )}
         </div>
 
@@ -141,7 +141,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
           </div>
           <div className="mt-2 text-center">
             <span className="text-primary text-sm font-medium">
-              {completedSteps} of {steps.length} steps completed
+              {t('workflow.progress.steps_completed', { completed: completedSteps, total: steps.length })}
             </span>
           </div>
         </div>
@@ -219,7 +219,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
                 <Circle className="h-6 w-6 text-red-600" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-red-800">Workflow Error</h3>
+                <h3 className="text-lg font-bold text-red-800">{t('workflow.error.title')}</h3>
                 <p className="text-red-700">{workflowProgress.status}</p>
               </div>
             </div>

@@ -205,6 +205,14 @@
         "not_started": "Waiting",
         "pending": "Processing",
         "finished": "Complete"
+      },
+      "workflow_id": "Workflow ID:",
+      "progress": {
+        "steps_completed": "{completed} of {total} steps completed"
+      },
+      "error": {
+        "title": "Workflow Error",
+        "subtitle": "An error occurred during workflow processing"
       }
     },
     "job_results": {
@@ -226,7 +234,8 @@
       "date_format": {
         "yesterday": "Yesterday",
         "days_ago": "{days} days ago",
-        "weeks_ago": "{weeks} weeks ago"
+        "weeks_ago": "{weeks} weeks ago",
+        "unknown": "Date unknown"
       },
       "card_actions": {
         "view_match_analysis": "Click to view detailed match analysis"
@@ -247,6 +256,20 @@
         "salary_range": "Salary Range",
         "location_match": "Location Match",
         "close": "Close"
+      },
+      "loading": {
+        "title": "Loading job results...",
+        "subtitle": "Please wait while we fetch your job matches"
+      },
+      "errors": {
+        "no_results": "No job results found for this workflow.",
+        "cv_not_found": "CV or user not found",
+        "workflow_start_failed": "Failed to start job search workflow"
+      },
+      "messages": {
+        "workflow_starting": "🚀 Starting job search workflow...",
+        "workflow_completed": "🎉 Job search completed!",
+        "placeholder_requirement": "Placeholder requirement {index}"
       }
     },
     "survey": {

@@ -32,8 +32,11 @@ export const aiTuneJobSearch = internalAction({
 	}> => {
 		try {
 			console.log(
-				"Starting keyword extraction for CV profile:",
-				args.cvProfile,
+				"Starting keyword extraction:",
+				`${args.cvProfile.skills.length} skills,`,
+				`${args.cvProfile.job_titles.length} job titles,`,
+				`${args.cvProfile.years_of_experience}y exp,`,
+				`level: ${args.cvProfile.experience_level}`
 			);
 
 			const response = await generateObject({
@@ -133,7 +136,20 @@ Make sure each array has at least one relevant keyword.
 			});
 
 			const result = response.object;
-			console.log("Keyword extraction completed successfully:", result);
+			console.log(
+				"Keyword extraction completed:",
+				`${result.primary_keywords.length} primary,`,
+				`${result.secondary_keywords.length} secondary,`,
+				`${result.search_terms.length} search terms,`,
+				`${result.job_title_keywords.length} job titles,`,
+				`${result.technical_skills.length} technical skills`
+			);
+
+			console.log("Sample keywords:", {
+				primary: result.primary_keywords.slice(0, 3).join(", ") + "...",
+				secondary: result.secondary_keywords.slice(0, 3).join(", ") + "...",
+				search: result.search_terms.slice(0, 3).join(", ") + "...",
+			});
 
 			// Validate that all arrays are non-empty
 			if (
@@ -169,6 +185,11 @@ Make sure each array has at least one relevant keyword.
 							: args.cvProfile.skills,
 				};
 
+				console.log(
+					"Using fallback keywords:",
+					`${fallbackKeywords.primary_keywords.length} primary,`,
+					`${fallbackKeywords.secondary_keywords.length} secondary`
+				);
 				return fallbackKeywords;
 			}
 
@@ -185,7 +206,12 @@ Make sure each array has at least one relevant keyword.
 				technical_skills: args.cvProfile.skills,
 			};
 
-			console.log("Using fallback keywords:", fallbackResult);
+			console.log(
+				"Using fallback keywords:",
+				`${fallbackResult.primary_keywords.length} primary,`,
+				`${fallbackResult.secondary_keywords.length} secondary,`,
+				`${fallbackResult.search_terms.length} search terms`
+			);
 			return fallbackResult;
 		}
 	},

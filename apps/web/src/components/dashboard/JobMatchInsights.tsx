@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { X, CheckCircle, AlertCircle, MapPin, DollarSign, Clock, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import type { JobResult } from './types';
+import type { JobResult } from '@qaddam/backend/convex/types/jobs';
 import { useQuery } from 'convex/react';
 import { api } from '@qaddam/backend/convex/_generated/api';
 
@@ -27,7 +27,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
       onClose();
     }
   };
-  const jobListing = useQuery(api.jobs.data.getJobListing, {
+  const jobListing = useQuery(api.job_data.getJobListing, {
     jobListingId: job.jobListingId,
   });
 
@@ -92,13 +92,13 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
               <TrendingUp className="text-primary h-8 w-8" />
               <h3 className="text-foreground text-xl font-bold">{t('job_results.match_score')}</h3>
             </div>
-            <div className={`mb-2 text-4xl font-bold ${getMatchScoreColor(jobListing.matchScore)}`}>
-              {jobListing.matchScore}%
+            <div className={`mb-2 text-4xl font-bold ${getMatchScoreColor(job.experienceMatchScore)}`}>
+              {job.experienceMatchScore}%
             </div>
             <div className="bg-accent/20 mb-4 h-3 w-full rounded-full">
               <div
                 className="bg-primary h-3 rounded-full transition-all duration-300"
-                style={{ width: `${jobListing.matchScore}%` }}
+                style={{ width: `${job.experienceMatchScore}%` }}
               />
             </div>
           </div>
@@ -168,7 +168,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
                 </h4>
               </div>
               <p className="text-muted-foreground text-sm">
-                {jobListing.salary || t('job_results.salary_not_specified')}
+                {jobListing.salary ? `${jobListing.salary} ${jobListing.currency || ''}` : t('job_results.salary_not_specified')}
               </p>
             </div>
 
@@ -193,7 +193,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
               {[1, 2, 3].map((_, index) => (
                 <div key={index} className="flex items-center space-x-3 space-x-reverse">
                   <div className="h-2 w-2 rounded-full bg-green-500" />
-                  <span className="text-muted-foreground text-sm">Placeholder requirement {index + 1}</span>
+                  <span className="text-muted-foreground text-sm">{t('job_results.messages.placeholder_requirement', { index: index + 1 })}</span>
                 </div>
               ))}
             </div>

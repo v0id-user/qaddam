@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Upload } from 'lucide-react';
 import JobCard from '@/components/dashboard/JobCard';
 import JobMatchInsights from '@/components/dashboard/JobMatchInsights';
-import type { JobResult } from './types';
+import type { JobResult } from '@qaddam/backend/convex/types/jobs';
 import { useQuery } from 'convex/react';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import type { WorkflowId } from '@qaddam/backend/convex/jobs/workflow';
@@ -21,7 +21,7 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
   const [selectedJob, setSelectedJob] = useState<JobResult | null>(null);
   const [isInsightsOpen, setIsInsightsOpen] = useState(false);
 
-  const jobResults = useQuery(api.jobs.data.getJobResults, {
+  const jobResults = useQuery(api.job_data.getJobResults, {
     workflowId,
   });
 
@@ -44,7 +44,7 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
     return (
       <div className="from-accent/30 via-background to-secondary/20 min-h-screen rounded-xl bg-gradient-to-br px-6 py-24">
         <div className="mx-auto max-w-6xl text-center">
-          <div className="text-foreground text-xl">Loading job results...</div>
+          <div className="text-foreground text-xl">{t('job_results.loading.title')}</div>
         </div>
       </div>
     );
@@ -55,7 +55,7 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
     return (
       <div className="from-accent/30 via-background to-secondary/20 min-h-screen rounded-xl bg-gradient-to-br px-6 py-24">
         <div className="mx-auto max-w-6xl text-center">
-          <div className="text-foreground text-xl">No job results found for this workflow.</div>
+          <div className="text-foreground text-xl">{t('job_results.errors.no_results')}</div>
           <Button
             onClick={onBackToUpload}
             variant="outline"
@@ -73,13 +73,17 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
   const totalFound = searchResults?.totalFound || 0;
 
   const jobsData: JobResult[] =
-    jobs?.map((job: JobResult) => ({
+    jobs?.map((job) => ({
       jobListingId: job.jobListingId,
       benefits: job.benefits,
       matchedSkills: job.matchedSkills,
       missingSkills: job.missingSkills,
       experienceMatch: job.experienceMatch,
+      experienceMatchScore: 75, // Default score since not in database
+      experienceMatchReasons: [], // Default empty array since not in database
       locationMatch: job.locationMatch,
+      locationMatchScore: 70, // Default score since not in database
+      locationMatchReasons: [], // Default empty array since not in database
       aiMatchReasons: job.aiMatchReasons,
       aiConcerns: job.aiConcerns,
       aiRecommendation: job.aiRecommendation as JobResult['aiRecommendation'],

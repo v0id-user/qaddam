@@ -1,8 +1,8 @@
-import { query } from "@/_generated/server";
 import { v } from "convex/values";
-import { workflow, WorkflowId } from "./workflow";
+import { query } from "./_generated/server";
+import { workflow, WorkflowId } from "./jobs/workflow";
 import chalk from "chalk";
-import { api } from "@/_generated/api";
+import { api } from "./_generated/api";
 
 export const getJobResults = query({
 	args: { workflowId: v.string() },
@@ -84,7 +84,7 @@ export const getJobListing = query({
 			throw new Error("User not found unauthorized");
 		}
 		const jobListing = await ctx.db.get(args.jobListingId);
-		if (!jobListing) {
+		if (!jobListing) {	
 			throw new Error("Job listing not found");
 		}
 		return jobListing;
