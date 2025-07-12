@@ -79,7 +79,7 @@ export const getJobListing = query({
 		jobListingId: v.id("jobListings"),
 	},
 	handler: async (ctx, args) => {
-		const user = ctx.runQuery(api.users.getMe);
+		const user = await ctx.runQuery(api.users.getMe);
 		if (!user) {
 			throw new Error("User not found unauthorized");
 		}
@@ -88,5 +88,84 @@ export const getJobListing = query({
 			throw new Error("Job listing not found");
 		}
 		return jobListing;
+	},
+});
+
+// Get user survey data for enhanced job analysis
+export const getUserSurvey = query({
+	args: {},
+	handler: async (ctx) => {
+		const user = await ctx.runQuery(api.users.getMe);
+		if (!user) {
+			throw new Error("User not found unauthorized");
+		}
+		
+		const survey = await ctx.db
+			.query("userSurveys")
+			.withIndex("by_user", (q) => q.eq("userId", user._id))
+			.first();
+		
+		return survey;
+	},
+});
+
+// Get enhanced job results with all analysis data
+export const getJobResultsWithAnalysis = query({
+	args: { workflowId: v.string() },
+	handler: async (ctx, { workflowId }) => {
+		console.log(chalk.blue(`Getting enhanced job results for workflow ${workflowId}`));
+
+		const user = await ctx.runQuery(api.users.getMe);
+		if (!user) {
+			throw new Error("User not found unauthorized");
+		}
+
+		// Get the job search results record
+		const searchResults = await ctx.db
+			.query("jobSearchResults")
+			.withIndex("by_workflow", (q) => q.eq("workflowId", workflowId))
+			.first();
+
+		if (!searchResults) {
+			console.log(
+				chalk.yellow(`No search results found for workflow ${workflowId}`),
+			);
+			return null;
+		}
+
+		console.log(
+			chalk.green(`Found search results record with ID ${searchResults._id}`),
+		);
+
+		// Get all job results for this search
+		const jobResults = await ctx.db
+			.query("jobSearchJobResults")
+			.withIndex("by_search_results", (q) =>
+				q.eq("jobSearchResultsId", searchResults._id),
+			)
+			.collect();
+
+		console.log(chalk.blue(`Retrieved ${jobResults.length} job results`));
+
+		// Get user survey data for context
+		const userSurvey = await ctx.db
+			.query("userSurveys")
+			.withIndex("by_user", (q) => q.eq("userId", user._id))
+			.first();
+
+		// Get job listings data for each result
+		const jobListings = await Promise.all(
+			jobResults.map(async (result) => {
+				const listing = await ctx.db.get(result.jobListingId);
+				return listing;
+			})
+		);
+
+		return {
+			searchResults,
+			jobResults,
+			userSurvey,
+			jobListings: jobListings.filter(Boolean), // Remove any null entries
+		};
 	},
 });

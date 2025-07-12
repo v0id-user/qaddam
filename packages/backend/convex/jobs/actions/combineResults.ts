@@ -1,9 +1,21 @@
-import { internalAction } from "@/_generated/server";
+import { internalAction, internalQuery } from "@/_generated/server";
+import { internal } from "@/_generated/api";
 import { v } from "convex/values";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 import type { JobResult, JobSearchResults } from "../../types/jobs";
+import type { Doc } from "@/_generated/dataModel";
 import { generateObject } from "ai";
+
+// Internal query to get job listing details
+export const getJobListing = internalQuery({
+	args: {
+		jobListingId: v.id("jobListings"),
+	},
+	handler: async (ctx, args): Promise<Doc<"jobListings"> | null> => {
+		return await ctx.db.get(args.jobListingId);
+	},
+});
 
 // Step 4: Combine and rank all job results
 export const aiCombineJobResults = internalAction({
@@ -157,15 +169,202 @@ Job Results: ${JSON.stringify(args.jobResults, null, 2)}
 		const originalJobs = args.jobResults.jobs;
 		console.log("Processing original job results...");
 
+		// Extract additional information from job results using AI
+		console.log("Extracting salary, company, and job type information...");
+		
+		// Batch AI requests in chunks to avoid overwhelming the API
+		const BATCH_SIZE = 10;
+		const jobChunks = [];
+		for (let i = 0; i < originalJobs.length; i += BATCH_SIZE) {
+			jobChunks.push(originalJobs.slice(i, i + BATCH_SIZE));
+		}
+
+		console.log(`Processing ${originalJobs.length} jobs in ${jobChunks.length} batches for data extraction`);
+
+		const extractedData = {
+			salaries: [] as Array<{min: number; max: number; currency: string}>,
+			companies: [] as string[],
+			jobTypes: [] as string[],
+		};
+
+		// Process each chunk
+		for (const [chunkIndex, chunk] of jobChunks.entries()) {
+			console.log(`Processing extraction batch ${chunkIndex + 1}/${jobChunks.length} (${chunk.length} jobs)...`);
+
+			const batchPromises = chunk.map(async (job: JobResult) => {
+				// Get job listing details - we need to query the database for the actual job data
+				const jobListing = await ctx.runQuery(
+					internal.jobs.actions.combineResults.getJobListing,
+					{ jobListingId: job.jobListingId }
+				);
+				if (!jobListing) return null;
+
+				// Extract salary, company, and job type information
+				const extractionResult = await generateObject({
+					model: openai.chat("gpt-4o-mini", {
+						structuredOutputs: true,
+					}),
+					schemaName: "Job_Data_Extraction",
+					messages: [
+						{
+							role: "system",
+							content: `
+<agent>
+  <name>JobDataExtractionAgent</name>
+  <description>
+    An AI agent that extracts structured data from job listings including salary, company names, and job types.
+  </description>
+
+  <goals>
+    <goal>Extract salary information when mentioned in job descriptions</goal>
+    <goal>Identify company names from job listings</goal>
+    <goal>Determine job types (full_time, part_time, contract, remote)</goal>
+    <goal>Handle missing information gracefully</goal>
+  </goals>
+
+  <rules>
+    <rule>Only extract salary information explicitly mentioned in the job description</rule>
+    <rule>Convert salary ranges to standardized format</rule>
+    <rule>Identify company names from job source or description</rule>
+    <rule>Classify job types based on description and requirements</rule>
+    <rule>Use null/empty values for missing information</rule>
+    <rule>Be conservative - don't hallucinate information not present</rule>
+  </rules>
+</agent>
+							`,
+						},
+						{
+							role: "user",
+							content: `
+Extract salary, company, and job type information from this job listing:
+
+Job Title: ${jobListing.name}
+Job Description: ${jobListing.description}
+Source: ${jobListing.sourceName || "Unknown"}
+Company: ${jobListing.sourceName || "Not specified"}
+Location: ${jobListing.location || "Not specified"}
+
+Extract only information that is explicitly mentioned. Do not infer or estimate values.
+							`,
+						},
+					],
+					schema: z.object({
+						salary: z.object({
+							min: z.number().nullable().describe("Minimum salary mentioned, null if not specified"),
+							max: z.number().nullable().describe("Maximum salary mentioned, null if not specified"),
+							currency: z.string().default("USD").describe("Currency mentioned or USD as default"),
+							is_salary_mentioned: z.boolean().describe("Whether any salary information was found")
+						}),
+						company: z.object({
+							name: z.string().nullable().describe("Company name if mentioned, null if not found"),
+							is_company_mentioned: z.boolean().describe("Whether company name was found")
+						}),
+						job_type: z.object({
+							type: z.enum(["full_time", "part_time", "contract", "remote"]).describe("Primary job type"),
+							is_remote: z.boolean().describe("Whether job mentions remote work"),
+							work_arrangement: z.string().describe("Work arrangement details if mentioned")
+						})
+					})
+				});
+
+				return {
+					jobId: job.jobListingId,
+					extraction: extractionResult.object
+				};
+			});
+
+			// Wait for all jobs in this batch to complete
+			const batchResults = await Promise.all(batchPromises);
+			
+			// Collect the extracted data
+			for (const result of batchResults) {
+				if (result?.extraction) {
+					const { salary, company, job_type } = result.extraction;
+					
+					if (salary.is_salary_mentioned && salary.min !== null && salary.max !== null) {
+						extractedData.salaries.push({
+							min: salary.min,
+							max: salary.max,
+							currency: salary.currency
+						});
+					}
+					
+					if (company.is_company_mentioned && company.name) {
+						extractedData.companies.push(company.name);
+					}
+					
+					extractedData.jobTypes.push(job_type.type);
+				}
+			}
+			
+			console.log(`Extraction batch ${chunkIndex + 1} completed.`);
+		}
+
+		// Process extracted data to get final values
+		console.log("Processing extracted data for final results...");
+		
+		// Calculate salary range
+		let finalSalaryRange = {
+			min: 0,
+			max: 100000,
+			currency: "USD"
+		};
+
+		if (extractedData.salaries.length > 0) {
+			const validSalaries = extractedData.salaries.filter(s => s.min > 0 && s.max > 0);
+			if (validSalaries.length > 0) {
+				finalSalaryRange = {
+					min: Math.min(...validSalaries.map(s => s.min)),
+					max: Math.max(...validSalaries.map(s => s.max)),
+					currency: validSalaries[0].currency // Use first currency found
+				};
+			}
+		}
+
+		// Get unique companies
+		const uniqueCompanies = [...new Set(extractedData.companies)].slice(0, 10); // Limit to top 10
+
+		// Get job type distribution
+		const jobTypeCount = extractedData.jobTypes.reduce((acc, type) => {
+			acc[type] = (acc[type] || 0) + 1;
+			return acc;
+		}, {} as Record<string, number>);
+
+		// Get preferred job types (most common ones)
+		const preferredJobTypes = Object.entries(jobTypeCount)
+			.sort(([,a], [,b]) => b - a)
+			.slice(0, 3)
+			.map(([type]) => type);
+
+		console.log("Extraction results:", {
+			salaryRange: finalSalaryRange,
+			companies: uniqueCompanies.length,
+			jobTypes: preferredJobTypes.length
+		});
+
 		// TODO: This is made with an AI model for now, later make it manually with accuracy or keep it as is
 		const finalJobs = originalJobs
 			.map((job: JobResult) => {
+				// Generate recommendation based on match score
+				let recommendation: "highly_recommended" | "recommended" | "consider" | "not_recommended";
+				const matchScore = job.experienceMatchScore;
+				
+				if (matchScore >= 0.8) {
+					recommendation = "highly_recommended";
+				} else if (matchScore >= 0.6) {
+					recommendation = "recommended";
+				} else if (matchScore >= 0.4) {
+					recommendation = "consider";
+				} else {
+					recommendation = "not_recommended";
+				}
+
 				return {
 					...job,
 					matchScore: job.experienceMatchScore, // Convert to percentage
 					aiMatchReasons: job.experienceMatchReasons || [],
 					aiConcerns: job.missingSkills || [],
-					aiRecommendation: job.locationMatch,
+					aiRecommendation: recommendation,
 				};
 			})
 			.sort((a, b) => b.matchScore - a.matchScore);
@@ -176,8 +375,6 @@ Job Results: ${JSON.stringify(args.jobResults, null, 2)}
 			`top score: ${finalJobs[0]?.matchScore || 0}`,
 			`lowest score: ${finalJobs[finalJobs.length - 1]?.matchScore || 0}`
 		);
-
-		// TODO: With AI extract location and location match score, and salary insights and market observations
 
 		return {
 			jobs: finalJobs,
@@ -190,13 +387,9 @@ Job Results: ${JSON.stringify(args.jobResults, null, 2)}
 					...args.searchParams.search_terms,
 				],
 				target_job_titles: args.searchParams.job_title_keywords,
-				target_companies: [], // Not available in new structure
-				salary_range: {
-					min: 0,
-					max: 100000,
-					currency: "USD",
-				}, // Default values since not available
-				preferred_job_types: ["full_time"], // Default since not available
+				target_companies: uniqueCompanies,
+				salary_range: finalSalaryRange,
+				preferred_job_types: preferredJobTypes.length > 0 ? preferredJobTypes : ["full_time"],
 				locations: args.cvProfile.preferred_locations,
 				search_strategy: "AI-optimized keyword matching based on CV analysis",
 			},

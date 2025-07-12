@@ -21,7 +21,7 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
   const [selectedJob, setSelectedJob] = useState<JobResult | null>(null);
   const [isInsightsOpen, setIsInsightsOpen] = useState(false);
 
-  const jobResults = useQuery(api.job_data.getJobResults, {
+  const jobResults = useQuery(api.job_data.getJobResultsWithAnalysis, {
     workflowId,
   });
 
@@ -73,20 +73,21 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
   const totalFound = searchResults?.totalFound || 0;
 
   const jobsData: JobResult[] =
-    jobs?.map((job) => ({
+    jobs?.map((job: any) => ({
       jobListingId: job.jobListingId,
-      benefits: job.benefits,
-      matchedSkills: job.matchedSkills,
-      missingSkills: job.missingSkills,
-      experienceMatch: job.experienceMatch,
-      experienceMatchScore: 75, // Default score since not in database
-      experienceMatchReasons: [], // Default empty array since not in database
-      locationMatch: job.locationMatch,
-      locationMatchScore: 70, // Default score since not in database
-      locationMatchReasons: [], // Default empty array since not in database
-      aiMatchReasons: job.aiMatchReasons,
-      aiConcerns: job.aiConcerns,
-      aiRecommendation: job.aiRecommendation as JobResult['aiRecommendation'],
+      benefits: job.benefits || [],
+      matchedSkills: job.matchedSkills || [],
+      missingSkills: job.missingSkills || [],
+      experienceMatch: job.experienceMatch || 'not_specified',
+      experienceMatchScore: job.experienceMatchScore || 0,
+      experienceMatchReasons: job.experienceMatchReasons || [],
+      locationMatch: job.locationMatch || 'not_specified',
+      locationMatchScore: job.locationMatchScore || 0,
+      locationMatchReasons: job.locationMatchReasons || [],
+      workTypeMatch: job.workTypeMatch || false,
+      aiMatchReasons: job.aiMatchReasons || [],
+      aiConcerns: job.aiConcerns || [],
+      aiRecommendation: job.aiRecommendation as JobResult['aiRecommendation'] || 'consider',
     })) || [];
 
   return (

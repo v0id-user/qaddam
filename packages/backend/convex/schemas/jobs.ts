@@ -108,7 +108,12 @@ export const jobSchemas = {
 		matchedSkills: v.array(v.string()),
 		missingSkills: v.array(v.string()),
 		experienceMatch: v.string(),
+		experienceMatchScore: v.number(),
+		experienceMatchReasons: v.array(v.string()),
 		locationMatch: v.string(),
+		locationMatchScore: v.number(),
+		locationMatchReasons: v.array(v.string()),
+		workTypeMatch: v.optional(v.boolean()),
 
 		// AI Ranking
 		aiMatchReasons: v.optional(v.array(v.string())),

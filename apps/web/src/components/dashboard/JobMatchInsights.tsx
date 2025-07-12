@@ -92,13 +92,13 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
               <TrendingUp className="text-primary h-8 w-8" />
               <h3 className="text-foreground text-xl font-bold">{t('job_results.match_score')}</h3>
             </div>
-            <div className={`mb-2 text-4xl font-bold ${getMatchScoreColor(job.experienceMatchScore)}`}>
-              {job.experienceMatchScore}%
+            <div className={`mb-2 text-4xl font-bold ${getMatchScoreColor(Math.round(job.experienceMatchScore * 100))}`}>
+              {Math.round(job.experienceMatchScore * 100)}%
             </div>
             <div className="bg-accent/20 mb-4 h-3 w-full rounded-full">
               <div
                 className="bg-primary h-3 rounded-full transition-all duration-300"
-                style={{ width: `${job.experienceMatchScore}%` }}
+                style={{ width: `${Math.min(Math.round(job.experienceMatchScore * 100), 100)}%` }}
               />
             </div>
           </div>
@@ -146,9 +146,9 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
             </div>
           </div>
 
-          {/* Additional Match Details */}
-          <div className="grid gap-6 md:grid-cols-3">
-            {/* Experience Match */}
+          {/* Match Analysis Details */}
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Experience Match Reasons */}
             <div className="bg-card border-border rounded-2xl border p-6">
               <div className="mb-3 flex items-center space-x-3 space-x-reverse">
                 <Clock className="h-6 w-6 text-blue-600" />
@@ -156,7 +156,60 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
                   {t('job_results.match_insights.experience_match')}
                 </h4>
               </div>
-              <p className="text-muted-foreground text-sm">{job.experienceMatch}</p>
+              <p className="text-muted-foreground text-sm mb-3">{job.experienceMatch}</p>
+              {job.experienceMatchReasons && job.experienceMatchReasons.length > 0 && (
+                <div className="space-y-2">
+                  <h5 className="text-foreground font-semibold text-sm">Why this matches:</h5>
+                  <ul className="space-y-1">
+                    {job.experienceMatchReasons.map((reason, index) => (
+                      <li key={index} className="text-muted-foreground text-sm flex items-start">
+                        <span className="text-green-500 mr-2">•</span>
+                        {reason}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            {/* Location Match */}
+            <div className="bg-card border-border rounded-2xl border p-6">
+              <div className="mb-3 flex items-center space-x-3 space-x-reverse">
+                <MapPin className="h-6 w-6 text-purple-600" />
+                <h4 className="text-foreground text-lg font-bold">
+                  {t('job_results.match_insights.location_match')} ({Math.round(job.locationMatchScore * 100)}%)
+                </h4>
+              </div>
+              <p className="text-muted-foreground text-sm mb-3">{jobListing.location}</p>
+              {job.locationMatchReasons && job.locationMatchReasons.length > 0 && (
+                <div className="space-y-2">
+                  <h5 className="text-foreground font-semibold text-sm">Location analysis:</h5>
+                  <ul className="space-y-1">
+                    {job.locationMatchReasons.map((reason, index) => (
+                      <li key={index} className="text-muted-foreground text-sm flex items-start">
+                        <span className="text-blue-500 mr-2">•</span>
+                        {reason}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Additional Match Details */}
+          <div className="grid gap-6 md:grid-cols-3">
+            {/* AI Recommendation */}
+            <div className="bg-card border-border rounded-2xl border p-6">
+              <div className="mb-3 flex items-center space-x-3 space-x-reverse">
+                <TrendingUp className="h-6 w-6 text-green-600" />
+                <h4 className="text-foreground text-lg font-bold">
+                  AI Recommendation
+                </h4>
+              </div>
+              <p className="text-muted-foreground text-sm capitalize">
+                {job.aiRecommendation?.replace('_', ' ') || 'Not specified'}
+              </p>
             </div>
 
             {/* Salary Range */}
@@ -172,16 +225,57 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
               </p>
             </div>
 
-            {/* Location Match */}
+            {/* Work Type Match */}
             <div className="bg-card border-border rounded-2xl border p-6">
               <div className="mb-3 flex items-center space-x-3 space-x-reverse">
-                <MapPin className="h-6 w-6 text-purple-600" />
+                <CheckCircle className="h-6 w-6 text-orange-600" />
                 <h4 className="text-foreground text-lg font-bold">
-                  {t('job_results.match_insights.location_match')}
+                  Work Type Match
                 </h4>
               </div>
-              <p className="text-muted-foreground text-sm">{jobListing.location}</p>
+              <p className="text-muted-foreground text-sm">
+                {job.workTypeMatch ? 'Matches your preference' : 'May not match your preference'}
+              </p>
             </div>
+          </div>
+
+          {/* AI Analysis Sections */}
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* AI Match Reasons */}
+            {job.aiMatchReasons && job.aiMatchReasons.length > 0 && (
+              <div className="bg-green-50 border-green-200 rounded-2xl border p-6">
+                <h4 className="text-green-800 mb-4 text-lg font-bold flex items-center">
+                  <CheckCircle className="h-5 w-5 mr-2" />
+                  AI Match Analysis
+                </h4>
+                <div className="space-y-2">
+                  {job.aiMatchReasons.map((reason, index) => (
+                    <div key={index} className="text-green-700 text-sm flex items-start">
+                      <span className="text-green-500 mr-2">•</span>
+                      {reason}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* AI Concerns */}
+            {job.aiConcerns && job.aiConcerns.length > 0 && (
+              <div className="bg-yellow-50 border-yellow-200 rounded-2xl border p-6">
+                <h4 className="text-yellow-800 mb-4 text-lg font-bold flex items-center">
+                  <AlertCircle className="h-5 w-5 mr-2" />
+                  Areas to Consider
+                </h4>
+                <div className="space-y-2">
+                  {job.aiConcerns.map((concern, index) => (
+                    <div key={index} className="text-yellow-700 text-sm flex items-start">
+                      <span className="text-yellow-500 mr-2">•</span>
+                      {concern}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Job Requirements */}

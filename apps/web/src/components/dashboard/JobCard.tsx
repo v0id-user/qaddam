@@ -145,15 +145,15 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
             {t('job_results.match_score')}
           </span>
           <span
-            className={`rounded-full px-2 py-1 text-sm font-bold ${getMatchScoreColor(job.experienceMatchScore)}`}
+            className={`rounded-full px-2 py-1 text-sm font-bold ${getMatchScoreColor(Math.round(job.experienceMatchScore * 100))}`}
           >
-            {job.experienceMatchScore}%
+            {Math.round(job.experienceMatchScore * 100)}%
           </span>
         </div>
         <div className="bg-accent/20 h-2 w-full rounded-full">
           <div
             className="bg-primary h-2 rounded-full transition-all duration-300"
-            style={{ width: `${Math.min(job.experienceMatchScore, 100)}%` }}
+            style={{ width: `${Math.min(Math.round(job.experienceMatchScore * 100), 100)}%` }}
           />
         </div>
       </div>
@@ -176,6 +176,40 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
           )}
         </div>
       </div>
+
+      {/* AI Analysis Preview */}
+      {job.aiMatchReasons && job.aiMatchReasons.length > 0 && (
+        <div className="mb-6">
+          <div className="text-sm font-medium text-green-700 mb-2">
+            Why this job matches:
+          </div>
+          <div className="text-sm text-green-600 bg-green-50 rounded-lg p-3">
+            {job.aiMatchReasons[0]}
+            {job.aiMatchReasons.length > 1 && (
+              <span className="text-green-500 ml-2">
+                +{job.aiMatchReasons.length - 1} more reasons
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* AI Concerns Preview */}
+      {job.aiConcerns && job.aiConcerns.length > 0 && (
+        <div className="mb-6">
+          <div className="text-sm font-medium text-yellow-700 mb-2">
+            Areas to consider:
+          </div>
+          <div className="text-sm text-yellow-600 bg-yellow-50 rounded-lg p-3">
+            {job.aiConcerns[0]}
+            {job.aiConcerns.length > 1 && (
+              <span className="text-yellow-500 ml-2">
+                +{job.aiConcerns.length - 1} more
+              </span>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Description */}
       <div
