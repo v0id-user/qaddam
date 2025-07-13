@@ -1,7 +1,7 @@
 "use node";
 
-import { internalAction } from "@/_generated/server";
-import { internal } from "@/_generated/api";
+import { internalAction } from "../../_generated/server";
+import { internal } from "../../_generated/api";
 import { v } from "convex/values";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
@@ -39,7 +39,7 @@ export const aiTuneJobSearch = internalAction({
 				`${args.cvProfile.skills.length} skills,`,
 				`${args.cvProfile.job_titles.length} job titles,`,
 				`${args.cvProfile.years_of_experience}y exp,`,
-				`level: ${args.cvProfile.experience_level}`
+				`level: ${args.cvProfile.experience_level}`,
 			);
 
 			// Update workflow status to indicate keyword extraction started
@@ -157,7 +157,7 @@ Make sure each array has at least one relevant keyword.
 			console.log("AI Keyword Extraction - Token usage:", {
 				promptTokens: response.usage?.promptTokens || 0,
 				completionTokens: response.usage?.completionTokens || 0,
-				totalTokens: response.usage?.totalTokens || 0
+				totalTokens: response.usage?.totalTokens || 0,
 			});
 
 			const result = response.object;
@@ -167,7 +167,7 @@ Make sure each array has at least one relevant keyword.
 				`${result.secondary_keywords.length} secondary,`,
 				`${result.search_terms.length} search terms,`,
 				`${result.job_title_keywords.length} job titles,`,
-				`${result.technical_skills.length} technical skills`
+				`${result.technical_skills.length} technical skills`,
 			);
 
 			console.log("Sample keywords:", {
@@ -221,7 +221,7 @@ Make sure each array has at least one relevant keyword.
 				console.log(
 					"Using fallback keywords:",
 					`${fallbackKeywords.primary_keywords.length} primary,`,
-					`${fallbackKeywords.secondary_keywords.length} secondary`
+					`${fallbackKeywords.secondary_keywords.length} secondary`,
 				);
 				return fallbackKeywords;
 			}
@@ -251,7 +251,7 @@ Make sure each array has at least one relevant keyword.
 				"Using fallback keywords:",
 				`${fallbackResult.primary_keywords.length} primary,`,
 				`${fallbackResult.secondary_keywords.length} secondary,`,
-				`${fallbackResult.search_terms.length} search terms`
+				`${fallbackResult.search_terms.length} search terms`,
 			);
 			return fallbackResult;
 		}

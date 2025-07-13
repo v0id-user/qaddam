@@ -93,14 +93,19 @@ export const startJobSearchWorkflow = action({
 		cv_storage_id: v.id("_storage"),
 		userId: v.id("users"),
 	},
-	handler: async (ctx, args): Promise<{workflowTrackingId: string, workflowId: WorkflowId}> => {
+	handler: async (
+		ctx,
+		args,
+	): Promise<{ workflowTrackingId: string; workflowId: WorkflowId }> => {
 		console.log("Starting job search workflow with CV:", args.cv_storage_id);
 
-
 		// Create a tracking id for the workflow
-		const workflowTrackingId = await ctx.runMutation(internal.workflow_status.workflowEntryInitial, {
-			userId: args.userId,
-		});
+		const workflowTrackingId = await ctx.runMutation(
+			internal.workflow_status.workflowEntryInitial,
+			{
+				userId: args.userId,
+			},
+		);
 
 		const workflowId = await workflow.start(
 			ctx,
@@ -113,6 +118,6 @@ export const startJobSearchWorkflow = action({
 		);
 
 		console.log("Workflow started with ID:", workflowId);
-		return {workflowTrackingId, workflowId};
+		return { workflowTrackingId, workflowId };
 	},
 });

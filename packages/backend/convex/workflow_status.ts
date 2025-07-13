@@ -3,20 +3,23 @@ import { api } from "./_generated/api";
 import { v } from "convex/values";
 
 export const getWorkflowStatus = query({
-    args: {
-        workflowTrackingId: v.string(),
-    },
-    handler: async (ctx, args) => {
-        const workflowStatus = await ctx.db.query("workflowStage").filter(q => q.eq(q.field("workflowId"), args.workflowTrackingId)).take(1);
-        const user = await ctx.runQuery(api.users.getMe);
-        if (!workflowStatus.length) {
-            return null;
-        }
-        if (workflowStatus[0].userId !== user?._id) {
-            throw new Error("Unauthorized access to workflow status");
-        }
-        return workflowStatus[0];
-    },
+	args: {
+		workflowTrackingId: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const workflowStatus = await ctx.db
+			.query("workflowStage")
+			.filter((q) => q.eq(q.field("workflowId"), args.workflowTrackingId))
+			.take(1);
+		const user = await ctx.runQuery(api.users.getMe);
+		if (!workflowStatus.length) {
+			return null;
+		}
+		if (workflowStatus[0].userId !== user?._id) {
+			throw new Error("Unauthorized access to workflow status");
+		}
+		return workflowStatus[0];
+	},
 });
 
 export const updateWorkflowStage = internalMutation({
@@ -28,8 +31,9 @@ export const updateWorkflowStage = internalMutation({
 	},
 	handler: async (ctx, args) => {
 		const now = Date.now();
-		const workflowStage = await ctx.db.query("workflowStage")
-			.filter(q => q.eq(q.field("workflowId"), args.workflowId))
+		const workflowStage = await ctx.db
+			.query("workflowStage")
+			.filter((q) => q.eq(q.field("workflowId"), args.workflowId))
 			.first();
 
 		if (!workflowStage) {
@@ -41,9 +45,9 @@ export const updateWorkflowStage = internalMutation({
 			percentage: args.percentage,
 			updatedAt: now,
 			updatedBy: args.userId,
-			completedAt: args.percentage === 100 ? now : workflowStage.completedAt
+			completedAt: args.percentage === 100 ? now : workflowStage.completedAt,
 		});
-	}
+	},
 });
 
 export const workflowEntryInitial = internalMutation({
@@ -64,9 +68,9 @@ export const workflowEntryInitial = internalMutation({
 			createdAt: now,
 			updatedAt: now,
 			createdBy: args.userId,
-			updatedBy: args.userId
+			updatedBy: args.userId,
 		});
 
 		return workflowTrackingId;
-	}
+	},
 });

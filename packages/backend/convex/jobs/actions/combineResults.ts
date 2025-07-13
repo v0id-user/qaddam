@@ -1,5 +1,5 @@
-import { internalAction, internalQuery } from "@/_generated/server";
-import { internal } from "@/_generated/api";
+import { internalAction, internalQuery } from "../../_generated/server";
+import { internal } from "../../_generated/api";
 import { v } from "convex/values";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
@@ -56,7 +56,7 @@ export const aiCombineJobResults = internalAction({
 			"Starting job ranking:",
 			`${args.jobResults.jobs.length} jobs,`,
 			`${args.searchParams.primary_keywords.length} primary keywords,`,
-			`${args.cvProfile.skills.length} skills`
+			`${args.cvProfile.skills.length} skills`,
 		);
 
 		// Update workflow status to indicate job ranking started
@@ -70,7 +70,7 @@ export const aiCombineJobResults = internalAction({
 		// If no jobs found, return empty results with default insights
 		if (!args.jobResults.jobs || args.jobResults.jobs.length === 0) {
 			console.log("No jobs found, returning empty results");
-			
+
 			// Update workflow status to indicate completion with no results
 			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
 				workflowId: args.workflowTrackingId,
@@ -78,7 +78,7 @@ export const aiCombineJobResults = internalAction({
 				percentage: 82,
 				userId: args.userId,
 			});
-			
+
 			return {
 				jobs: [],
 				totalFound: 0,
@@ -136,7 +136,13 @@ CANDIDATE: ${args.cvProfile.experience_level} (${args.cvProfile.years_of_experie
 
 SEARCH PARAMS: ${args.searchParams.primary_keywords.slice(0, 5).join(", ")} | Job Titles: ${args.searchParams.job_title_keywords.slice(0, 3).join(", ")}
 
-JOBS (${args.jobResults.jobs.length}): ${args.jobResults.jobs.slice(0, 10).map((job: any) => `${job.jobListingId}: Score ${job.experienceMatchScore}`).join(", ")}${args.jobResults.jobs.length > 10 ? "..." : ""}
+JOBS (${args.jobResults.jobs.length}): ${args.jobResults.jobs
+						.slice(0, 10)
+						.map(
+							(job: any) =>
+								`${job.jobListingId}: Score ${job.experienceMatchScore}`,
+						)
+						.join(", ")}${args.jobResults.jobs.length > 10 ? "..." : ""}
 
 Rank and analyze for insights.
 					`,
@@ -163,19 +169,20 @@ Rank and analyze for insights.
 		console.log("AI Job Ranking - Token usage:", {
 			promptTokens: response.usage?.promptTokens || 0,
 			completionTokens: response.usage?.completionTokens || 0,
-			totalTokens: response.usage?.totalTokens || 0
+			totalTokens: response.usage?.totalTokens || 0,
 		});
 
 		console.log(
 			"AI ranking completed:",
 			`${response.object.ranked_jobs.length} ranked jobs,`,
 			`${response.object.insights.total_relevant} relevant,`,
-			`avg score: ${response.object.insights.avg_match_score}`
+			`avg score: ${response.object.insights.avg_match_score}`,
 		);
 
 		console.log(
 			"Top skills in demand:",
-			response.object.insights.top_skills_in_demand.slice(0, 3).join(", ") + "..."
+			response.object.insights.top_skills_in_demand.slice(0, 3).join(", ") +
+				"...",
 		);
 
 		// Update workflow status to indicate data extraction started
@@ -190,10 +197,12 @@ Rank and analyze for insights.
 		console.log("Processing original job results...");
 
 		// Use pre-extracted data instead of making additional AI calls
-		console.log("Using pre-extracted data from searchJobs.ts (no additional AI calls needed)");
+		console.log(
+			"Using pre-extracted data from searchJobs.ts (no additional AI calls needed)",
+		);
 
 		const extractedData = {
-			salaries: [] as Array<{min: number; max: number; currency: string}>,
+			salaries: [] as Array<{ min: number; max: number; currency: string }>,
 			companies: [] as string[],
 			jobTypes: [] as string[],
 		};
@@ -203,21 +212,25 @@ Rank and analyze for insights.
 			const jobResult = job as JobResult;
 			if (jobResult.extractedData) {
 				const { salary, company, jobType } = jobResult.extractedData;
-				
+
 				// Collect salary data
-				if (salary.is_salary_mentioned && salary.min !== null && salary.max !== null) {
+				if (
+					salary.is_salary_mentioned &&
+					salary.min !== null &&
+					salary.max !== null
+				) {
 					extractedData.salaries.push({
 						min: salary.min,
 						max: salary.max,
-						currency: salary.currency || "USD"
+						currency: salary.currency || "USD",
 					});
 				}
-				
+
 				// Collect company data
 				if (company.is_company_mentioned && company.name) {
 					extractedData.companies.push(company.name);
 				}
-				
+
 				// Collect job type data
 				if (jobType.type) {
 					extractedData.jobTypes.push(jobType.type);
@@ -235,21 +248,23 @@ Rank and analyze for insights.
 
 		// Process extracted data to get final values
 		console.log("Processing extracted data for final results...");
-		
+
 		// Calculate salary range
 		let finalSalaryRange = {
 			min: 0,
 			max: 100000,
-			currency: "USD"
+			currency: "USD",
 		};
 
 		if (extractedData.salaries.length > 0) {
-			const validSalaries = extractedData.salaries.filter(s => s.min > 0 && s.max > 0);
+			const validSalaries = extractedData.salaries.filter(
+				(s) => s.min > 0 && s.max > 0,
+			);
 			if (validSalaries.length > 0) {
 				finalSalaryRange = {
-					min: Math.min(...validSalaries.map(s => s.min)),
-					max: Math.max(...validSalaries.map(s => s.max)),
-					currency: validSalaries[0].currency // Use first currency found
+					min: Math.min(...validSalaries.map((s) => s.min)),
+					max: Math.max(...validSalaries.map((s) => s.max)),
+					currency: validSalaries[0].currency, // Use first currency found
 				};
 			}
 		}
@@ -258,30 +273,37 @@ Rank and analyze for insights.
 		const uniqueCompanies = [...new Set(extractedData.companies)].slice(0, 10); // Limit to top 10
 
 		// Get job type distribution
-		const jobTypeCount = extractedData.jobTypes.reduce((acc, type) => {
-			acc[type] = (acc[type] || 0) + 1;
-			return acc;
-		}, {} as Record<string, number>);
+		const jobTypeCount = extractedData.jobTypes.reduce(
+			(acc, type) => {
+				acc[type] = (acc[type] || 0) + 1;
+				return acc;
+			},
+			{} as Record<string, number>,
+		);
 
 		// Get preferred job types (most common ones)
 		const preferredJobTypes = Object.entries(jobTypeCount)
-			.sort(([,a], [,b]) => b - a)
+			.sort(([, a], [, b]) => b - a)
 			.slice(0, 3)
 			.map(([type]) => type);
 
 		console.log("Extraction results:", {
 			salaryRange: finalSalaryRange,
 			companies: uniqueCompanies.length,
-			jobTypes: preferredJobTypes.length
+			jobTypes: preferredJobTypes.length,
 		});
 
 		// Generate final jobs with recommendation based on match score
 		const finalJobs = originalJobs
 			.map((job: JobResult) => {
 				// Generate recommendation based on match score
-				let recommendation: "highly_recommended" | "recommended" | "consider" | "not_recommended";
+				let recommendation:
+					| "highly_recommended"
+					| "recommended"
+					| "consider"
+					| "not_recommended";
 				const matchScore = job.experienceMatchScore;
-				
+
 				if (matchScore >= 0.8) {
 					recommendation = "highly_recommended";
 				} else if (matchScore >= 0.6) {
@@ -311,7 +333,7 @@ Rank and analyze for insights.
 			"Final processing complete:",
 			`${finalJobs.length} jobs,`,
 			`top score: ${finalJobs[0]?.matchScore || 0}`,
-			`lowest score: ${finalJobs[finalJobs.length - 1]?.matchScore || 0}`
+			`lowest score: ${finalJobs[finalJobs.length - 1]?.matchScore || 0}`,
 		);
 
 		// Update workflow status to indicate job ranking completed
@@ -335,7 +357,8 @@ Rank and analyze for insights.
 				target_job_titles: args.searchParams.job_title_keywords,
 				target_companies: uniqueCompanies,
 				salary_range: finalSalaryRange,
-				preferred_job_types: preferredJobTypes.length > 0 ? preferredJobTypes : ["full_time"],
+				preferred_job_types:
+					preferredJobTypes.length > 0 ? preferredJobTypes : ["full_time"],
 				locations: args.cvProfile.preferred_locations,
 				search_strategy: "AI-optimized keyword matching based on CV analysis",
 			},

@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 import { query } from "./_generated/server";
-import { workflow, WorkflowId } from "./jobs/workflow";
 import chalk from "chalk";
 import { api } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
@@ -54,7 +53,7 @@ export const getJobListing = query({
 			throw new Error("User not found unauthorized");
 		}
 		const jobListing = await ctx.db.get(args.jobListingId);
-		if (!jobListing) {	
+		if (!jobListing) {
 			throw new Error("Job listing not found");
 		}
 		return jobListing;
@@ -69,12 +68,12 @@ export const getUserSurvey = query({
 		if (!user) {
 			throw new Error("User not found unauthorized");
 		}
-		
+
 		const survey = await ctx.db
 			.query("userSurveys")
 			.withIndex("by_user", (q) => q.eq("userId", user._id))
 			.first();
-		
+
 		return survey;
 	},
 });
@@ -83,7 +82,11 @@ export const getUserSurvey = query({
 export const getJobResultsWithAnalysis = query({
 	args: { workflowId: v.string() },
 	handler: async (ctx, args) => {
-		console.log(chalk.blue(`Getting enhanced job results for workflow ${args.workflowId}`));
+		console.log(
+			chalk.blue(
+				`Getting enhanced job results for workflow ${args.workflowId}`,
+			),
+		);
 
 		const user = await ctx.runQuery(api.users.getMe);
 		if (!user) {
@@ -128,7 +131,7 @@ export const getJobResultsWithAnalysis = query({
 			jobResults.map(async (result) => {
 				const listing = await ctx.db.get(result.jobListingId);
 				return listing;
-			})
+			}),
 		);
 
 		return {

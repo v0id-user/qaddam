@@ -1,7 +1,7 @@
-import { internalAction, internalMutation } from "@/_generated/server";
-import { internal } from "@/_generated/api";
+import { internalAction, internalMutation } from "../../_generated/server";
+import { internal } from "../../_generated/api";
 import { v } from "convex/values";
-import type { JobSearchResults } from "@/types/jobs";
+import type { JobSearchResults } from "../../types/jobs";
 
 // Step 5: Save job search results to database
 export const aiSaveJobResults = internalAction({
@@ -16,7 +16,7 @@ export const aiSaveJobResults = internalAction({
 		console.log(
 			"Step 5: Saving job search results:",
 			`${args.results.jobs.length} jobs,`,
-			`workflow: ${args.workflowId.slice(0, 8)}...`
+			`workflow: ${args.workflowId.slice(0, 8)}...`,
 		);
 
 		// Update workflow status to indicate saving started
@@ -32,7 +32,7 @@ export const aiSaveJobResults = internalAction({
 
 		try {
 			console.log("Saving main job search results record...");
-			
+
 			// Save main job search results record
 			const jobSearchResultsId = await ctx.runMutation(
 				internal.jobs.actions.saveResults.saveJobSearchResults,
@@ -60,9 +60,10 @@ export const aiSaveJobResults = internalAction({
 			for (const [index, job] of results.jobs.entries()) {
 				if (index % 5 === 0) {
 					console.log(`  Saving job ${index + 1}/${results.jobs.length}...`);
-					
+
 					// Update progress during individual job saving
-					const progressPercentage = 88 + Math.round((index / results.jobs.length) * 10);
+					const progressPercentage =
+						88 + Math.round((index / results.jobs.length) * 10);
 					await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
 						workflowId: args.workflowTrackingId,
 						stage: "saving_job_results",
@@ -70,7 +71,7 @@ export const aiSaveJobResults = internalAction({
 						userId: args.userId,
 					});
 				}
-				
+
 				await ctx.runMutation(internal.jobs.actions.saveResults.saveJobResult, {
 					jobSearchResultsId,
 					job,
@@ -82,7 +83,7 @@ export const aiSaveJobResults = internalAction({
 			console.log(
 				`Save complete: ${results.jobs.length} job results saved`,
 				`for workflow ${args.workflowId.slice(0, 8)}...`,
-				`Total insights: ${results.insights.total_relevant} relevant jobs`
+				`Total insights: ${results.insights.total_relevant} relevant jobs`,
 			);
 
 			// Update workflow status to indicate completion
@@ -99,7 +100,7 @@ export const aiSaveJobResults = internalAction({
 			};
 		} catch (error) {
 			console.error("Error saving job search results:", error);
-			
+
 			// Update workflow status to indicate error
 			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
 				workflowId: args.workflowTrackingId,
@@ -107,7 +108,7 @@ export const aiSaveJobResults = internalAction({
 				percentage: 100,
 				userId: args.userId,
 			});
-			
+
 			throw new Error(`Failed to save job search results: ${error}`);
 		}
 	},
@@ -129,7 +130,7 @@ export const saveJobSearchResults = internalMutation({
 			"Inserting main record:",
 			`${results.totalFound} total found,`,
 			`${results.insights.total_relevant} relevant,`,
-			`${results.searchParams.optimized_keywords.length} keywords`
+			`${results.searchParams.optimized_keywords.length} keywords`,
 		);
 
 		return await ctx.db.insert("jobSearchResults", {
@@ -175,12 +176,12 @@ export const saveJobResult = internalMutation({
 	},
 	handler: async (ctx, args) => {
 		const job = args.job as JobSearchResults["jobs"][0];
-		
+
 		console.log(
 			"Inserting job result:",
 			`ID: ${job.jobListingId},`,
 			`match score: ${job.experienceMatchScore},`,
-			`${job.matchedSkills.length} matched skills`
+			`${job.matchedSkills.length} matched skills`,
 		);
 
 		return await ctx.db.insert("jobSearchJobResults", {

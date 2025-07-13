@@ -1,5 +1,5 @@
-import { internalAction } from "@/_generated/server";
-import { internal } from "@/_generated/api";
+import { internalAction } from "../../_generated/server";
+import { internal } from "../../_generated/api";
 import { v } from "convex/values";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
@@ -24,7 +24,7 @@ export const aiParseCV = internalAction({
 			console.log(
 				"Starting CV parsing:",
 				`storage ID: ${cv_storage_id.slice(0, 8)}...`,
-				`user: ${args.userId ? args.userId.slice(0, 8) + "..." : "anon"}`
+				`user: ${args.userId ? args.userId.slice(0, 8) + "..." : "anon"}`,
 			);
 
 			// Update workflow status to indicate CV parsing started
@@ -112,7 +112,7 @@ export const aiParseCV = internalAction({
 			console.log("AI CV Parsing - Token usage:", {
 				promptTokens: response.usage?.promptTokens || 0,
 				completionTokens: response.usage?.completionTokens || 0,
-				totalTokens: response.usage?.totalTokens || 0
+				totalTokens: response.usage?.totalTokens || 0,
 			});
 
 			const result = response.object;
@@ -122,7 +122,7 @@ export const aiParseCV = internalAction({
 				`${result.job_titles.length} job titles,`,
 				`${result.industries.length} industries,`,
 				`${result.years_of_experience}y exp,`,
-				`level: ${result.experience_level}`
+				`level: ${result.experience_level}`,
 			);
 
 			console.log("Sample extracted data:", {
@@ -173,7 +173,7 @@ export const aiParseCV = internalAction({
 				console.log(
 					"Using fallback data:",
 					`${fallbackResult.skills.length} skills,`,
-					`${fallbackResult.job_titles.length} job titles`
+					`${fallbackResult.job_titles.length} job titles`,
 				);
 				return fallbackResult;
 			}
@@ -208,7 +208,7 @@ export const aiParseCV = internalAction({
 				"Using fallback profile:",
 				`${fallbackProfile.skills.length} skills,`,
 				`${fallbackProfile.job_titles.length} job titles,`,
-				`level: ${fallbackProfile.experience_level}`
+				`level: ${fallbackProfile.experience_level}`,
 			);
 			return fallbackProfile;
 		}

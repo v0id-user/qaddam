@@ -26,7 +26,7 @@ export type JobResult = {
 		| "recommended"
 		| "consider"
 		| "not_recommended";
-	
+
 	// Pre-extracted data to avoid redundant AI calls in combineResults
 	extractedData?: {
 		salary: {
