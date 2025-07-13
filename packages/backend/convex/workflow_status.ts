@@ -18,25 +18,6 @@ export const getWorkflowStatus = query({
         return workflowStatus[0];
     },
 });
-export const getWorkflowStageById = query({
-	args: {
-		workflowTrackingId: v.string(),
-	},
-	handler: async (ctx, args) => {
-		const workflowStage = await ctx.db.query("workflowStage")
-			.filter(q => q.eq(q.field("workflowId"), args.workflowTrackingId))
-			.first();
-
-        const user = await ctx.runQuery(api.users.getMe);
-        if (!workflowStage) {
-            return null;
-        }
-        if (workflowStage.userId !== user?._id) {
-            throw new Error("Unauthorized access to workflow status");
-        }
-		return workflowStage;
-	}
-});
 
 export const updateWorkflowStage = internalMutation({
 	args: {
