@@ -3,6 +3,7 @@ import { components, internal } from "../_generated/api";
 import { v } from "convex/values";
 import { action } from "../_generated/server";
 import type { WorkflowId } from "@convex-dev/workflow";
+import rateLimiter from "../ratelimiter";
 export type { WorkflowId };
 
 export const workflow = new WorkflowManager(components.workflow, {
@@ -98,6 +99,11 @@ export const startJobSearchWorkflow = action({
 		args,
 	): Promise<{ workflowTrackingId: string; workflowId: WorkflowId }> => {
 		console.log("Starting job search workflow with CV:", args.cv_storage_id);
+
+		// const { ok, retryAfter } = await rateLimiter.limit(ctx, "freeTrialSignUp");
+		// if (!ok) {
+		// 	throw new Error(`Rate limit exceeded, retry after ${retryAfter} seconds`);
+		// }
 
 		// Create a tracking id for the workflow
 		const workflowTrackingId = await ctx.runMutation(
