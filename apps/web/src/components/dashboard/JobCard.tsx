@@ -7,6 +7,11 @@ import { useState } from 'react';
 import type { JobResult } from '@qaddam/backend/convex/types/jobs';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import { useQuery } from 'convex/react';
+import { 
+  getJobTypeKey, 
+  getJobTypeColor, 
+  getMatchScoreColor 
+} from '@/lib/enum-translations';
 
 interface JobCardProps {
   job: JobResult;
@@ -20,26 +25,13 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
     jobListingId: job.jobListingId,
   });
 
-  const getMatchScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600 bg-green-100';
-    if (score >= 75) return 'text-blue-600 bg-blue-100';
-    if (score >= 60) return 'text-yellow-600 bg-yellow-100';
-    return 'text-red-600 bg-red-100';
-  };
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'full_time':
-        return 'bg-green-100 text-green-800';
-      case 'part_time':
-        return 'bg-blue-100 text-blue-800';
-      case 'contract':
-        return 'bg-purple-100 text-purple-800';
-      case 'remote':
-        return 'bg-indigo-100 text-indigo-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+  const getJobTypeDisplay = (extractedData: any) => {
+    const jobType = extractedData?.jobType?.type || 'full_time';
+    return {
+      type: jobType,
+      display: t(getJobTypeKey(jobType)),
+      colorClass: getJobTypeColor(jobType)
+    };
   };
 
   const formatDate = (timestamp: number | undefined) => {
@@ -120,9 +112,9 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       <div className="mb-6 space-y-3">
         <div className="flex items-center space-x-2 space-x-reverse">
           <span
-            className={`rounded-full px-3 py-1 text-sm font-medium ${getTypeColor('full_time')}`}
+            className={`rounded-full px-3 py-1 text-sm font-medium ${getJobTypeDisplay(job.extractedData).colorClass}`}
           >
-            {t('job_results.job_types.full_time')}
+            {getJobTypeDisplay(job.extractedData).display}
           </span>
           <div className="text-muted-foreground flex items-center space-x-1 space-x-reverse text-sm">
             <Clock className="h-4 w-4" />

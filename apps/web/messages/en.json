@@ -230,6 +230,50 @@
         "contract": "Contract",
         "remote": "Remote"
       },
+      "experience_levels": {
+        "entry": "Entry Level",
+        "mid": "Mid Level",
+        "senior": "Senior Level",
+        "executive": "Executive Level"
+      },
+      "experience_match": {
+        "excellent_match": "Excellent Match",
+        "good_match": "Good Match",
+        "partial_match": "Partial Match",
+        "mismatch": "Poor Match",
+        "not_specified": "Not Specified"
+      },
+      "location_match": {
+        "location_match": "Location Match",
+        "location_mismatch": "Location Mismatch",
+        "no_location_provided": "No Location Provided",
+        "not_specified": "Not Specified"
+      },
+      "ai_recommendations": {
+        "highly_recommended": "Highly Recommended",
+        "recommended": "Recommended",
+        "consider": "Consider",
+        "not_recommended": "Not Recommended"
+      },
+      "work_types": {
+        "Remote": "Remote",
+        "Hybrid": "Hybrid",
+        "On-site": "On-site"
+      },
+      "experience_years": {
+        "0-1": "0-1 years",
+        "2-4": "2-4 years",
+        "5-8": "5-8 years",
+        "9+": "9+ years"
+      },
+      "career_levels": {
+        "Student": "Student",
+        "Entry": "Entry Level",
+        "Mid": "Mid Level",
+        "Senior": "Senior Level",
+        "Lead": "Lead/Principal",
+        "Manager": "Manager"
+      },
       "salary_not_specified": "Salary not specified",
       "date_format": {
         "yesterday": "Yesterday",

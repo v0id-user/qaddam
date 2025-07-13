@@ -230,6 +230,50 @@
         "contract": "عقد",
         "remote": "عن بعد"
       },
+      "experience_levels": {
+        "entry": "مبتدئ",
+        "mid": "متوسط الخبرة",
+        "senior": "خبير",
+        "executive": "تنفيذي"
+      },
+      "experience_match": {
+        "excellent_match": "تطابق ممتاز",
+        "good_match": "تطابق جيد",
+        "partial_match": "تطابق جزئي",
+        "mismatch": "تطابق ضعيف",
+        "not_specified": "غير محدد"
+      },
+      "location_match": {
+        "location_match": "تطابق الموقع",
+        "location_mismatch": "عدم تطابق الموقع",
+        "no_location_provided": "لم يتم تحديد الموقع",
+        "not_specified": "غير محدد"
+      },
+      "ai_recommendations": {
+        "highly_recommended": "موصى به بشدة",
+        "recommended": "موصى به",
+        "consider": "يستحق النظر",
+        "not_recommended": "غير موصى به"
+      },
+      "work_types": {
+        "Remote": "عن بُعد",
+        "Hybrid": "مختلط",
+        "On-site": "في المكتب"
+      },
+      "experience_years": {
+        "0-1": "٠-١ سنة",
+        "2-4": "٢-٤ سنوات",
+        "5-8": "٥-٨ سنوات",
+        "9+": "٩+ سنوات"
+      },
+      "career_levels": {
+        "Student": "طالب",
+        "Entry": "مبتدئ",
+        "Mid": "متوسط",
+        "Senior": "كبير",
+        "Lead": "قائد/رئيسي",
+        "Manager": "مدير"
+      },
       "salary_not_specified": "الراتب غير محدد",
       "date_format": {
         "yesterday": "أمس",

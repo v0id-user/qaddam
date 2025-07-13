@@ -6,6 +6,11 @@ import { Button } from '@/components/ui/button';
 import type { JobResult } from '@qaddam/backend/convex/types/jobs';
 import { useQuery } from 'convex/react';
 import { api } from '@qaddam/backend/convex/_generated/api';
+import { 
+  getExperienceMatchKey, 
+  getAIRecommendationKey, 
+  getMatchScoreColor 
+} from '@/lib/enum-translations';
 
 interface JobMatchInsightsProps {
   job: JobResult;
@@ -14,13 +19,6 @@ interface JobMatchInsightsProps {
 
 const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
   const t = useTranslations('dashboard');
-
-  const getMatchScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600 bg-green-100';
-    if (score >= 75) return 'text-blue-600 bg-blue-100';
-    if (score >= 60) return 'text-yellow-600 bg-yellow-100';
-    return 'text-red-600 bg-red-100';
-  };
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -156,7 +154,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
                   {t('job_results.match_insights.experience_match')}
                 </h4>
               </div>
-              <p className="text-muted-foreground text-sm mb-3">{job.experienceMatch}</p>
+              <p className="text-muted-foreground text-sm mb-3">{t(getExperienceMatchKey(job.experienceMatch))}</p>
               {job.experienceMatchReasons && job.experienceMatchReasons.length > 0 && (
                 <div className="space-y-2">
                   <h5 className="text-foreground font-semibold text-sm">{t('job_results.match_insights.why_matches')}</h5>
@@ -208,7 +206,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
                 </h4>
               </div>
               <p className="text-muted-foreground text-sm capitalize">
-                {job.aiRecommendation?.replace('_', ' ') || 'Not specified'}
+                {t(getAIRecommendationKey(job.aiRecommendation || 'consider'))}
               </p>
             </div>
 
