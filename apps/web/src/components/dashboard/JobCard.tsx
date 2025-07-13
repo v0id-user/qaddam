@@ -21,8 +21,8 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
     jobListingId: job.jobListingId,
   });
 
-  const getJobTypeDisplay = (extractedData: any) => {
-    const jobType = extractedData?.jobType?.type || 'full_time';
+  const getJobTypeDisplay = (job: JobResult) => {
+    const jobType = job.extractedData?.jobType?.type || 'full_time';
     return {
       type: jobType,
       display: t(getJobTypeKey(jobType)),
@@ -106,9 +106,9 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       <div className="mb-5 space-y-3">
         <div className="flex items-center space-x-2 space-x-reverse">
           <span
-            className={`rounded-full px-3 py-1 text-xs font-medium ${getJobTypeDisplay(job.extractedData).colorClass}`}
+            className={`rounded-full px-3 py-1 text-xs font-medium ${getJobTypeDisplay(job).colorClass}`}
           >
-            {getJobTypeDisplay(job.extractedData).display}
+            {getJobTypeDisplay(job).display}
           </span>
           <div className="text-muted-foreground flex items-center space-x-1 space-x-reverse text-xs">
             <Clock className="h-3 w-3" />

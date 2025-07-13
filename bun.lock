@@ -4,6 +4,7 @@
     "": {
       "name": "qaddam",
       "dependencies": {
+        "apify-client": "^2.12.6",
         "react-dropzone": "^14.3.8",
         "react-hot-toast": "^2.5.2",
       },

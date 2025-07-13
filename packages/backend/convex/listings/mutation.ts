@@ -1,5 +1,5 @@
 import { internalMutation } from "../_generated/server";
-import { GenericId, v } from "convex/values";
+import { type GenericId, v } from "convex/values";
 import type { LinkedInJob } from "../driver/jobs/actors/linkedin_jobs";
 
 // Helper type for a raw result coming from the LinkedIn Job actor

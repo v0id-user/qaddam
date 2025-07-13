@@ -1,4 +1,4 @@
-import { Id } from "@/_generated/dataModel";
+import type { Id } from "../_generated/dataModel";
 
 export type JobType = "full_time" | "part_time" | "contract" | "remote";
 

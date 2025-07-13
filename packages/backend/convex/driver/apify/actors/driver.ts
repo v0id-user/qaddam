@@ -1,7 +1,7 @@
 "use node";
 
-import { ApifyDriver } from "@/driver/apify";
-import {
+import { ApifyDriver } from "../../../driver/apify";
+import type {
 	ActorClient,
 	ApifyClient,
 	ActorRun,

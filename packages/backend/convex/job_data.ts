@@ -2,7 +2,8 @@ import { v } from "convex/values";
 import { query } from "./_generated/server";
 import chalk from "chalk";
 import { api } from "./_generated/api";
-import { Doc } from "./_generated/dataModel";
+import type { Doc } from "./_generated/dataModel";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 export const getJobResults = query({
 	args: { workflowId: v.string() },
@@ -60,23 +61,30 @@ export const getJobListing = query({
 	},
 });
 
-// Get user survey data for enhanced job analysis
 export const getUserSurvey = query({
-	args: {},
 	handler: async (ctx) => {
-		const user = await ctx.runQuery(api.users.getMe);
+		const user = await getAuthUserId(ctx);
 		if (!user) {
 			throw new Error("User not found unauthorized");
 		}
 
+		const userDoc = await ctx.db.get(user);
+		if (!userDoc) {
+			throw new Error("User not found");
+		}
+
 		const survey = await ctx.db
 			.query("userSurveys")
-			.withIndex("by_user", (q) => q.eq("userId", user._id))
+			.withIndex("by_user", (q) => q.eq("userId", userDoc._id))
 			.first();
 
+		if (!survey) {
+			throw new Error("User survey not found");
+		}
+
 		return survey;
-	},
-});
+	}
+})
 
 // Get enhanced job results with all analysis data
 export const getJobResultsWithAnalysis = query({
@@ -88,9 +96,14 @@ export const getJobResultsWithAnalysis = query({
 			),
 		);
 
-		const user = await ctx.runQuery(api.users.getMe);
+		const user = await getAuthUserId(ctx);
 		if (!user) {
 			throw new Error("User not found unauthorized");
+		}
+
+		const userDoc = await ctx.db.get(user);
+		if (!userDoc) {
+			throw new Error("User not found");
 		}
 
 		// Get the job search results record
@@ -123,7 +136,7 @@ export const getJobResultsWithAnalysis = query({
 		// Get user survey data for context
 		const userSurvey: Doc<"userSurveys"> | null = await ctx.db
 			.query("userSurveys")
-			.withIndex("by_user", (q) => q.eq("userId", user._id))
+			.withIndex("by_user", (q) => q.eq("userId", userDoc._id))
 			.first();
 
 		// Get job listings data for each result

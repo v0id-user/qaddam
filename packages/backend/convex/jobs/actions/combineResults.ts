@@ -4,7 +4,7 @@ import { v } from "convex/values";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 import type { JobResult, JobSearchResults } from "../../types/jobs";
-import type { Doc } from "@/_generated/dataModel";
+import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
 
 // Internal query to get job listing details

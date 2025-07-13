@@ -1,8 +1,8 @@
 "use node";
 
-import { ApifyDriver } from "@/driver/apify";
-import { ActorRun } from "apify-client";
-import { JobSource } from "./types/job_source";
+import { ApifyDriver } from "../../driver/apify";
+import type { ActorRun } from "apify-client";
+import type { JobSource } from "./types/job_source";
 
 /**
  * Interface for job search actors that handle searching and retrieving results

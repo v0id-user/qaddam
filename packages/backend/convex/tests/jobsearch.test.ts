@@ -2,9 +2,9 @@
 
 import { convexTest } from "convex-test";
 import { expect, test } from "vitest";
-import { internal } from "@/_generated/api";
-import schema from "@/schema";
-import { modules } from "@/test.setup";
+import { internal } from "../_generated/api";
+import schema from "../schema";
+import { modules } from "../test.setup";
 import dotenv from "dotenv";
 import path from "path";
 

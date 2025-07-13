@@ -71,25 +71,23 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
 
   const { searchResults, jobResults: jobs } = jobResults;
   const totalFound = searchResults?.totalFound || 0;
-
-  const jobsData: JobResult[] =
-    jobs?.map((job: any) => ({
-      jobListingId: job.jobListingId,
-      benefits: job.benefits || [],
-      matchedSkills: job.matchedSkills || [],
-      missingSkills: job.missingSkills || [],
-      experienceMatch: job.experienceMatch || 'not_specified',
-      experienceMatchScore: job.experienceMatchScore || 0,
-      experienceMatchReasons: job.experienceMatchReasons || [],
-      locationMatch: job.locationMatch || 'not_specified',
-      locationMatchScore: job.locationMatchScore || 0,
-      locationMatchReasons: job.locationMatchReasons || [],
-      workTypeMatch: job.workTypeMatch || false,
-      requirements: job.requirements || [],
-      aiMatchReasons: job.aiMatchReasons || [],
-      aiConcerns: job.aiConcerns || [],
-      aiRecommendation: (job.aiRecommendation as JobResult['aiRecommendation']) || 'consider',
-    })) || [];
+  const jobsData: JobResult[] = (jobs ?? []).map<JobResult>((job) => ({
+    jobListingId: job.jobListingId,
+    benefits: job.benefits ?? [],
+    matchedSkills: job.matchedSkills ?? [], 
+    missingSkills: job.missingSkills ?? [],
+    experienceMatch: job.experienceMatch ?? 'not_specified',
+    experienceMatchScore: job.experienceMatchScore ?? 0,
+    experienceMatchReasons: job.experienceMatchReasons ?? [],
+    locationMatch: job.locationMatch ?? 'not_specified', 
+    locationMatchScore: job.locationMatchScore ?? 0,
+    locationMatchReasons: job.locationMatchReasons ?? [],
+    workTypeMatch: job.workTypeMatch ?? false,
+    requirements: job.requirements ?? [],
+    aiMatchReasons: job.aiMatchReasons ?? [],
+    aiConcerns: job.aiConcerns ?? [],
+    aiRecommendation: job.aiRecommendation as JobResult['aiRecommendation'] ?? 'consider'
+  }));
 
   return (
     <div className="from-accent/20 via-background to-secondary/10 min-h-screen rounded-xl bg-gradient-to-br px-6 py-16">
@@ -121,7 +119,7 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
 
         {/* Job Cards Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {jobsData?.map((job: JobResult) => (
+          {jobsData?.map((job) => (
             <JobCard key={job.jobListingId} job={job} onClick={() => handleJobClick(job)} />
           ))}
         </div>

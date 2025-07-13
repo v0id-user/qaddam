@@ -1,7 +1,7 @@
 import { internalAction, internalQuery } from "../../_generated/server";
 import { internal } from "../../_generated/api";
 import { v } from "convex/values";
-import type { JobResult } from "@/types/jobs";
+import type { JobResult } from "../../types/jobs";
 import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";

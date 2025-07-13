@@ -1,10 +1,10 @@
 "use node";
 
-import { ApifyDriver } from "@/driver/apify";
-import { Actor } from "@/driver/apify/actors";
-import { ActorRun } from "apify-client";
-import { JobSource } from "../types/job_source";
-import { JobSearchInput, JobSearchActor } from "../driver";
+import { ApifyDriver } from "../../apify";
+import { Actor } from "../../apify/actors";
+import type { ActorRun } from "apify-client";
+import type { JobSource } from "../types/job_source";
+import type { JobSearchInput, JobSearchActor } from "../driver";
 
 /*
  * Google Jobs Actor

@@ -1,7 +1,6 @@
-import { internal } from "@/_generated/api";
-import { action, internalAction, internalMutation } from "@/_generated/server";
-import { GenericId, v } from "convex/values";
-import { LinkedInJob } from "@/driver/jobs/actors/linkedin_jobs";
+import { internal } from "../_generated/api";
+import { action, internalAction, internalMutation } from "../_generated/server";
+import { type GenericId, v } from "convex/values";
 
 // Simple job data for migration - only essential fields
 interface SimpleJobData {
