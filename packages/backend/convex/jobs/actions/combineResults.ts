@@ -63,7 +63,7 @@ export const aiCombineJobResults = internalAction({
 		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
 			workflowId: args.workflowTrackingId,
 			stage: "ranking_jobs",
-			percentage: 62,
+			percentage: 75,
 			userId: args.userId,
 		});
 
@@ -75,7 +75,7 @@ export const aiCombineJobResults = internalAction({
 			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
 				workflowId: args.workflowTrackingId,
 				stage: "no_jobs_found",
-				percentage: 80,
+				percentage: 82,
 				userId: args.userId,
 			});
 			
@@ -115,7 +115,7 @@ export const aiCombineJobResults = internalAction({
 		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
 			workflowId: args.workflowTrackingId,
 			stage: "ai_analysis",
-			percentage: 68,
+			percentage: 77,
 			userId: args.userId,
 		});
 
@@ -182,7 +182,7 @@ Rank and analyze for insights.
 		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
 			workflowId: args.workflowTrackingId,
 			stage: "extracting_data",
-			percentage: 74,
+			percentage: 79,
 			userId: args.userId,
 		});
 
@@ -229,7 +229,7 @@ Rank and analyze for insights.
 		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
 			workflowId: args.workflowTrackingId,
 			stage: "extracting_data",
-			percentage: 78,
+			percentage: 81,
 			userId: args.userId,
 		});
 
@@ -318,7 +318,7 @@ Rank and analyze for insights.
 		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
 			workflowId: args.workflowTrackingId,
 			stage: "jobs_ranked",
-			percentage: 80,
+			percentage: 82,
 			userId: args.userId,
 		});
 

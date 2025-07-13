@@ -581,9 +581,9 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
               {t('step_progress', { current: currentStep + 1, total: totalSteps })}
             </div>
           </div>
-          <div className="bg-secondary h-2 w-full rounded-full">
+          <div className="bg-secondary/50 h-1.5 w-full rounded-full">
             <div
-              className="bg-primary h-2 rounded-full transition-all duration-300"
+              className="bg-primary h-1.5 rounded-full transition-all duration-300"
               style={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
             />
           </div>
@@ -603,7 +603,7 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
               {t('back')}
             </Button>
 
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               {currentStep === totalSteps - 1 ? (
                 <Button
                   onClick={handleSubmit}

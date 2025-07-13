@@ -227,6 +227,15 @@ export const aiSearchJobs = internalAction({
 				searchCount++;
 				console.log(`[${searchCount}/${searchStrategies.length}] Searching: "${searchTerm.slice(0, 20)}..."`);
 				
+				// Update progress for each search term
+				const searchProgress = 48 + Math.round((searchCount / searchStrategies.length) * 4); // 48% to 52% spread across search terms
+				await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+					workflowId: args.workflowTrackingId,
+					stage: "searching_jobs",
+					percentage: searchProgress,
+					userId: args.userId,
+				});
+				
 				const results = await ctx.runQuery(
 					internal.jobs.actions.searchJobs.searchJobListings,
 					{ searchQuery: searchTerm.trim() },
@@ -286,7 +295,7 @@ export const aiSearchJobs = internalAction({
 		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
 			workflowId: args.workflowTrackingId,
 			stage: "processing_jobs",
-			percentage: 56,
+			percentage: 55,
 			userId: args.userId,
 		});
 
@@ -302,6 +311,15 @@ export const aiSearchJobs = internalAction({
 		// Process each chunk with batch AI analysis
 		for (const [chunkIndex, chunk] of chunks.entries()) {
 			console.log(`Processing batch ${chunkIndex + 1}/${chunks.length} (${chunk.length} jobs)...`);
+
+			// Update progress at the start of each batch - 55% to 75% spread across batches (20% range)
+			const batchStartProgress = 55 + Math.round((chunkIndex / chunks.length) * 20);
+			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+				workflowId: args.workflowTrackingId,
+				stage: "processing_jobs",
+				percentage: batchStartProgress,
+				userId: args.userId,
+			});
 
 			// Prepare optimized batch data for AI analysis
 			const batchJobData = chunk.map(({ job, index, matchedSkills, missingSkills }) => ({
@@ -399,13 +417,22 @@ Return analysis for each job in order.
 
 			jobResults.push(...batchResults);
 			console.log(`Batch ${chunkIndex + 1} completed. Total processed: ${jobResults.length}/${jobsToProcess.length}`);
+			
+			// Update progress after each batch completes
+			const batchCompleteProgress = 55 + Math.round(((chunkIndex + 1) / chunks.length) * 20);
+			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+				workflowId: args.workflowTrackingId,
+				stage: "processing_jobs",
+				percentage: batchCompleteProgress,
+				userId: args.userId,
+			});
 		}
 
-		// Update workflow status to indicate job processing completed
+		// Update workflow status to indicate all batches completed
 		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
 			workflowId: args.workflowTrackingId,
 			stage: "jobs_processed",
-			percentage: 60,
+			percentage: 75,
 			userId: args.userId,
 		});
 

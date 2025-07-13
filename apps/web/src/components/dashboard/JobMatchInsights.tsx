@@ -32,17 +32,17 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
   if (!jobListing) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <div className="bg-card max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl shadow-2xl">
-          <div className="flex h-96 items-center justify-center">
-            <div className="space-y-4">
-              <div className="bg-accent rounded-full p-6">
-                <div className="border-primary h-14 w-14 animate-spin rounded-full border-t-2 border-b-2"></div>
+        <div className="bg-card max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl shadow-2xl">
+          <div className="flex h-80 items-center justify-center">
+            <div className="space-y-3">
+              <div className="bg-accent/50 rounded-full p-4">
+                <div className="border-primary h-10 w-10 animate-spin rounded-full border-t-2 border-b-2"></div>
               </div>
               <div className="space-y-2">
-                <p className="text-foreground text-xl font-semibold">
+                <p className="text-foreground text-lg font-medium">
                   {t('job_results.loading.title')}
                 </p>
-                <p className="text-muted-foreground text-base">
+                <p className="text-muted-foreground text-sm">
                   {t('job_results.loading.subtitle')}
                 </p>
               </div>
@@ -58,12 +58,12 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={handleBackdropClick}
     >
-      <div className="bg-card max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl shadow-2xl">
+      <div className="bg-card max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl shadow-2xl">
         {/* Header */}
-        <div className="bg-card border-border sticky top-0 rounded-t-3xl border-b p-6">
+        <div className="bg-card border-border sticky top-0 rounded-t-2xl border-b p-5">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <h2 className="text-foreground mb-2 text-2xl font-bold">
+              <h2 className="text-foreground mb-2 text-xl font-bold">
                 {t('job_results.match_insights.title')}
               </h2>
               <div className="flex items-center space-x-3 space-x-reverse">
@@ -77,45 +77,45 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
               className="hover:bg-accent/20 rounded-full p-2 transition-colors"
               title={t('job_results.match_insights.close')}
             >
-              <X className="text-muted-foreground h-6 w-6" />
+              <X className="text-muted-foreground h-5 w-5" />
             </button>
           </div>
         </div>
 
         {/* Content */}
-        <div className="space-y-8 p-6">
+        <div className="space-y-6 p-5">
           {/* Overall Match Score */}
-          <div className="bg-accent/10 rounded-2xl p-6 text-center">
-            <div className="mb-4 flex items-center justify-center space-x-3 space-x-reverse">
-              <TrendingUp className="text-primary h-8 w-8" />
-              <h3 className="text-foreground text-xl font-bold">{t('job_results.match_score')}</h3>
+          <div className="bg-accent/5 rounded-xl p-5 text-center">
+            <div className="mb-3 flex items-center justify-center space-x-3 space-x-reverse">
+              <TrendingUp className="text-primary h-6 w-6" />
+              <h3 className="text-foreground text-lg font-semibold">{t('job_results.match_score')}</h3>
             </div>
-            <div className={`mb-2 text-4xl font-bold ${getMatchScoreColor(Math.round(job.experienceMatchScore * 100))}`}>
+            <div className={`mb-2 text-3xl font-bold ${getMatchScoreColor(Math.round(job.experienceMatchScore * 100))}`}>
               {Math.round(job.experienceMatchScore * 100)}%
             </div>
-            <div className="bg-accent/20 mb-4 h-3 w-full rounded-full">
+            <div className="bg-accent/10 mb-3 h-2 w-full rounded-full">
               <div
-                className="bg-primary h-3 rounded-full transition-all duration-300"
+                className="bg-primary h-2 rounded-full transition-all duration-300"
                 style={{ width: `${Math.min(Math.round(job.experienceMatchScore * 100), 100)}%` }}
               />
             </div>
           </div>
 
           {/* Skills Analysis */}
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             {/* Matched Skills */}
-            <div className="rounded-2xl bg-green-50 p-6">
-              <div className="mb-4 flex items-center space-x-3 space-x-reverse">
-                <CheckCircle className="h-6 w-6 text-green-600" />
-                <h4 className="text-lg font-bold text-green-800">
+            <div className="rounded-xl bg-green-50/70 p-4">
+              <div className="mb-3 flex items-center space-x-3 space-x-reverse">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                <h4 className="text-lg font-semibold text-green-800">
                   {t('job_results.match_insights.matched_skills')}
                 </h4>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {job.matchedSkills.map((skill, index) => (
                   <span
                     key={index}
-                    className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800"
+                    className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800"
                   >
                     {skill}
                   </span>
@@ -124,18 +124,18 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
             </div>
 
             {/* Missing Skills */}
-            <div className="rounded-2xl bg-yellow-50 p-6">
-              <div className="mb-4 flex items-center space-x-3 space-x-reverse">
-                <AlertCircle className="h-6 w-6 text-yellow-600" />
-                <h4 className="text-lg font-bold text-yellow-800">
+            <div className="rounded-xl bg-yellow-50/70 p-4">
+              <div className="mb-3 flex items-center space-x-3 space-x-reverse">
+                <AlertCircle className="h-5 w-5 text-yellow-600" />
+                <h4 className="text-lg font-semibold text-yellow-800">
                   {t('job_results.match_insights.missing_skills')}
                 </h4>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {job.missingSkills.map((skill, index) => (
                   <span
                     key={index}
-                    className="rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-800"
+                    className="rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800"
                   >
                     {skill}
                   </span>
@@ -145,22 +145,22 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
           </div>
 
           {/* Match Analysis Details */}
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             {/* Experience Match Reasons */}
-            <div className="bg-card border-border rounded-2xl border p-6">
+            <div className="bg-card border-border rounded-xl border p-4">
               <div className="mb-3 flex items-center space-x-3 space-x-reverse">
-                <Clock className="h-6 w-6 text-blue-600" />
-                <h4 className="text-foreground text-lg font-bold">
+                <Clock className="h-5 w-5 text-blue-600" />
+                <h4 className="text-foreground text-lg font-semibold">
                   {t('job_results.match_insights.experience_match')}
                 </h4>
               </div>
               <p className="text-muted-foreground text-sm mb-3">{t(getExperienceMatchKey(job.experienceMatch))}</p>
               {job.experienceMatchReasons && job.experienceMatchReasons.length > 0 && (
                 <div className="space-y-2">
-                  <h5 className="text-foreground font-semibold text-sm">{t('job_results.match_insights.why_matches')}</h5>
+                  <h5 className="text-foreground font-medium text-sm">{t('job_results.match_insights.why_matches')}</h5>
                   <ul className="space-y-1">
                     {job.experienceMatchReasons.map((reason, index) => (
-                      <li key={index} className="text-muted-foreground text-sm flex items-start">
+                      <li key={index} className="text-muted-foreground text-xs flex items-start">
                         <span className="text-green-500 mr-2">•</span>
                         {reason}
                       </li>
@@ -171,20 +171,20 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
             </div>
 
             {/* Location Match */}
-            <div className="bg-card border-border rounded-2xl border p-6">
+            <div className="bg-card border-border rounded-xl border p-4">
               <div className="mb-3 flex items-center space-x-3 space-x-reverse">
-                <MapPin className="h-6 w-6 text-purple-600" />
-                <h4 className="text-foreground text-lg font-bold">
+                <MapPin className="h-5 w-5 text-purple-600" />
+                <h4 className="text-foreground text-lg font-semibold">
                   {t('job_results.match_insights.location_match')} ({Math.round(job.locationMatchScore * 100)}%)
                 </h4>
               </div>
               <p className="text-muted-foreground text-sm mb-3">{jobListing.location}</p>
               {job.locationMatchReasons && job.locationMatchReasons.length > 0 && (
                 <div className="space-y-2">
-                  <h5 className="text-foreground font-semibold text-sm">{t('job_results.match_insights.location_analysis')}</h5>
+                  <h5 className="text-foreground font-medium text-sm">{t('job_results.match_insights.location_analysis')}</h5>
                   <ul className="space-y-1">
                     {job.locationMatchReasons.map((reason, index) => (
-                      <li key={index} className="text-muted-foreground text-sm flex items-start">
+                      <li key={index} className="text-muted-foreground text-xs flex items-start">
                         <span className="text-blue-500 mr-2">•</span>
                         {reason}
                       </li>
@@ -196,12 +196,12 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
           </div>
 
           {/* Additional Match Details */}
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-3">
             {/* AI Recommendation */}
-            <div className="bg-card border-border rounded-2xl border p-6">
+            <div className="bg-card border-border rounded-xl border p-4">
               <div className="mb-3 flex items-center space-x-3 space-x-reverse">
-                <TrendingUp className="h-6 w-6 text-green-600" />
-                <h4 className="text-foreground text-lg font-bold">
+                <TrendingUp className="h-5 w-5 text-green-600" />
+                <h4 className="text-foreground text-lg font-semibold">
                   {t('job_results.match_insights.ai_recommendation')}
                 </h4>
               </div>
@@ -211,10 +211,10 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
             </div>
 
             {/* Salary Range */}
-            <div className="bg-card border-border rounded-2xl border p-6">
+            <div className="bg-card border-border rounded-xl border p-4">
               <div className="mb-3 flex items-center space-x-3 space-x-reverse">
-                <DollarSign className="h-6 w-6 text-green-600" />
-                <h4 className="text-foreground text-lg font-bold">
+                <DollarSign className="h-5 w-5 text-green-600" />
+                <h4 className="text-foreground text-lg font-semibold">
                   {t('job_results.match_insights.salary_range')}
                 </h4>
               </div>
@@ -224,10 +224,10 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
             </div>
 
             {/* Work Type Match */}
-            <div className="bg-card border-border rounded-2xl border p-6">
+            <div className="bg-card border-border rounded-xl border p-4">
               <div className="mb-3 flex items-center space-x-3 space-x-reverse">
-                <CheckCircle className="h-6 w-6 text-orange-600" />
-                <h4 className="text-foreground text-lg font-bold">
+                <CheckCircle className="h-5 w-5 text-orange-600" />
+                <h4 className="text-foreground text-lg font-semibold">
                   {t('job_results.match_insights.work_type_match')}
                 </h4>
               </div>
@@ -238,17 +238,17 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
           </div>
 
           {/* AI Analysis Sections */}
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             {/* AI Match Reasons */}
             {job.aiMatchReasons && job.aiMatchReasons.length > 0 && (
-              <div className="bg-green-50 border-green-200 rounded-2xl border p-6">
-                <h4 className="text-green-800 mb-4 text-lg font-bold flex items-center">
-                  <CheckCircle className="h-5 w-5 mr-2" />
+              <div className="bg-green-50/70 border-green-200 rounded-xl border p-4">
+                <h4 className="text-green-800 mb-3 text-lg font-semibold flex items-center">
+                  <CheckCircle className="h-4 w-4 mr-2" />
                   {t('job_results.match_insights.ai_match_analysis')}
                 </h4>
                 <div className="space-y-2">
                   {job.aiMatchReasons.map((reason, index) => (
-                    <div key={index} className="text-green-700 text-sm flex items-start">
+                    <div key={index} className="text-green-700 text-xs flex items-start">
                       <span className="text-green-500 mr-2">•</span>
                       {reason}
                     </div>
@@ -259,14 +259,14 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
 
             {/* AI Concerns */}
             {job.aiConcerns && job.aiConcerns.length > 0 && (
-              <div className="bg-yellow-50 border-yellow-200 rounded-2xl border p-6">
-                <h4 className="text-yellow-800 mb-4 text-lg font-bold flex items-center">
-                  <AlertCircle className="h-5 w-5 mr-2" />
+              <div className="bg-yellow-50/70 border-yellow-200 rounded-xl border p-4">
+                <h4 className="text-yellow-800 mb-3 text-lg font-semibold flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-2" />
                   {t('job_results.match_insights.areas_to_consider')}
                 </h4>
                 <div className="space-y-2">
                   {job.aiConcerns.map((concern, index) => (
-                    <div key={index} className="text-yellow-700 text-sm flex items-start">
+                    <div key={index} className="text-yellow-700 text-xs flex items-start">
                       <span className="text-yellow-500 mr-2">•</span>
                       {concern}
                     </div>
@@ -277,21 +277,21 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
           </div>
 
           {/* Job Requirements */}
-          <div className="bg-card border-border rounded-2xl border p-6">
-            <h4 className="text-foreground mb-4 text-lg font-bold">
+          <div className="bg-card border-border rounded-xl border p-4">
+            <h4 className="text-foreground mb-3 text-lg font-semibold">
               {t('job_results.job_details.requirements')}
             </h4>
             <div className="space-y-2">
               {job.requirements && job.requirements.length > 0 ? (
                 job.requirements.map((requirement, index) => (
                   <div key={index} className="flex items-start space-x-3 space-x-reverse">
-                    <div className="h-2 w-2 rounded-full bg-green-500 mt-2 flex-shrink-0" />
+                    <div className="h-1.5 w-1.5 rounded-full bg-green-500 mt-2 flex-shrink-0" />
                     <span className="text-muted-foreground text-sm">{requirement}</span>
                   </div>
                 ))
               ) : (
                 <div className="flex items-center space-x-3 space-x-reverse">
-                  <div className="h-2 w-2 rounded-full bg-gray-400 mt-2 flex-shrink-0" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-gray-400 mt-2 flex-shrink-0" />
                   <span className="text-muted-foreground text-sm italic">No specific requirements mentioned in job description</span>
                 </div>
               )}
@@ -299,15 +299,15 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
           </div>
 
           {/* Benefits */}
-          <div className="bg-card border-border rounded-2xl border p-6">
-            <h4 className="text-foreground mb-4 text-lg font-bold">
+          <div className="bg-card border-border rounded-xl border p-4">
+            <h4 className="text-foreground mb-3 text-lg font-semibold">
               {t('job_results.job_details.benefits')}
             </h4>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {job.benefits.map((benefit, index) => (
                 <span
                   key={index}
-                  className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm font-medium"
+                  className="bg-primary/8 text-primary rounded-full px-3 py-1 text-xs font-medium"
                 >
                   {benefit}
                 </span>
@@ -316,8 +316,8 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
           </div>
 
           {/* Job Description */}
-          <div className="bg-card border-border rounded-2xl border p-6">
-            <h4 className="text-foreground mb-4 text-lg font-bold">
+          <div className="bg-card border-border rounded-xl border p-4">
+            <h4 className="text-foreground mb-3 text-lg font-semibold">
               {t('job_results.job_details.description')}
             </h4>
             <div
@@ -335,8 +335,8 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
         </div>
 
         {/* Footer Actions */}
-        <div className="bg-card border-border sticky bottom-0 rounded-b-3xl border-t p-6">
-          <div className="flex space-x-4 space-x-reverse">
+        <div className="bg-card border-border sticky bottom-0 rounded-b-2xl border-t p-5">
+          <div className="flex gap-4">
             <Button onClick={onClose} variant="outline" className="flex-1">
               {t('job_results.match_insights.close')}
             </Button>

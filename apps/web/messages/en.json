@@ -199,6 +199,10 @@
         "combining": {
           "title": "Combining Results",
           "description": "Analyzing and ranking the best matches for you"
+        },
+        "saving": {
+          "title": "Saving Results",
+          "description": "Saving your personalized job matches and analysis"
         }
       },
       "status": {

@@ -44,7 +44,7 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
       key: 'aiParseCV',
       title: t('workflow.steps.parsing.title'),
       description: t('workflow.steps.parsing.description'),
-      icon: <FileText className="h-8 w-8" />,
+      icon: <FileText className="h-6 w-6" />,
       status: 'not_started',
       percentage: 0,
     },
@@ -52,7 +52,7 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
       key: 'aiTuneJobSearch',
       title: t('workflow.steps.tuning.title'),
       description: t('workflow.steps.tuning.description'),
-      icon: <Target className="h-8 w-8" />,
+      icon: <Target className="h-6 w-6" />,
       status: 'not_started',
       percentage: 0,
     },
@@ -60,7 +60,7 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
       key: 'aiSearchJobs',
       title: t('workflow.steps.searching.title'),
       description: t('workflow.steps.searching.description'),
-      icon: <Search className="h-8 w-8" />,
+      icon: <Search className="h-6 w-6" />,
       status: 'not_started',
       percentage: 0,
     },
@@ -68,7 +68,7 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
       key: 'aiCombineJobResults',
       title: t('workflow.steps.combining.title'),
       description: t('workflow.steps.combining.description'),
-      icon: <Combine className="h-8 w-8" />,
+      icon: <Combine className="h-6 w-6" />,
       status: 'not_started',
       percentage: 0,
     },
@@ -76,7 +76,7 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
       key: 'aiSaveResults',
       title: t('workflow.steps.saving.title'),
       description: t('workflow.steps.saving.description'),
-      icon: <CheckCircle className="h-8 w-8" />,
+      icon: <CheckCircle className="h-6 w-6" />,
       status: 'not_started',
       percentage: 0,
     },
@@ -158,26 +158,26 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
   const getStatusIcon = (status: StepStatus) => {
     switch (status) {
       case 'not_started':
-        return <Circle className="text-muted-foreground h-6 w-6" />;
+        return <Circle className="text-muted-foreground h-5 w-5" />;
       case 'pending':
-        return <Clock className="text-primary h-6 w-6 animate-pulse" />;
+        return <Clock className="text-primary h-5 w-5 animate-pulse" />;
       case 'finished':
-        return <CheckCircle className="h-6 w-6 text-green-500" />;
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
       default:
-        return <Circle className="text-muted-foreground h-6 w-6" />;
+        return <Circle className="text-muted-foreground h-5 w-5" />;
     }
   };
 
   const getStepClasses = (status: StepStatus) => {
     switch (status) {
       case 'not_started':
-        return 'border-border bg-card/50';
+        return 'border-border bg-card/30';
       case 'pending':
-        return 'border-primary bg-primary/5 ring-2 ring-primary/20';
+        return 'border-primary/30 bg-primary/3 ring-1 ring-primary/10';
       case 'finished':
-        return 'border-green-500 bg-green-50';
+        return 'border-green-200 bg-green-50/50';
       default:
-        return 'border-border bg-card/50';
+        return 'border-border bg-card/30';
     }
   };
 
@@ -186,39 +186,39 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
   const completedSteps = steps.filter(step => step.status === 'finished').length;
 
   return (
-    <div className="from-accent/30 via-background to-secondary/20 min-h-screen rounded-xl bg-gradient-to-br px-6 py-24">
+    <div className="from-accent/20 via-background to-secondary/10 min-h-screen rounded-xl bg-gradient-to-br px-6 py-16">
       <div className="mx-auto max-w-4xl">
         {/* Header */}
-        <div className="mb-16 text-center">
-          <h1 className="text-foreground mb-6 text-4xl font-bold md:text-5xl">
+        <div className="mb-12 text-center">
+          <h1 className="text-foreground mb-4 text-3xl font-bold md:text-4xl">
             {t('workflow.title')}
           </h1>
-          <p className="text-muted-foreground text-xl leading-relaxed">{t('workflow.subtitle')}</p>
+          <p className="text-muted-foreground text-lg leading-relaxed">{t('workflow.subtitle')}</p>
           {workflowId && (
-            <p className="text-muted-foreground mt-2 text-sm">{t('workflow.workflow_id')} {workflowId}</p>
+            <p className="text-muted-foreground mt-3 text-sm opacity-70">{t('workflow.workflow_id')} {workflowId}</p>
           )}
           {workflowStatus && (
-            <p className="text-muted-foreground mt-1 text-sm">
+            <p className="text-muted-foreground mt-1 text-sm opacity-70">
               Current Stage: {workflowStatus.stage} ({workflowStatus.percentage}%)
             </p>
           )}
         </div>
 
         {/* Progress Bar */}
-        <div className="mb-12">
-          <div className="mb-4 flex items-center justify-between">
-            <span className="text-muted-foreground text-sm">
+        <div className="mb-10">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-muted-foreground text-sm opacity-70">
               {t('workflow.status.not_started')}
             </span>
-            <span className="text-muted-foreground text-sm">{t('workflow.status.finished')}</span>
+            <span className="text-muted-foreground text-sm opacity-70">{t('workflow.status.finished')}</span>
           </div>
-          <div className="bg-accent/20 h-2 w-full rounded-full">
+          <div className="bg-accent/10 h-1.5 w-full rounded-full">
             <div
-              className="bg-primary h-2 rounded-full transition-all duration-1000 ease-out"
+              className="bg-primary h-1.5 rounded-full transition-all duration-1000 ease-out"
               style={{ width: `${overallProgress}%` }}
             />
           </div>
-          <div className="mt-2 text-center">
+          <div className="mt-3 text-center">
             <span className="text-primary text-sm font-medium">
               {overallProgress}% Complete ({completedSteps}/{steps.length} steps)
             </span>
@@ -226,21 +226,21 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
         </div>
 
         {/* Steps */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           {steps.map(step => (
             <div
               key={step.key}
-              className={`rounded-2xl border-2 p-8 transition-all duration-500 ${getStepClasses(step.status)}`}
+              className={`rounded-xl border p-6 transition-all duration-500 ${getStepClasses(step.status)}`}
             >
-              <div className="flex items-center space-x-6 space-x-reverse">
+              <div className="flex items-center space-x-4 space-x-reverse">
                 {/* Step Icon */}
                 <div
-                  className={`rounded-full p-4 ${
+                  className={`rounded-full p-3 ${
                     step.status === 'pending'
-                      ? 'bg-primary/10'
+                      ? 'bg-primary/8'
                       : step.status === 'finished'
-                        ? 'bg-green-100'
-                        : 'bg-accent/20'
+                        ? 'bg-green-100/70'
+                        : 'bg-accent/10'
                   }`}
                 >
                   <div
@@ -260,7 +260,7 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
                 <div className="flex-1">
                   <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center space-x-3 space-x-reverse">
-                      <h3 className="text-foreground text-xl font-bold">{step.title}</h3>
+                      <h3 className="text-foreground text-lg font-semibold">{step.title}</h3>
                       {getStatusIcon(step.status)}
                     </div>
                     {step.status === 'pending' && (
@@ -269,14 +269,14 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
                       </span>
                     )}
                   </div>
-                  <p className="text-muted-foreground mb-3">{step.description}</p>
+                  <p className="text-muted-foreground mb-3 text-sm">{step.description}</p>
                   
                   {/* Step Progress Bar */}
                   {step.status === 'pending' && (
-                    <div className="mb-3">
-                      <div className="bg-accent/20 h-1.5 w-full rounded-full">
+                    <div className="mb-4">
+                      <div className="bg-accent/10 h-1 w-full rounded-full">
                         <div
-                          className="bg-primary h-1.5 rounded-full transition-all duration-500 ease-out"
+                          className="bg-primary h-1 rounded-full transition-all duration-500 ease-out"
                           style={{ width: `${step.percentage || 0}%` }}
                         />
                       </div>
@@ -284,18 +284,18 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
                   )}
                   
                   {step.status === 'pending' && (
-                    <div className="flex items-center space-x-2 space-x-reverse">
-                      <div className="flex space-x-1 space-x-reverse">
+                    <div className="flex items-center space-x-3 space-x-reverse">
+                      <div className="flex items-center space-x-1.5">
                         <div
-                          className="bg-primary h-2 w-2 animate-bounce rounded-full"
+                          className="bg-primary h-1.5 w-1.5 animate-bounce rounded-full"
                           style={{ animationDelay: '0ms' }}
                         />
                         <div
-                          className="bg-primary h-2 w-2 animate-bounce rounded-full"
+                          className="bg-primary h-1.5 w-1.5 animate-bounce rounded-full"
                           style={{ animationDelay: '150ms' }}
                         />
                         <div
-                          className="bg-primary h-2 w-2 animate-bounce rounded-full"
+                          className="bg-primary h-1.5 w-1.5 animate-bounce rounded-full"
                           style={{ animationDelay: '300ms' }}
                         />
                       </div>
@@ -312,14 +312,14 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
 
         {/* Error State */}
         {workflowStatus?.stage.includes('error') && (
-          <div className="mt-8 rounded-2xl border-2 border-red-500 bg-red-50 p-6">
+          <div className="mt-6 rounded-xl border-2 border-red-200 bg-red-50/50 p-5">
             <div className="flex items-center space-x-3">
               <div className="rounded-full bg-red-100 p-2">
-                <Circle className="h-6 w-6 text-red-600" />
+                <Circle className="h-5 w-5 text-red-600" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-red-800">{t('workflow.error.title')}</h3>
-                <p className="text-red-700">Stage: {workflowStatus.stage}</p>
+                <h3 className="text-lg font-semibold text-red-800">{t('workflow.error.title')}</h3>
+                <p className="text-red-700 text-sm">Stage: {workflowStatus.stage}</p>
               </div>
             </div>
           </div>
