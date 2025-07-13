@@ -3,6 +3,7 @@ import { query } from "./_generated/server";
 import { workflow, WorkflowId } from "./jobs/workflow";
 import chalk from "chalk";
 import { api } from "./_generated/api";
+import { Doc } from "./_generated/dataModel";
 
 export const getJobResults = query({
 	args: { workflowId: v.string() },
@@ -40,37 +41,6 @@ export const getJobResults = query({
 			searchResults,
 			jobResults,
 		};
-	},
-});
-
-// Simple status check using workflow.status
-export const getWorkflowStatus = query({
-	args: {
-		workflowId: v.any(),
-	},
-	handler: async (ctx, args) => {
-		console.log(chalk.blue(`Checking workflow status for ${args.workflowId}`));
-
-		try {
-			// Note: We'll use the workflowId as string for now and cast if needed
-			const status = await workflow.status(ctx, args.workflowId as WorkflowId);
-
-			console.log(
-				chalk.green(`Workflow ${args.workflowId} status: ${status.type}`),
-			);
-
-			return {
-				workflowId: args.workflowId,
-				status: status.type,
-			};
-		} catch (error) {
-			console.log(chalk.red("Error getting workflow status:", error));
-			return {
-				workflowId: args.workflowId,
-				status: "error",
-				result: null,
-			};
-		}
 	},
 });
 
@@ -112,8 +82,8 @@ export const getUserSurvey = query({
 // Get enhanced job results with all analysis data
 export const getJobResultsWithAnalysis = query({
 	args: { workflowId: v.string() },
-	handler: async (ctx, { workflowId }) => {
-		console.log(chalk.blue(`Getting enhanced job results for workflow ${workflowId}`));
+	handler: async (ctx, args) => {
+		console.log(chalk.blue(`Getting enhanced job results for workflow ${args.workflowId}`));
 
 		const user = await ctx.runQuery(api.users.getMe);
 		if (!user) {
@@ -123,12 +93,12 @@ export const getJobResultsWithAnalysis = query({
 		// Get the job search results record
 		const searchResults = await ctx.db
 			.query("jobSearchResults")
-			.withIndex("by_workflow", (q) => q.eq("workflowId", workflowId))
+			.withIndex("by_workflow", (q) => q.eq("workflowId", args.workflowId))
 			.first();
 
 		if (!searchResults) {
 			console.log(
-				chalk.yellow(`No search results found for workflow ${workflowId}`),
+				chalk.yellow(`No search results found for workflow ${args.workflowId}`),
 			);
 			return null;
 		}
@@ -148,7 +118,7 @@ export const getJobResultsWithAnalysis = query({
 		console.log(chalk.blue(`Retrieved ${jobResults.length} job results`));
 
 		// Get user survey data for context
-		const userSurvey = await ctx.db
+		const userSurvey: Doc<"userSurveys"> | null = await ctx.db
 			.query("userSurveys")
 			.withIndex("by_user", (q) => q.eq("userId", user._id))
 			.first();

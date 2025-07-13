@@ -1,7 +1,7 @@
 import { WorkflowManager } from "@convex-dev/workflow";
-import { components, internal } from "@/_generated/api";
+import { components, internal } from "../_generated/api";
 import { v } from "convex/values";
-import { action, internalMutation } from "@/_generated/server";
+import { action } from "../_generated/server";
 import type { WorkflowId } from "@convex-dev/workflow";
 export type { WorkflowId };
 

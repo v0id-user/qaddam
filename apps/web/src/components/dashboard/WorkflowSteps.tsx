@@ -8,7 +8,8 @@ import { api } from '@qaddam/backend/convex/_generated/api';
 import type { Step, StepStatus } from './types';
 
 interface WorkflowStepsProps {
-  workflowId: string; // Change from WorkflowId to string since we're using workflowTrackingId
+  workflowId: string;
+  workflowTrackingId: string;
   onComplete: () => void;
 }
 
@@ -36,7 +37,7 @@ const STEP_STAGE_MAPPING = {
   }
 };
 
-const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
+const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowStepsProps) => {
   const t = useTranslations('dashboard');
   const [steps, setSteps] = useState<Step[]>([
     {
@@ -82,7 +83,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
   ]);
 
   // Get workflow progress from the new workflow status system
-  const workflowStatus = useQuery(api.workflow_status.getWorkflowStatus, { workflowId });
+  const workflowStatus = useQuery(api.workflow_status.getWorkflowStatus, { workflowTrackingId: workflowTrackingId });
 
   // Calculate step status and percentage based on current workflow stage
   const calculateStepProgress = (stepKey: string, currentStage: string, currentPercentage: number) => {

@@ -25,7 +25,7 @@ export default function DashboardPage() {
   } | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [workflowId, setWorkflowId] = useState<WorkflowId | null>(null);
-
+  const [workflowTrackingId, setWorkflowTrackingId] = useState<string | null>(null);
   const generateUploadUrl = useMutation(api.upload.generateUploadUrl);
   const saveCV = useMutation(api.upload.saveCV);
   const getCVDownloadUrl = useMutation(api.upload.getCVDownloadUrl);
@@ -159,9 +159,10 @@ export default function DashboardPage() {
       const result = (await startWorkflow({
         cv_storage_id: uploadedCVId,
         userId: me._id,
-      })) as WorkflowId;
+      }));
 
-      setWorkflowId(result);
+      setWorkflowId(result.workflowId);
+      setWorkflowTrackingId(result.workflowTrackingId);
       setCurrentStage('workflow');
 
       console.log('Workflow started successfully:', result);
@@ -187,7 +188,7 @@ export default function DashboardPage() {
 
   // Render based on current stage
   if (currentStage === 'workflow') {
-    return <WorkflowSteps workflowId={workflowId!} onComplete={handleWorkflowComplete} />;
+    return <WorkflowSteps workflowId={workflowId!} workflowTrackingId={workflowTrackingId!} onComplete={handleWorkflowComplete} />;
   }
 
   if (currentStage === 'results') {

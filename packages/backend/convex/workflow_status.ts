@@ -4,10 +4,10 @@ import { v } from "convex/values";
 
 export const getWorkflowStatus = query({
     args: {
-        workflowId: v.string(),
+        workflowTrackingId: v.string(),
     },
     handler: async (ctx, args) => {
-        const workflowStatus = await ctx.db.query("workflowStage").filter(q => q.eq(q.field("workflowId"), args.workflowId)).take(1);
+        const workflowStatus = await ctx.db.query("workflowStage").filter(q => q.eq(q.field("workflowId"), args.workflowTrackingId)).take(1);
         const user = await ctx.runQuery(api.users.getMe);
         if (!workflowStatus.length) {
             return null;
