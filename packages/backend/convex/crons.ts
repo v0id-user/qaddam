@@ -4,7 +4,10 @@ import { internal } from "./_generated/api";
 const crons = cronJobs();
 
 crons.interval(
-	"add new jobs listing",
+	"Add new jobs listing",
 	{ hours: 24 }, // every 24 hours
-	internal.jobListing.addNewJobsListing,
+	internal.listings.action.addNewJobsListingAction,
 );
+
+
+export default crons;
