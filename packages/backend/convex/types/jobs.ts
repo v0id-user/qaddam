@@ -26,6 +26,25 @@ export type JobResult = {
 		| "recommended"
 		| "consider"
 		| "not_recommended";
+	
+	// Pre-extracted data to avoid redundant AI calls in combineResults
+	extractedData?: {
+		salary: {
+			min: number | null;
+			max: number | null;
+			currency: string | null;
+			is_salary_mentioned: boolean;
+		};
+		company: {
+			name: string | null;
+			is_company_mentioned: boolean;
+		};
+		jobType: {
+			type: JobType | null;
+			is_remote: boolean;
+			work_arrangement: string | null;
+		};
+	};
 };
 
 export type JobSearchResults = {
