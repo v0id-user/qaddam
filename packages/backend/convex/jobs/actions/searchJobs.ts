@@ -167,6 +167,7 @@ export const aiSearchJobs = internalAction({
 			years_of_experience: v.number(),
 			preferred_locations: v.array(v.string()),
 		}), // Original profile from step 1
+		workflowTrackingId: v.string(),
 	},
 	handler: async (
 		ctx,
@@ -182,6 +183,14 @@ export const aiSearchJobs = internalAction({
 			`${args.searchParams.job_title_keywords.length} job titles,`,
 			`${args.cvProfile.years_of_experience}y exp`
 		);
+
+		// Update workflow status to indicate job search started
+		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+			workflowId: args.workflowTrackingId,
+			stage: "searching_jobs",
+			percentage: 42,
+			userId: args.userId,
+		});
 
 		const { searchParams } = args;
 
@@ -200,6 +209,14 @@ export const aiSearchJobs = internalAction({
 			`${searchStrategies.length} terms:`,
 			searchStrategies.slice(0, 3).join(", ") + "..."
 		);
+
+		// Update workflow status to indicate database search started
+		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+			workflowId: args.workflowTrackingId,
+			stage: "searching_jobs",
+			percentage: 48,
+			userId: args.userId,
+		});
 
 		const allResults: Doc<"jobListings">[] = [];
 		let searchCount = 0;
@@ -229,6 +246,14 @@ export const aiSearchJobs = internalAction({
 			`Search complete: ${uniqueResults.length} unique jobs from ${allResults.length} total results`
 		);
 
+		// Update workflow status to indicate job search completed, processing started
+		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+			workflowId: args.workflowTrackingId,
+			stage: "processing_jobs",
+			percentage: 52,
+			userId: args.userId,
+		});
+
 		// Get survey results once for all jobs
 		const surveyResults = await ctx.runQuery(
 			internal.jobs.actions.searchJobs.getSurveyResults,
@@ -255,6 +280,14 @@ export const aiSearchJobs = internalAction({
 					(skill) => !matchedSkills.includes(skill),
 				),
 			};
+		});
+
+		// Update workflow status to indicate AI analysis started
+		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+			workflowId: args.workflowTrackingId,
+			stage: "processing_jobs",
+			percentage: 56,
+			userId: args.userId,
 		});
 
 		// Batch AI requests in chunks to avoid overwhelming the API
@@ -367,6 +400,14 @@ Return analysis for each job in order.
 			jobResults.push(...batchResults);
 			console.log(`Batch ${chunkIndex + 1} completed. Total processed: ${jobResults.length}/${jobsToProcess.length}`);
 		}
+
+		// Update workflow status to indicate job processing completed
+		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+			workflowId: args.workflowTrackingId,
+			stage: "jobs_processed",
+			percentage: 60,
+			userId: args.userId,
+		});
 
 		const finalResults = jobResults.slice(0, 20);
 		console.log(

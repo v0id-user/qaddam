@@ -10,6 +10,7 @@ export const aiSaveJobResults = internalAction({
 		userId: v.id("users"),
 		cvStorageId: v.id("_storage"),
 		workflowId: v.string(),
+		workflowTrackingId: v.string(),
 	},
 	handler: async (ctx, args): Promise<{ saved: boolean; resultId: string }> => {
 		console.log(
@@ -17,6 +18,14 @@ export const aiSaveJobResults = internalAction({
 			`${args.results.jobs.length} jobs,`,
 			`workflow: ${args.workflowId.slice(0, 8)}...`
 		);
+
+		// Update workflow status to indicate saving started
+		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+			workflowId: args.workflowTrackingId,
+			stage: "saving_results",
+			percentage: 82,
+			userId: args.userId,
+		});
 
 		const results = args.results as JobSearchResults;
 		const now = Date.now();
@@ -39,10 +48,27 @@ export const aiSaveJobResults = internalAction({
 			console.log(`Main record saved with ID: ${jobSearchResultsId}`);
 			console.log(`Saving ${results.jobs.length} individual job results...`);
 
+			// Update workflow status to indicate individual job results saving
+			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+				workflowId: args.workflowTrackingId,
+				stage: "saving_job_results",
+				percentage: 88,
+				userId: args.userId,
+			});
+
 			// Save individual job results
 			for (const [index, job] of results.jobs.entries()) {
 				if (index % 5 === 0) {
 					console.log(`  Saving job ${index + 1}/${results.jobs.length}...`);
+					
+					// Update progress during individual job saving
+					const progressPercentage = 88 + Math.round((index / results.jobs.length) * 10);
+					await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+						workflowId: args.workflowTrackingId,
+						stage: "saving_job_results",
+						percentage: progressPercentage,
+						userId: args.userId,
+					});
 				}
 				
 				await ctx.runMutation(internal.jobs.actions.saveResults.saveJobResult, {
@@ -59,12 +85,29 @@ export const aiSaveJobResults = internalAction({
 				`Total insights: ${results.insights.total_relevant} relevant jobs`
 			);
 
+			// Update workflow status to indicate completion
+			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+				workflowId: args.workflowTrackingId,
+				stage: "completed",
+				percentage: 100,
+				userId: args.userId,
+			});
+
 			return {
 				saved: true,
 				resultId: jobSearchResultsId,
 			};
 		} catch (error) {
 			console.error("Error saving job search results:", error);
+			
+			// Update workflow status to indicate error
+			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+				workflowId: args.workflowTrackingId,
+				stage: "save_error",
+				percentage: 100,
+				userId: args.userId,
+			});
+			
 			throw new Error(`Failed to save job search results: ${error}`);
 		}
 	},

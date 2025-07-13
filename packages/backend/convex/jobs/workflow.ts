@@ -1,7 +1,7 @@
 import { WorkflowManager } from "@convex-dev/workflow";
 import { components, internal } from "@/_generated/api";
 import { v } from "convex/values";
-import { action } from "@/_generated/server";
+import { action, internalMutation } from "@/_generated/server";
 import type { WorkflowId } from "@convex-dev/workflow";
 export type { WorkflowId };
 
@@ -19,6 +19,7 @@ export const jobSearchWorkflow = workflow.define({
 	args: {
 		cv_storage_id: v.id("_storage"),
 		userId: v.id("users"),
+		workflowTrackingId: v.string(),
 	},
 	handler: async (
 		step,
@@ -27,44 +28,50 @@ export const jobSearchWorkflow = workflow.define({
 		saved: boolean;
 		resultId: string;
 	}> => {
-		// Step 1: Parse CV and extract profile
+		// Step 1: Parse CV and extract profile (20%)
 		const cvProfile = await step.runAction(
 			internal.jobs.actions.parse.aiParseCV,
 			{
 				cv_storage_id: args.cv_storage_id,
 				userId: args.userId,
+				workflowTrackingId: args.workflowTrackingId,
 			},
 		);
 
-		// Step 2: Tune job search parameters
+		// Step 2: Tune job search parameters (40%)
 		const searchParams = await step.runAction(
 			internal.jobs.actions.tuneSearch.aiTuneJobSearch,
 			{
 				cvProfile,
+				userId: args.userId,
+				workflowTrackingId: args.workflowTrackingId,
 			},
 		);
 
-		// Step 3: Search for jobs
+		// Step 3: Search for jobs (60%)
 		const jobResults = await step.runAction(
 			internal.jobs.actions.searchJobs.aiSearchJobs,
 			{
 				searchParams,
 				cvProfile,
 				userId: args.userId,
+				workflowTrackingId: args.workflowTrackingId,
 			},
 		);
 
-		// Step 4: Combine and rank results
+		// Step 4: Combine and rank results (80%)
 		const finalResults = await step.runAction(
 			internal.jobs.actions.combineResults.aiCombineJobResults,
 			{
 				jobResults,
 				cvProfile,
 				searchParams,
+				userId: args.userId,
+				workflowTrackingId: args.workflowTrackingId,
 			},
 		);
 
-		// Step 5: Save results
+		// Step 5: Save results (100%)
 		const savedResults = await step.runAction(
 			internal.jobs.actions.saveResults.aiSaveJobResults,
 			{
@@ -72,6 +79,7 @@ export const jobSearchWorkflow = workflow.define({
 				userId: args.userId,
 				cvStorageId: args.cv_storage_id,
 				workflowId: step.workflowId,
+				workflowTrackingId: args.workflowTrackingId,
 			},
 		);
 
@@ -85,8 +93,14 @@ export const startJobSearchWorkflow = action({
 		cv_storage_id: v.id("_storage"),
 		userId: v.id("users"),
 	},
-	handler: async (ctx, args): Promise<WorkflowId> => {
+	handler: async (ctx, args): Promise<{workflowTrackingId: string, workflowId: WorkflowId}> => {
 		console.log("Starting job search workflow with CV:", args.cv_storage_id);
+
+
+		// Create a tracking id for the workflow
+		const workflowTrackingId = await ctx.runMutation(internal.workflow_status.workflowEntryInitial, {
+			userId: args.userId,
+		});
 
 		const workflowId = await workflow.start(
 			ctx,
@@ -94,10 +108,11 @@ export const startJobSearchWorkflow = action({
 			{
 				cv_storage_id: args.cv_storage_id,
 				userId: args.userId,
+				workflowTrackingId,
 			},
 		);
 
 		console.log("Workflow started with ID:", workflowId);
-		return workflowId;
+		return {workflowTrackingId, workflowId};
 	},
 });

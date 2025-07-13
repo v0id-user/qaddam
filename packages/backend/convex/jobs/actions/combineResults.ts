@@ -48,6 +48,8 @@ export const aiCombineJobResults = internalAction({
 			job_title_keywords: v.array(v.string()),
 			technical_skills: v.array(v.string()),
 		}), // Search parameters used
+		userId: v.id("users"),
+		workflowTrackingId: v.string(),
 	},
 	handler: async (ctx, args): Promise<JobSearchResults> => {
 		console.log(
@@ -57,9 +59,26 @@ export const aiCombineJobResults = internalAction({
 			`${args.cvProfile.skills.length} skills`
 		);
 
+		// Update workflow status to indicate job ranking started
+		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+			workflowId: args.workflowTrackingId,
+			stage: "ranking_jobs",
+			percentage: 62,
+			userId: args.userId,
+		});
+
 		// If no jobs found, return empty results with default insights
 		if (!args.jobResults.jobs || args.jobResults.jobs.length === 0) {
 			console.log("No jobs found, returning empty results");
+			
+			// Update workflow status to indicate completion with no results
+			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+				workflowId: args.workflowTrackingId,
+				stage: "no_jobs_found",
+				percentage: 80,
+				userId: args.userId,
+			});
+			
 			return {
 				jobs: [],
 				totalFound: 0,
@@ -91,6 +110,14 @@ export const aiCombineJobResults = internalAction({
 		}
 
 		console.log("Calling AI ranking model for job analysis...");
+
+		// Update workflow status to indicate AI analysis started
+		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+			workflowId: args.workflowTrackingId,
+			stage: "ai_analysis",
+			percentage: 68,
+			userId: args.userId,
+		});
 
 		const response = await generateObject({
 			model: openai.chat("gpt-4o-mini", {
@@ -151,6 +178,14 @@ Rank and analyze for insights.
 			response.object.insights.top_skills_in_demand.slice(0, 3).join(", ") + "..."
 		);
 
+		// Update workflow status to indicate data extraction started
+		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+			workflowId: args.workflowTrackingId,
+			stage: "extracting_data",
+			percentage: 74,
+			userId: args.userId,
+		});
+
 		const originalJobs = args.jobResults.jobs;
 		console.log("Processing original job results...");
 
@@ -189,6 +224,14 @@ Rank and analyze for insights.
 				}
 			}
 		}
+
+		// Update workflow status to indicate final processing
+		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+			workflowId: args.workflowTrackingId,
+			stage: "extracting_data",
+			percentage: 78,
+			userId: args.userId,
+		});
 
 		// Process extracted data to get final values
 		console.log("Processing extracted data for final results...");
@@ -270,6 +313,14 @@ Rank and analyze for insights.
 			`top score: ${finalJobs[0]?.matchScore || 0}`,
 			`lowest score: ${finalJobs[finalJobs.length - 1]?.matchScore || 0}`
 		);
+
+		// Update workflow status to indicate job ranking completed
+		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+			workflowId: args.workflowTrackingId,
+			stage: "jobs_ranked",
+			percentage: 80,
+			userId: args.userId,
+		});
 
 		return {
 			jobs: finalJobs,

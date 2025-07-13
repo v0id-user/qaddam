@@ -1,4 +1,5 @@
 import { internalAction } from "@/_generated/server";
+import { internal } from "@/_generated/api";
 import { v } from "convex/values";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
@@ -9,6 +10,7 @@ export const aiParseCV = internalAction({
 	args: {
 		cv_storage_id: v.id("_storage"),
 		userId: v.optional(v.id("users")),
+		workflowTrackingId: v.optional(v.string()),
 	},
 	handler: async (ctx, args): Promise<any> => {
 		try {
@@ -25,7 +27,27 @@ export const aiParseCV = internalAction({
 				`user: ${args.userId ? args.userId.slice(0, 8) + "..." : "anon"}`
 			);
 
+			// Update workflow status to indicate CV parsing started
+			if (args.workflowTrackingId && args.userId) {
+				await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+					workflowId: args.workflowTrackingId,
+					stage: "parsing_cv",
+					percentage: 5,
+					userId: args.userId,
+				});
+			}
+
 			console.log("Calling AI model for CV analysis...");
+
+			// Update workflow status to indicate AI processing started
+			if (args.workflowTrackingId && args.userId) {
+				await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+					workflowId: args.workflowTrackingId,
+					stage: "parsing_cv",
+					percentage: 15,
+					userId: args.userId,
+				});
+			}
 
 			const response = await generateObject({
 				model: openai.chat("gpt-4o-mini", {
@@ -110,6 +132,16 @@ export const aiParseCV = internalAction({
 				locations: result.preferred_locations.slice(0, 2).join(", ") + "...",
 			});
 
+			// Update workflow status to indicate CV parsing completed
+			if (args.workflowTrackingId && args.userId) {
+				await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+					workflowId: args.workflowTrackingId,
+					stage: "cv_parsed",
+					percentage: 20,
+					userId: args.userId,
+				});
+			}
+
 			// Validate that all required arrays are non-empty
 			if (
 				result.skills.length === 0 ||
@@ -149,6 +181,16 @@ export const aiParseCV = internalAction({
 			return result;
 		} catch (error) {
 			console.error("Error in CV parsing:", error);
+
+			// Update workflow status to indicate error
+			if (args.workflowTrackingId && args.userId) {
+				await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+					workflowId: args.workflowTrackingId,
+					stage: "cv_parsing_error",
+					percentage: 20,
+					userId: args.userId,
+				});
+			}
 
 			// Provide fallback profile data
 			const fallbackProfile = {

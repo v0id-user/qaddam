@@ -6,12 +6,35 @@ import { FileText, Search, Target, Combine, CheckCircle, Clock, Circle } from 'l
 import { useQuery } from 'convex/react';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import type { Step, StepStatus } from './types';
-import type { WorkflowId } from '@qaddam/backend/convex/jobs/workflow';
 
 interface WorkflowStepsProps {
-  workflowId: WorkflowId;
+  workflowId: string; // Change from WorkflowId to string since we're using workflowTrackingId
   onComplete: () => void;
 }
+
+// Map workflow stages to UI steps with their percentage ranges
+const STEP_STAGE_MAPPING = {
+  'aiParseCV': {
+    stages: ['parsing_cv', 'cv_parsed', 'cv_parsing_error'],
+    percentageRange: { min: 0, max: 20 }
+  },
+  'aiTuneJobSearch': {
+    stages: ['extracting_keywords', 'keywords_extracted', 'keyword_extraction_error'],
+    percentageRange: { min: 20, max: 40 }
+  },
+  'aiSearchJobs': {
+    stages: ['searching_jobs', 'processing_jobs', 'jobs_processed'],
+    percentageRange: { min: 40, max: 60 }
+  },
+  'aiCombineJobResults': {
+    stages: ['ranking_jobs', 'ai_analysis', 'extracting_data', 'jobs_ranked', 'no_jobs_found'],
+    percentageRange: { min: 60, max: 80 }
+  },
+  'aiSaveResults': {
+    stages: ['saving_results', 'saving_job_results', 'completed', 'save_error'],
+    percentageRange: { min: 80, max: 100 }
+  }
+};
 
 const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
   const t = useTranslations('dashboard');
@@ -22,6 +45,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
       description: t('workflow.steps.parsing.description'),
       icon: <FileText className="h-8 w-8" />,
       status: 'not_started',
+      percentage: 0,
     },
     {
       key: 'aiTuneJobSearch',
@@ -29,6 +53,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
       description: t('workflow.steps.tuning.description'),
       icon: <Target className="h-8 w-8" />,
       status: 'not_started',
+      percentage: 0,
     },
     {
       key: 'aiSearchJobs',
@@ -36,6 +61,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
       description: t('workflow.steps.searching.description'),
       icon: <Search className="h-8 w-8" />,
       status: 'not_started',
+      percentage: 0,
     },
     {
       key: 'aiCombineJobResults',
@@ -43,43 +69,90 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
       description: t('workflow.steps.combining.description'),
       icon: <Combine className="h-8 w-8" />,
       status: 'not_started',
+      percentage: 0,
+    },
+    {
+      key: 'aiSaveResults',
+      title: t('workflow.steps.saving.title'),
+      description: t('workflow.steps.saving.description'),
+      icon: <CheckCircle className="h-8 w-8" />,
+      status: 'not_started',
+      percentage: 0,
     },
   ]);
 
-  // Get workflow progress from Convex
-  const workflowProgress = useQuery(api.job_data.getWorkflowStatus, { workflowId });
+  // Get workflow progress from the new workflow status system
+  const workflowStatus = useQuery(api.workflow_status.getWorkflowStatus, { workflowId });
 
-  // Update steps based on workflow progress
+  // Calculate step status and percentage based on current workflow stage
+  const calculateStepProgress = (stepKey: string, currentStage: string, currentPercentage: number) => {
+    const stepMapping = STEP_STAGE_MAPPING[stepKey as keyof typeof STEP_STAGE_MAPPING];
+    if (!stepMapping) return { status: 'not_started' as StepStatus, percentage: 0 };
+
+    const { stages, percentageRange } = stepMapping;
+    const isStageActive = stages.includes(currentStage);
+    const isStageCompleted = currentPercentage > percentageRange.max;
+    const isStageStarted = currentPercentage >= percentageRange.min;
+
+    // Calculate individual step percentage (0-100 within the step's range)
+    let stepPercentage = 0;
+    if (isStageCompleted) {
+      stepPercentage = 100;
+    } else if (isStageActive || isStageStarted) {
+      const relativeProgress = currentPercentage - percentageRange.min;
+      const rangeSize = percentageRange.max - percentageRange.min;
+      stepPercentage = Math.min(100, Math.max(0, (relativeProgress / rangeSize) * 100));
+    }
+
+    // Determine step status
+    let status: StepStatus = 'not_started';
+    if (isStageCompleted) {
+      status = 'finished';
+    } else if (isStageActive || isStageStarted) {
+      status = 'pending';
+    }
+
+    // Handle error states
+    if (currentStage.includes('error')) {
+      status = 'not_started'; // Reset to not_started on error
+      stepPercentage = 0;
+    }
+
+    return { status, percentage: stepPercentage };
+  };
+
+  // Update steps based on workflow status
   useEffect(() => {
-    if (!workflowProgress || !workflowId) return;
+    if (!workflowStatus || !workflowId) return;
 
-    console.log('Workflow progress update:', workflowProgress);
+    console.log('Workflow status update:', workflowStatus);
 
-    // Update step statuses based on workflow progress
+    const currentStage = workflowStatus.stage;
+    const currentPercentage = workflowStatus.percentage;
+
+    // Update step statuses and percentages based on workflow progress
     setSteps(prev =>
       prev.map(step => {
-        const progressStep = workflowProgress.status === 'completed' ? 'finished' : 'not_started';
-        if (progressStep) {
-          return {
-            ...step,
-            status: progressStep,
-          };
-        }
-        return step;
+        const { status, percentage } = calculateStepProgress(step.key, currentStage, currentPercentage);
+        return {
+          ...step,
+          status,
+          percentage,
+        };
       })
     );
 
     // Check if workflow is completed
-    if (workflowProgress.status === 'completed') {
-      console.log('Workflow completed with results:', workflowProgress.result);
+    if (currentStage === 'completed' && currentPercentage === 100) {
+      console.log('Workflow completed');
       setTimeout(() => {
         onComplete();
       }, 1000);
-    } else if (workflowProgress.status === 'failed') {
-      console.error('Workflow failed:', workflowProgress);
-      // Handle error state
+    } else if (currentStage.includes('error')) {
+      console.error('Workflow error:', currentStage);
+      // Handle error state - could show error message or retry option
     }
-  }, [workflowProgress, workflowId, onComplete]);
+  }, [workflowStatus, workflowId, onComplete]);
 
   const getStatusIcon = (status: StepStatus) => {
     switch (status) {
@@ -107,9 +180,9 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
     }
   };
 
-  // Calculate progress percentage
+  // Calculate overall progress percentage
+  const overallProgress = workflowStatus?.percentage || 0;
   const completedSteps = steps.filter(step => step.status === 'finished').length;
-  const progressPercentage = (completedSteps / steps.length) * 100;
 
   return (
     <div className="from-accent/30 via-background to-secondary/20 min-h-screen rounded-xl bg-gradient-to-br px-6 py-24">
@@ -122,6 +195,11 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
           <p className="text-muted-foreground text-xl leading-relaxed">{t('workflow.subtitle')}</p>
           {workflowId && (
             <p className="text-muted-foreground mt-2 text-sm">{t('workflow.workflow_id')} {workflowId}</p>
+          )}
+          {workflowStatus && (
+            <p className="text-muted-foreground mt-1 text-sm">
+              Current Stage: {workflowStatus.stage} ({workflowStatus.percentage}%)
+            </p>
           )}
         </div>
 
@@ -136,12 +214,12 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
           <div className="bg-accent/20 h-2 w-full rounded-full">
             <div
               className="bg-primary h-2 rounded-full transition-all duration-1000 ease-out"
-              style={{ width: `${progressPercentage}%` }}
+              style={{ width: `${overallProgress}%` }}
             />
           </div>
           <div className="mt-2 text-center">
             <span className="text-primary text-sm font-medium">
-              {t('workflow.progress.steps_completed', { completed: completedSteps, total: steps.length })}
+              {overallProgress}% Complete ({completedSteps}/{steps.length} steps)
             </span>
           </div>
         </div>
@@ -179,13 +257,33 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
 
                 {/* Step Content */}
                 <div className="flex-1">
-                  <div className="mb-2 flex items-center space-x-3 space-x-reverse">
-                    <h3 className="text-foreground text-xl font-bold">{step.title}</h3>
-                    {getStatusIcon(step.status)}
+                  <div className="mb-2 flex items-center justify-between">
+                    <div className="flex items-center space-x-3 space-x-reverse">
+                      <h3 className="text-foreground text-xl font-bold">{step.title}</h3>
+                      {getStatusIcon(step.status)}
+                    </div>
+                    {step.status === 'pending' && (
+                      <span className="text-primary text-sm font-medium">
+                        {Math.round(step.percentage || 0)}%
+                      </span>
+                    )}
                   </div>
-                  <p className="text-muted-foreground">{step.description}</p>
+                  <p className="text-muted-foreground mb-3">{step.description}</p>
+                  
+                  {/* Step Progress Bar */}
                   {step.status === 'pending' && (
-                    <div className="mt-3 flex items-center space-x-2 space-x-reverse">
+                    <div className="mb-3">
+                      <div className="bg-accent/20 h-1.5 w-full rounded-full">
+                        <div
+                          className="bg-primary h-1.5 rounded-full transition-all duration-500 ease-out"
+                          style={{ width: `${step.percentage || 0}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  {step.status === 'pending' && (
+                    <div className="flex items-center space-x-2 space-x-reverse">
                       <div className="flex space-x-1 space-x-reverse">
                         <div
                           className="bg-primary h-2 w-2 animate-bounce rounded-full"
@@ -212,7 +310,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
         </div>
 
         {/* Error State */}
-        {workflowProgress?.status === 'failed' && (
+        {workflowStatus?.stage.includes('error') && (
           <div className="mt-8 rounded-2xl border-2 border-red-500 bg-red-50 p-6">
             <div className="flex items-center space-x-3">
               <div className="rounded-full bg-red-100 p-2">
@@ -220,7 +318,7 @@ const WorkflowSteps = ({ workflowId, onComplete }: WorkflowStepsProps) => {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-red-800">{t('workflow.error.title')}</h3>
-                <p className="text-red-700">{workflowProgress.status}</p>
+                <p className="text-red-700">Stage: {workflowStatus.stage}</p>
               </div>
             </div>
           </div>

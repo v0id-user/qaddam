@@ -3,6 +3,7 @@ import { authSchemas } from "./schemas/auth";
 import { surveySchemas } from "./schemas/surveys";
 import { jobSchemas } from "./schemas/jobs";
 import { uploadSchemas } from "./schemas/uploads";
+import { workflowStageSchemas } from "./schemas/workflowStage";
 
 export default defineSchema({
 	// Authentication tables
@@ -16,4 +17,7 @@ export default defineSchema({
 
 	// Upload-related tables
 	...uploadSchemas,
+
+	// Workflow-related tables
+	...workflowStageSchemas,
 });

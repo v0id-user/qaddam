@@ -9,4 +9,5 @@ export interface Step {
   description: string;
   icon: React.ReactNode;
   status: StepStatus;
+  percentage?: number; // Individual step progress percentage (0-100)
 }

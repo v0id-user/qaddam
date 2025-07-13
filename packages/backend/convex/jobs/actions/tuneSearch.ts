@@ -1,6 +1,7 @@
 "use node";
 
 import { internalAction } from "@/_generated/server";
+import { internal } from "@/_generated/api";
 import { v } from "convex/values";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
@@ -19,6 +20,8 @@ export const aiTuneJobSearch = internalAction({
 			years_of_experience: v.number(),
 			preferred_locations: v.array(v.string()),
 		}), // CV profile object from step 1
+		userId: v.id("users"),
+		workflowTrackingId: v.string(),
 	},
 	handler: async (
 		ctx,
@@ -38,6 +41,22 @@ export const aiTuneJobSearch = internalAction({
 				`${args.cvProfile.years_of_experience}y exp,`,
 				`level: ${args.cvProfile.experience_level}`
 			);
+
+			// Update workflow status to indicate keyword extraction started
+			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+				workflowId: args.workflowTrackingId,
+				stage: "extracting_keywords",
+				percentage: 22,
+				userId: args.userId,
+			});
+
+			// Update workflow status to indicate AI processing started
+			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+				workflowId: args.workflowTrackingId,
+				stage: "extracting_keywords",
+				percentage: 30,
+				userId: args.userId,
+			});
 
 			const response = await generateObject({
 				model: openai.chat("gpt-4o-mini", {
@@ -157,6 +176,14 @@ Make sure each array has at least one relevant keyword.
 				search: result.search_terms.slice(0, 3).join(", ") + "...",
 			});
 
+			// Update workflow status to indicate keyword extraction completed
+			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+				workflowId: args.workflowTrackingId,
+				stage: "keywords_extracted",
+				percentage: 40,
+				userId: args.userId,
+			});
+
 			// Validate that all arrays are non-empty
 			if (
 				result.primary_keywords.length === 0 ||
@@ -202,6 +229,14 @@ Make sure each array has at least one relevant keyword.
 			return result;
 		} catch (error) {
 			console.error("Error in keyword extraction:", error);
+
+			// Update workflow status to indicate error
+			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+				workflowId: args.workflowTrackingId,
+				stage: "keyword_extraction_error",
+				percentage: 40,
+				userId: args.userId,
+			});
 
 			// Provide fallback based on CV profile data
 			const fallbackResult = {
