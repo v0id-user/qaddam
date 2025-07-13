@@ -88,7 +88,7 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
       requirements: job.requirements || [],
       aiMatchReasons: job.aiMatchReasons || [],
       aiConcerns: job.aiConcerns || [],
-      aiRecommendation: job.aiRecommendation as JobResult['aiRecommendation'] || 'consider',
+      aiRecommendation: (job.aiRecommendation as JobResult['aiRecommendation']) || 'consider',
     })) || [];
 
   return (

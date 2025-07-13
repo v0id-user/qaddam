@@ -156,10 +156,10 @@ export default function DashboardPage() {
       console.log('Starting job search workflow with CV:', uploadedCVId);
       toast.success(t('job_results.messages.workflow_starting'));
 
-      const result = (await startWorkflow({
+      const result = await startWorkflow({
         cv_storage_id: uploadedCVId,
         userId: me._id,
-      }));
+      });
 
       setWorkflowId(result.workflowId);
       setWorkflowTrackingId(result.workflowTrackingId);
@@ -188,7 +188,13 @@ export default function DashboardPage() {
 
   // Render based on current stage
   if (currentStage === 'workflow') {
-    return <WorkflowSteps workflowId={workflowId!} workflowTrackingId={workflowTrackingId!} onComplete={handleWorkflowComplete} />;
+    return (
+      <WorkflowSteps
+        workflowId={workflowId!}
+        workflowTrackingId={workflowTrackingId!}
+        onComplete={handleWorkflowComplete}
+      />
+    );
   }
 
   if (currentStage === 'results') {

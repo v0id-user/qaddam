@@ -18,14 +18,25 @@ export const getExperienceLevelKey = (level: string): string => {
 
 // Experience match levels
 export const getExperienceMatchKey = (match: string): string => {
-  const validMatches = ['excellent_match', 'good_match', 'partial_match', 'mismatch', 'not_specified'];
+  const validMatches = [
+    'excellent_match',
+    'good_match',
+    'partial_match',
+    'mismatch',
+    'not_specified',
+  ];
   const experienceMatch = validMatches.includes(match) ? match : 'not_specified';
   return `job_results.experience_match.${experienceMatch}`;
 };
 
 // Location match levels
 export const getLocationMatchKey = (match: string): string => {
-  const validMatches = ['location_match', 'location_mismatch', 'no_location_provided', 'not_specified'];
+  const validMatches = [
+    'location_match',
+    'location_mismatch',
+    'no_location_provided',
+    'not_specified',
+  ];
   const locationMatch = validMatches.includes(match) ? match : 'not_specified';
   return `job_results.location_match.${locationMatch}`;
 };
@@ -33,7 +44,9 @@ export const getLocationMatchKey = (match: string): string => {
 // AI recommendations
 export const getAIRecommendationKey = (recommendation: string): string => {
   const validRecommendations = ['highly_recommended', 'recommended', 'consider', 'not_recommended'];
-  const aiRecommendation = validRecommendations.includes(recommendation) ? recommendation : 'consider';
+  const aiRecommendation = validRecommendations.includes(recommendation)
+    ? recommendation
+    : 'consider';
   return `job_results.ai_recommendations.${aiRecommendation}`;
 };
 
@@ -80,4 +93,4 @@ export const getMatchScoreColor = (score: number): string => {
   if (score >= 75) return 'text-blue-600 bg-blue-100';
   if (score >= 60) return 'text-yellow-600 bg-yellow-100';
   return 'text-red-600 bg-red-100';
-}; 
+};

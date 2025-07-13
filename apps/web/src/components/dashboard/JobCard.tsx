@@ -7,11 +7,7 @@ import { useState } from 'react';
 import type { JobResult } from '@qaddam/backend/convex/types/jobs';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import { useQuery } from 'convex/react';
-import { 
-  getJobTypeKey, 
-  getJobTypeColor, 
-  getMatchScoreColor 
-} from '@/lib/enum-translations';
+import { getJobTypeKey, getJobTypeColor, getMatchScoreColor } from '@/lib/enum-translations';
 
 interface JobCardProps {
   job: JobResult;
@@ -30,13 +26,13 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
     return {
       type: jobType,
       display: t(getJobTypeKey(jobType)),
-      colorClass: getJobTypeColor(jobType)
+      colorClass: getJobTypeColor(jobType),
     };
   };
 
   const formatDate = (timestamp: number | undefined) => {
     if (!timestamp) return t('job_results.date_format.unknown');
-    
+
     const date = new Date(timestamp);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
@@ -66,9 +62,7 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
               <p className="text-foreground text-lg font-medium">
                 {t('job_results.loading.title')}
               </p>
-              <p className="text-muted-foreground text-sm">
-                {t('job_results.loading.subtitle')}
-              </p>
+              <p className="text-muted-foreground text-sm">{t('job_results.loading.subtitle')}</p>
             </div>
           </div>
         </div>
@@ -125,7 +119,9 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
         <div className="flex items-center space-x-2 space-x-reverse">
           <Briefcase className="text-muted-foreground h-4 w-4" />
           <span className="text-foreground text-sm font-medium">
-            {jobListing.salary ? `${jobListing.salary} ${jobListing.currency || ''}` : t('job_results.salary_not_specified')}
+            {jobListing.salary
+              ? `${jobListing.salary} ${jobListing.currency || ''}`
+              : t('job_results.salary_not_specified')}
           </span>
         </div>
       </div>
@@ -172,14 +168,16 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       {/* AI Analysis Preview */}
       {job.aiMatchReasons && job.aiMatchReasons.length > 0 && (
         <div className="mb-5">
-          <div className="text-xs font-medium text-green-700 mb-2">
+          <div className="mb-2 text-xs font-medium text-green-700">
             {t('job_results.card_analysis.why_matches')}
           </div>
-          <div className="text-xs text-green-600 bg-green-50/70 rounded-lg p-3">
+          <div className="rounded-lg bg-green-50/70 p-3 text-xs text-green-600">
             {job.aiMatchReasons[0]}
             {job.aiMatchReasons.length > 1 && (
-              <span className="text-green-500 ml-2">
-                {t('job_results.card_analysis.more_reasons', { count: job.aiMatchReasons.length - 1 })}
+              <span className="ml-2 text-green-500">
+                {t('job_results.card_analysis.more_reasons', {
+                  count: job.aiMatchReasons.length - 1,
+                })}
               </span>
             )}
           </div>
@@ -189,13 +187,13 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       {/* AI Concerns Preview */}
       {job.aiConcerns && job.aiConcerns.length > 0 && (
         <div className="mb-5">
-          <div className="text-xs font-medium text-yellow-700 mb-2">
+          <div className="mb-2 text-xs font-medium text-yellow-700">
             {t('job_results.card_analysis.areas_to_consider')}
           </div>
-          <div className="text-xs text-yellow-600 bg-yellow-50/70 rounded-lg p-3">
+          <div className="rounded-lg bg-yellow-50/70 p-3 text-xs text-yellow-600">
             {job.aiConcerns[0]}
             {job.aiConcerns.length > 1 && (
-              <span className="text-yellow-500 ml-2">
+              <span className="ml-2 text-yellow-500">
                 {t('job_results.card_analysis.more', { count: job.aiConcerns.length - 1 })}
               </span>
             )}
@@ -217,7 +215,10 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
 
       {/* Actions */}
       <div className="flex gap-4">
-        <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 flex-1 h-8 text-xs">
+        <Button
+          size="sm"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 h-8 flex-1 text-xs"
+        >
           {t('job_results.view_details')}
           <ExternalLink className="ml-1 h-3 w-3" />
         </Button>
@@ -226,7 +227,7 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
           disabled={!jobListing.sourceUrl}
           size="sm"
           variant="outline"
-          className="border-primary/20 text-primary hover:bg-primary/5 flex-1 h-8 text-xs"
+          className="border-primary/20 text-primary hover:bg-primary/5 h-8 flex-1 text-xs"
         >
           {t('job_results.apply_now')}
         </Button>

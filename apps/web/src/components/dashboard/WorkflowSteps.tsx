@@ -15,26 +15,26 @@ interface WorkflowStepsProps {
 
 // Map workflow stages to UI steps with their percentage ranges
 const STEP_STAGE_MAPPING = {
-  'aiParseCV': {
+  aiParseCV: {
     stages: ['parsing_cv', 'cv_parsed', 'cv_parsing_error'],
-    percentageRange: { min: 0, max: 20 }
+    percentageRange: { min: 0, max: 20 },
   },
-  'aiTuneJobSearch': {
+  aiTuneJobSearch: {
     stages: ['extracting_keywords', 'keywords_extracted', 'keyword_extraction_error'],
-    percentageRange: { min: 20, max: 40 }
+    percentageRange: { min: 20, max: 40 },
   },
-  'aiSearchJobs': {
+  aiSearchJobs: {
     stages: ['searching_jobs', 'processing_jobs', 'jobs_processed'],
-    percentageRange: { min: 40, max: 60 }
+    percentageRange: { min: 40, max: 60 },
   },
-  'aiCombineJobResults': {
+  aiCombineJobResults: {
     stages: ['ranking_jobs', 'ai_analysis', 'extracting_data', 'jobs_ranked', 'no_jobs_found'],
-    percentageRange: { min: 60, max: 80 }
+    percentageRange: { min: 60, max: 80 },
   },
-  'aiSaveResults': {
+  aiSaveResults: {
     stages: ['saving_results', 'saving_job_results', 'completed', 'save_error'],
-    percentageRange: { min: 80, max: 100 }
-  }
+    percentageRange: { min: 80, max: 100 },
+  },
 };
 
 const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowStepsProps) => {
@@ -83,10 +83,16 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
   ]);
 
   // Get workflow progress from the new workflow status system
-  const workflowStatus = useQuery(api.workflow_status.getWorkflowStatus, { workflowTrackingId: workflowTrackingId });
+  const workflowStatus = useQuery(api.workflow_status.getWorkflowStatus, {
+    workflowTrackingId: workflowTrackingId,
+  });
 
   // Calculate step status and percentage based on current workflow stage
-  const calculateStepProgress = (stepKey: string, currentStage: string, currentPercentage: number) => {
+  const calculateStepProgress = (
+    stepKey: string,
+    currentStage: string,
+    currentPercentage: number
+  ) => {
     const stepMapping = STEP_STAGE_MAPPING[stepKey as keyof typeof STEP_STAGE_MAPPING];
     if (!stepMapping) return { status: 'not_started' as StepStatus, percentage: 0 };
 
@@ -134,7 +140,11 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
     // Update step statuses and percentages based on workflow progress
     setSteps(prev =>
       prev.map(step => {
-        const { status, percentage } = calculateStepProgress(step.key, currentStage, currentPercentage);
+        const { status, percentage } = calculateStepProgress(
+          step.key,
+          currentStage,
+          currentPercentage
+        );
         return {
           ...step,
           status,
@@ -195,7 +205,9 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
           </h1>
           <p className="text-muted-foreground text-lg leading-relaxed">{t('workflow.subtitle')}</p>
           {workflowId && (
-            <p className="text-muted-foreground mt-3 text-sm opacity-70">{t('workflow.workflow_id')} {workflowId}</p>
+            <p className="text-muted-foreground mt-3 text-sm opacity-70">
+              {t('workflow.workflow_id')} {workflowId}
+            </p>
           )}
           {workflowStatus && (
             <p className="text-muted-foreground mt-1 text-sm opacity-70">
@@ -210,7 +222,9 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
             <span className="text-muted-foreground text-sm opacity-70">
               {t('workflow.status.not_started')}
             </span>
-            <span className="text-muted-foreground text-sm opacity-70">{t('workflow.status.finished')}</span>
+            <span className="text-muted-foreground text-sm opacity-70">
+              {t('workflow.status.finished')}
+            </span>
           </div>
           <div className="bg-accent/10 h-1.5 w-full rounded-full">
             <div
@@ -270,7 +284,7 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
                     )}
                   </div>
                   <p className="text-muted-foreground mb-3 text-sm">{step.description}</p>
-                  
+
                   {/* Step Progress Bar */}
                   {step.status === 'pending' && (
                     <div className="mb-4">
@@ -282,7 +296,7 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
                       </div>
                     </div>
                   )}
-                  
+
                   {step.status === 'pending' && (
                     <div className="flex items-center space-x-3 space-x-reverse">
                       <div className="flex items-center space-x-1.5">
@@ -319,7 +333,7 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-red-800">{t('workflow.error.title')}</h3>
-                <p className="text-red-700 text-sm">Stage: {workflowStatus.stage}</p>
+                <p className="text-sm text-red-700">Stage: {workflowStatus.stage}</p>
               </div>
             </div>
           </div>
