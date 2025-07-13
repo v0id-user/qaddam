@@ -258,31 +258,29 @@ export const aiSearchJobs = internalAction({
 		});
 
 		// Batch AI requests in chunks to avoid overwhelming the API
-		const BATCH_SIZE = 5; // Reduced from 10 to 5 jobs per batch for better AI analysis
+		const BATCH_SIZE = 12; // Increased from 5 to 12 jobs per batch for maximum efficiency
 		const chunks = [];
 		for (let i = 0; i < jobsToProcess.length; i += BATCH_SIZE) {
 			chunks.push(jobsToProcess.slice(i, i + BATCH_SIZE));
 		}
 
-		console.log(`Processing ${jobsToProcess.length} jobs in ${chunks.length} batches of ${BATCH_SIZE} (using batch AI analysis)`);
+		console.log(`Processing ${jobsToProcess.length} jobs in ${chunks.length} batches of ${BATCH_SIZE} (using optimized batch AI analysis)`);
 
 		// Process each chunk with batch AI analysis
 		for (const [chunkIndex, chunk] of chunks.entries()) {
 			console.log(`Processing batch ${chunkIndex + 1}/${chunks.length} (${chunk.length} jobs)...`);
 
-			// Prepare batch data for AI analysis
+			// Prepare optimized batch data for AI analysis
 			const batchJobData = chunk.map(({ job, index, matchedSkills, missingSkills }) => ({
-				jobId: job._id,
-				jobIndex: index,
-				title: job.name,
-				description: job.description.slice(0, 1000), // Limit description length for efficiency
-				source: job.sourceName || "Unknown",
-				location: job.location || "Not specified",
-				matchedSkills,
-				missingSkills
+				id: job._id,
+				title: job.name.slice(0, 60), // Truncate title for efficiency
+				desc: job.description.slice(0, 300), // Reduced from 1000 to 300 chars
+				location: job.location || "Remote",
+				matched: matchedSkills.slice(0, 5).join(","), // Limit to top 5 skills
+				missing: missingSkills.slice(0, 3).join(",") // Limit to top 3 missing skills
 			}));
 
-			// BATCH AI ANALYSIS - Multiple jobs in single AI call
+			// OPTIMIZED BATCH AI ANALYSIS - 12 jobs in single AI call
 			const batchAnalysis = await generateObject({
 				model: openai.chat("gpt-4o-mini", {
 					structuredOutputs: true,
@@ -291,15 +289,15 @@ export const aiSearchJobs = internalAction({
 				messages: [
 					{
 						role: "system",
-						content: `Analyze job listings for candidate fit. Extract: experience match, location compatibility, benefits, requirements, salary/company/job type. Be conservative, only extract explicit information. Score consistently across all jobs.`,
+						content: `Analyze ${chunk.length} jobs for candidate fit. Extract: experience match (score 0-1), location compatibility (score 0-1), benefits, requirements, salary/company/job type. Be concise and consistent.`,
 					},
 					{
 						role: "user",
 						content: `
-CANDIDATE: ${args.cvProfile.experience_level} (${args.cvProfile.years_of_experience}y) | Skills: ${args.cvProfile.skills.slice(0, 10).join(", ")} | Locations: ${args.cvProfile.preferred_locations.join(", ")} | Survey Work Type: ${surveyResults[0]?.workType || "Not specified"}
+CANDIDATE: ${args.cvProfile.experience_level} (${args.cvProfile.years_of_experience}y) | Skills: ${args.cvProfile.skills.slice(0, 8).join(",")} | Locations: ${args.cvProfile.preferred_locations.join(",")}
 
 JOBS:
-${batchJobData.map((job, idx) => `${idx + 1}. ${job.title} | ${job.location} | ${job.description.slice(0, 500)}... | Matched: ${job.matchedSkills.join(", ")} | Missing: ${job.missingSkills.join(", ")}`).join("\n")}
+${batchJobData.map((job, idx) => `${idx + 1}. ${job.title} @${job.location} | ${job.desc.slice(0, 200)}... | ✓${job.matched} | ✗${job.missing}`).join("\n")}
 
 Return analysis for each job in order.
 						`,
