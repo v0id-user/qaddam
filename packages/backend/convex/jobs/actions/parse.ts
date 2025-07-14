@@ -9,8 +9,8 @@ import { generateObject } from "ai";
 export const aiParseCV = internalAction({
 	args: {
 		cv_storage_id: v.id("_storage"),
-		userId: v.optional(v.id("users")),
-		workflowTrackingId: v.optional(v.string()),
+		userId: v.id("users"),
+		workflowTrackingId: v.string(),
 	},
 	handler: async (ctx, args): Promise<any> => {
 		try {
@@ -24,30 +24,26 @@ export const aiParseCV = internalAction({
 			console.log(
 				"Starting CV parsing:",
 				`storage ID: ${cv_storage_id.slice(0, 8)}...`,
-				`user: ${args.userId ? args.userId.slice(0, 8) + "..." : "anon"}`,
+				`user: ${args.userId.slice(0, 8) + "..."}`,
 			);
 
 			// Update workflow status to indicate CV parsing started
-			if (args.workflowTrackingId && args.userId) {
-				await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
-					workflowId: args.workflowTrackingId,
-					stage: "parsing_cv",
-					percentage: 5,
-					userId: args.userId,
-				});
-			}
+			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+				workflowId: args.workflowTrackingId,
+				stage: "parsing_cv",
+				percentage: 5,
+				userId: args.userId,
+			});
 
 			console.log("Calling AI model for CV analysis...");
 
 			// Update workflow status to indicate AI processing started
-			if (args.workflowTrackingId && args.userId) {
-				await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
-					workflowId: args.workflowTrackingId,
-					stage: "parsing_cv",
-					percentage: 15,
-					userId: args.userId,
-				});
-			}
+			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+				workflowId: args.workflowTrackingId,
+				stage: "parsing_cv",
+				percentage: 15,
+				userId: args.userId,
+			});
 
 			const response = await generateObject({
 				model: openai.chat("gpt-4o-mini", {

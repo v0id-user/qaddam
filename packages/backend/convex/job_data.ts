@@ -83,8 +83,8 @@ export const getUserSurvey = query({
 		}
 
 		return survey;
-	}
-})
+	},
+});
 
 // Get enhanced job results with all analysis data
 export const getJobResultsWithAnalysis = query({

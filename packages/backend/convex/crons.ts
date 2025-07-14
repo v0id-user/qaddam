@@ -9,5 +9,4 @@ crons.interval(
 	internal.listings.action.addNewJobsListingAction,
 );
 
-
 export default crons;
