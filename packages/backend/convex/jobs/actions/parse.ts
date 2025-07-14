@@ -129,14 +129,12 @@ export const aiParseCV = internalAction({
 			});
 
 			// Update workflow status to indicate CV parsing completed
-			if (args.workflowTrackingId && args.userId) {
-				await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
-					workflowId: args.workflowTrackingId,
-					stage: "cv_parsed",
-					percentage: 20,
-					userId: args.userId,
-				});
-			}
+			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+				workflowId: args.workflowTrackingId,
+				stage: "cv_parsed",
+				percentage: 20,
+				userId: args.userId,
+			});
 
 			// Validate that all required arrays are non-empty
 			if (
@@ -179,14 +177,12 @@ export const aiParseCV = internalAction({
 			console.error("Error in CV parsing:", error);
 
 			// Update workflow status to indicate error
-			if (args.workflowTrackingId && args.userId) {
-				await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
-					workflowId: args.workflowTrackingId,
-					stage: "cv_parsing_error",
-					percentage: 20,
-					userId: args.userId,
-				});
-			}
+			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+				workflowId: args.workflowTrackingId,
+				stage: "cv_parsing_error",
+				percentage: 20,
+				userId: args.userId,
+			});
 
 			// Provide fallback profile data
 			const fallbackProfile = {
