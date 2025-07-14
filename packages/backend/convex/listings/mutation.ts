@@ -42,7 +42,6 @@ export const addNewJobsListing = internalMutation({
 				if (!rawJob.id || !rawJob.title || !rawJob.link) {
 					return null;
 				}
-
 				// Salary parsing (best-effort)
 				let salary: number | undefined;
 				let currency: string | undefined;
@@ -53,13 +52,33 @@ export const addNewJobsListing = internalMutation({
 				) {
 					const salaryText = rawJob.salaryInfo[0];
 					if (salaryText && typeof salaryText === "string") {
-						const salaryMatch = salaryText.match(/[\d,]+/);
-						if (salaryMatch) {
-							salary = parseInt(salaryMatch[0].replace(/,/g, ""));
+						// Extract salary range if present (e.g. "100,000 - 150,000")
+						const salaryRangeMatch = salaryText.match(/([\d,]+)\s*-\s*([\d,]+)/);
+						if (salaryRangeMatch) {
+							const minSalary = parseInt(salaryRangeMatch[1].replace(/,/g, ""));
+							const maxSalary = parseInt(salaryRangeMatch[2].replace(/,/g, ""));
+							// Use average of range
+							salary = Math.floor((minSalary + maxSalary) / 2);
+						} else {
+							// Fall back to single number
+							const singleSalaryMatch = salaryText.match(/[\d,]+/);
+							if (singleSalaryMatch) {
+								salary = parseInt(singleSalaryMatch[0].replace(/,/g, ""));
+							}
 						}
-						const currencyMatch = salaryText.match(/\$|USD|EUR|£|GBP/i);
+
+						// Extract currency symbol/code with more comprehensive matching
+						const currencyMatch = salaryText.match(
+							/(\$|USD|EUR|£|GBP|AED|SAR|€)/i
+						);
 						if (currencyMatch) {
-							currency = currencyMatch[0];
+							// Normalize currency codes
+							const currencyMap: Record<string, string> = {
+								"$": "USD",
+								"£": "GBP", 
+								"€": "EUR"
+							};
+							currency = currencyMap[currencyMatch[0]] || currencyMatch[0];
 						}
 					}
 				}
@@ -111,7 +130,7 @@ export const addNewJobsListing = internalMutation({
 								location: jobData.location,
 								salary: jobData.salary,
 								currency: jobData.currency,
-								source: "LinkedIn",
+								source: "LinkedIn", // TODO: This is hardcoded for now, change later
 								sourceId: jobData.sourceId,
 								datePosted: jobData.datePosted,
 								sourceUrl: jobData.url,
@@ -141,7 +160,7 @@ export const addNewJobsListing = internalMutation({
 							location: jobData.location,
 							salary: jobData.salary,
 							currency: jobData.currency,
-							source: "LinkedIn",
+							source: "LinkedIn", // TODO: This is hardcoded for now, change later
 							sourceId: jobData.sourceId,
 							datePosted: jobData.datePosted,
 							sourceUrl: jobData.url,
