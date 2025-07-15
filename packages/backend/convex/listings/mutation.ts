@@ -53,7 +53,9 @@ export const addNewJobsListing = internalMutation({
 					const salaryText = rawJob.salaryInfo[0];
 					if (salaryText && typeof salaryText === "string") {
 						// Extract salary range if present (e.g. "100,000 - 150,000")
-						const salaryRangeMatch = salaryText.match(/([\d,]+)\s*-\s*([\d,]+)/);
+						const salaryRangeMatch = salaryText.match(
+							/([\d,]+)\s*-\s*([\d,]+)/,
+						);
 						if (salaryRangeMatch) {
 							const minSalary = parseInt(salaryRangeMatch[1].replace(/,/g, ""));
 							const maxSalary = parseInt(salaryRangeMatch[2].replace(/,/g, ""));
@@ -69,14 +71,14 @@ export const addNewJobsListing = internalMutation({
 
 						// Extract currency symbol/code with more comprehensive matching
 						const currencyMatch = salaryText.match(
-							/(\$|USD|EUR|£|GBP|AED|SAR|€)/i
+							/(\$|USD|EUR|£|GBP|AED|SAR|€)/i,
 						);
 						if (currencyMatch) {
 							// Normalize currency codes
 							const currencyMap: Record<string, string> = {
-								"$": "USD",
-								"£": "GBP", 
-								"€": "EUR"
+								$: "USD",
+								"£": "GBP",
+								"€": "EUR",
 							};
 							currency = currencyMap[currencyMatch[0]] || currencyMatch[0];
 						}

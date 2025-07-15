@@ -123,6 +123,8 @@ export const startJobSearchWorkflow = action({
 			},
 		);
 
+		// TODO: Schedule a job to search with specific parameters from users survey
+
 		console.log("Workflow started with ID:", workflowId);
 		return { workflowTrackingId, workflowId };
 	},
