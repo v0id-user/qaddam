@@ -1,15 +1,11 @@
-'use client';
-import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
+import { isAuthenticated } from '@qaddam/backend/convex/auth';
 
-const Hero = () => {
-  const t = useTranslations('landing');
-  const router = useRouter();
-  const scrollToFeatures = () => {
-    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
-  };
+const Hero = async () => {
+  const t = await getTranslations('landing');
 
   return (
     <section className="relative flex min-h-screen flex-col items-center justify-center bg-white px-4">
@@ -28,24 +24,29 @@ const Hero = () => {
 
         {/* CTA Button */}
         <div className="flex flex-col items-center space-y-6">
-          <Button
-            onClick={() => {
-              router.push('/sign');
-            }}
-            size="lg"
-            className="bg-primary text-primary-foreground rounded-xl border-none px-8 py-4 text-lg font-semibold shadow-lg transition-all duration-200 hover:shadow-xl"
-          >
-            {t('hero.cta')}
-          </Button>
-
+          <form action={async () => {
+            'use server';
+            if (isAuthenticated) {
+              redirect('/dashboard');
+            } else {
+              redirect('/sign');
+            }
+          }}>
+            <Button
+              size="lg"
+              className="bg-primary text-primary-foreground rounded-xl border-none px-8 py-4 text-lg font-semibold shadow-lg transition-all duration-200 hover:shadow-xl"
+            >
+              {isAuthenticated ? t('hero.cta_authenticated') : t('hero.cta_unauthenticated')}
+            </Button>
+          </form>
           {/* Scroll CTA */}
-          <button
-            onClick={scrollToFeatures}
-            className="group text-muted-foreground flex items-center space-x-2 space-x-reverse transition-colors duration-200"
+          <a
+            href="#features"
+            className="group text-muted-foreground flex items-center space-x-2 space-x-reverse transition-colors duration-200 scroll-smooth"
           >
             <span>{t('hero.scroll_cta')}</span>
             <ChevronDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-y-1" />
-          </button>
+          </a>
         </div>
       </div>
 

@@ -1,3 +1,5 @@
+'use client';
+
 import { useTranslations } from 'next-intl';
 import { Target, TrendingUp, FileText, Search, Globe, Bookmark } from 'lucide-react';
 import { BentoCard, BentoGrid } from '@/components/magicui/bento-grid';

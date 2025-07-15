@@ -8,7 +8,8 @@
       "title": "Submit your resume.",
       "subtitle": "Get the best opportunities.",
       "description": "Qaddam.cv uses artificial intelligence to match your resume with the best job opportunities and automatically improve your resume.",
-      "cta": "Get Started",
+      "cta_unauthenticated": "Get Started",
+      "cta_authenticated": "Go to dashboard",
       "scroll_cta": "How does it work?"
     },
     "features": {

@@ -1,7 +1,7 @@
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 
-const Screenshot = () => {
-  const t = useTranslations('landing');
+const Screenshot = async () => {
+  const t = await getTranslations('landing');
 
   return (
     <section className="bg-white px-4 py-20">
