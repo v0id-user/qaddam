@@ -21,6 +21,7 @@ export default function ClientDashBoard() {
       setShowSurvey(false);
     }
 
+    // Identify user for posthog
     if (me) {
       posthog.identify(me.email);
     }
