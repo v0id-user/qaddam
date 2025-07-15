@@ -6,6 +6,7 @@ import { JobSearchSurvey } from '@/components/dashboard/JobSearchSurvey';
 import { useQuery } from 'convex/react';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import posthog from 'posthog-js';
+
 export default function ClientDashBoard() {
   const me = useQuery(api.users.getMe);
   const hasSurveyCompleted = useQuery(api.surveys.hasSurveyCompleted);

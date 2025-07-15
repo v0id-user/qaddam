@@ -13,7 +13,13 @@ export function trackEvent<K extends AnalyticsEvent>(
   payload: EventPayloads[K],
   distinctId: string = 'general' // Optionally allow passing a real user ID
 ) {
-  posthog.capture({
+  /*
+  * We are in a serverless environment and it's adviced from PostHog to:
+  * "we recommend using the captureImmediate method instead of capture to ensure the event is captured before the function shuts down."
+  * 
+  * To Immediatily send events to posthog with no queuing on our side
+  */
+  posthog.captureImmediate({
     event,
     distinctId,
     properties: payload,

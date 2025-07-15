@@ -1,4 +1,5 @@
 'use client';
+
 import {
   SidebarFooter,
   SidebarMenu,
@@ -25,6 +26,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { useAuthActions } from '@convex-dev/auth/react';
 import { useTranslations, useLocale } from 'next-intl';
+import posthog from 'posthog-js';
 
 export interface UserMenuItemConfig {
   icon: LucideIcon;
@@ -83,6 +85,7 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
           icon: LogOutIcon,
           translationKey: 'sign_out',
           onClick: async () => {
+            posthog.reset(true)
             console.log('Handle logout');
             await signOut();
             window.location.href = '/sign';
