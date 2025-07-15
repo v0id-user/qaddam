@@ -4,9 +4,9 @@ import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { isAuthenticated } from '@qaddam/backend/convex/auth';
 import { trackEvent } from '@/analytics/server';
-import { fetchQuery } from "convex/nextjs";
+import { fetchQuery } from 'convex/nextjs';
 import { api } from '@qaddam/backend/convex/_generated/api';
-import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
+import { convexAuthNextjsToken } from '@convex-dev/auth/nextjs/server';
 
 const Hero = async () => {
   const t = await getTranslations('landing');

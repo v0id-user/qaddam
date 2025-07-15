@@ -5,6 +5,19 @@ import { polar } from "./polar";
 const http = httpRouter();
 
 auth.addHttpRoutes(http);
-polar.registerRoutes(http as any);
+polar.registerRoutes(http, {
+	onSubscriptionUpdated: async (ctx, event) => {
+		// Handle subscription updates, like cancellations.
+		// Note that a cancelled subscription will not be deleted from the database,
+		// so this information remains available without a hook, eg., via
+		// `getCurrentSubscription()`.
+		if (event.data.customerCancellationReason) {
+			console.log("Customer cancelled:", event.data.customerCancellationReason);
+		}
+	},
+	onSubscriptionCreated: async (ctx, event) => {
+		// Handle new subscriptions
+	},
+});
 
 export default http;

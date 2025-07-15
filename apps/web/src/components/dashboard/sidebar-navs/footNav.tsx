@@ -85,7 +85,7 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
           icon: LogOutIcon,
           translationKey: 'sign_out',
           onClick: async () => {
-            posthog.reset(true)
+            posthog.reset(true);
             console.log('Handle logout');
             await signOut();
             window.location.href = '/sign';
