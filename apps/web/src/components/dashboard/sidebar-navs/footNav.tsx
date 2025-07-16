@@ -57,8 +57,9 @@ const ProBadge = () => (
     className="ml-1 inline-flex items-center rounded bg-gradient-to-r from-blue-500 to-green-400 px-2 py-0.5 text-xs font-semibold text-white shadow"
     style={{ verticalAlign: 'middle' }}
     title="Pro user"
+    aria-label="Pro user"
   >
-    PRO
+    ★
   </span>
 );
 
