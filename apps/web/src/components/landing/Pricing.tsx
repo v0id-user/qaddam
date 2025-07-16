@@ -1,6 +1,4 @@
-'use client';
-
-import { useTranslations, useLocale } from 'next-intl';
+import { getTranslations, getLocale } from 'next-intl/server';
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
 
@@ -22,9 +20,9 @@ const SaudiRiyal = ({ className = '', size = 0.8 }) => (
   </svg>
 );
 
-const Pricing = () => {
-  const t = useTranslations('landing');
-  const locale = useLocale();
+const Pricing = async () => {
+  const t = await getTranslations('landing');
+  const locale = await getLocale();
 
   const renderCurrencySymbol = (currency: string) => {
     if (currency === 'USD') {
@@ -132,12 +130,11 @@ const Pricing = () => {
                   </li>
                 ))}
               </ul>
-
-              <Button
-                className={`w-full rounded-xl py-3 text-lg font-semibold transition-all duration-200 ${plan.buttonClasses}`}
-              >
-                {plan.buttonText}
-              </Button>
+                <Button
+                  className={`w-full rounded-xl py-3 text-lg font-semibold transition-all duration-200 ${plan.buttonClasses}`}
+                >
+                  {plan.buttonText}
+                </Button>
             </div>
           ))}
         </div>
