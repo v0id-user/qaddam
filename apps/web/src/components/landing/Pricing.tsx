@@ -138,13 +138,14 @@ const Pricing = async () => {
                   </li>
                 ))}
               </ul>
-                <PricingCTAButton
-                  href={`/sign?${new URLSearchParams(plan.params).toString()}`}
-                  planType={plan.planType}
-                  className={`w-full rounded-xl py-3 text-lg font-semibold transition-all duration-200 ${plan.buttonClasses}`}
-                >
-                  {plan.buttonText}
-                </PricingCTAButton>
+              <PricingCTAButton
+                href={`/sign?${new URLSearchParams(plan.params).toString()}`}
+                planType={plan.planType}
+                className={`w-full rounded-xl py-3 text-lg font-semibold transition-all duration-200 ${plan.buttonClasses}`}
+                email={me?.email}
+              >
+                {plan.buttonText}
+              </PricingCTAButton>
             </div>
           ))}
         </div>
