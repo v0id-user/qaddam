@@ -1,7 +1,9 @@
 import { getTranslations, getLocale } from 'next-intl/server';
-import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
-import { redirect } from 'next/navigation';
+import { api } from '@qaddam/backend/convex/_generated/api';
+import { fetchQuery } from 'convex/nextjs';
+import { convexAuthNextjsToken } from '@convex-dev/auth/nextjs/server';
+import { PricingCTAButton } from './CTAButton';
 
 const SaudiRiyal = ({ className = '', size = 0.8 }) => (
   <svg
@@ -24,7 +26,8 @@ const SaudiRiyal = ({ className = '', size = 0.8 }) => (
 const Pricing = async () => {
   const t = await getTranslations('landing');
   const locale = await getLocale();
-
+  const token = await convexAuthNextjsToken();
+  const me = await fetchQuery(api.users.getMe, {}, { token });
   const renderCurrencySymbol = (currency: string) => {
     if (currency === 'USD') {
       return <span className="text-foreground text-4xl font-bold">$</span>;
@@ -48,7 +51,8 @@ const Pricing = async () => {
       isPopular: false,
       buttonText: t('pricing.plans.free.button'),
       buttonClasses: 'bg-foreground text-background border-none',
-      action: '/sign?p=f',
+      params: { p: 'f' },
+      planType: 'free',
     },
     {
       name: t('pricing.plans.pro.name'),
@@ -66,7 +70,8 @@ const Pricing = async () => {
       isPopular: true,
       buttonText: t('pricing.plans.pro.button'),
       buttonClasses: 'bg-primary text-primary-foreground border-none',
-      action: '/sign?p=p',
+      params: { p: 'p' },
+      planType: 'pro',
     },
   ];
 
@@ -133,17 +138,13 @@ const Pricing = async () => {
                   </li>
                 ))}
               </ul>
-              <form action={async () => {
-                // TODO: I have a funny feeling this will be expensive AF, but leave it for now :P
-                'use server';
-                redirect(plan.action)
-              }}>
-                <Button
+                <PricingCTAButton
+                  href={`/sign?${new URLSearchParams(plan.params).toString()}`}
+                  planType={plan.planType}
                   className={`w-full rounded-xl py-3 text-lg font-semibold transition-all duration-200 ${plan.buttonClasses}`}
                 >
                   {plan.buttonText}
-                </Button>
-              </form>
+                </PricingCTAButton>
             </div>
           ))}
         </div>
