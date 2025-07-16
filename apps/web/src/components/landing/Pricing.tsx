@@ -51,7 +51,6 @@ const Pricing = async () => {
       isPopular: false,
       buttonText: t('pricing.plans.free.button'),
       buttonClasses: 'bg-foreground text-background border-none',
-      params: { p: 'f' },
       planType: 'free',
     },
     {
@@ -70,7 +69,6 @@ const Pricing = async () => {
       isPopular: true,
       buttonText: t('pricing.plans.pro.button'),
       buttonClasses: 'bg-primary text-primary-foreground border-none',
-      params: { p: 'p' },
       planType: 'pro',
     },
   ];
@@ -139,7 +137,6 @@ const Pricing = async () => {
                 ))}
               </ul>
               <PricingCTAButton
-                href={`/sign?${new URLSearchParams(plan.params).toString()}`}
                 planType={plan.planType}
                 className={`w-full rounded-xl py-3 text-lg font-semibold transition-all duration-200 ${plan.buttonClasses}`}
                 email={me?.email}

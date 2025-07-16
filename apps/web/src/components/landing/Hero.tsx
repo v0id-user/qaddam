@@ -28,7 +28,6 @@ const Hero = async () => {
         {/* CTA Button */}
         <div className="flex flex-col items-center space-y-6">
           <HeroCTAButton
-            href={me ? '/dashboard' : '/sign'}
             size="lg"
             className="bg-primary text-primary-foreground rounded-xl border-none px-8 py-4 text-lg font-semibold shadow-lg transition-all duration-200 hover:shadow-xl"
           >

@@ -158,7 +158,7 @@ export default function DashboardPage() {
 
       const result = await startWorkflow({
         cv_storage_id: uploadedCVId,
-        userId: me._id,
+        userId: me._id!,
       });
 
       setWorkflowId(result.workflowId);

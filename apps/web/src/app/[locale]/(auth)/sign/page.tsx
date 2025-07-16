@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useAuthActions } from '@convex-dev/auth/react';
+import { useQueryState } from 'nuqs';
 
 const GoogleIcon = () => (
   <svg
@@ -143,6 +144,7 @@ const TaglineBubble = ({ text, className = '' }: { text: string; className?: str
 const SignPage = () => {
   const t = useTranslations('auth');
   const { signIn } = useAuthActions();
+  const plan = useQueryState('p');
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4">
@@ -177,7 +179,7 @@ const SignPage = () => {
           <div className="space-y-4">
             <Button
               onClick={() => {
-                signIn('google', { redirectTo: '/dashboard' });
+                signIn('google', { redirectTo: `/dashboard?p=${plan}` });
               }}
               className="w-full rounded-xl border border-gray-300 bg-white py-3 text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 hover:shadow-md"
               size="lg"

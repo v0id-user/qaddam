@@ -11,10 +11,15 @@ export const getMe = query({
 			userId: userId,
 		});
 
+
+		const productKey = subscription?.productKey;
+
+		const isPro = productKey === 'premiumMonthly';
+
 		const user = await ctx.db.get(userId);
 		return {
 			...user,
-			subscription,
+			isPro,
 		};
 	},
 });
