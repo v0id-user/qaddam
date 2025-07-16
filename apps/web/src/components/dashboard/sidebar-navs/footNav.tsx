@@ -46,10 +46,21 @@ interface SideNavFooterProps {
     name: string;
     email: string;
     avatar: string;
+    isPro?: boolean;
   };
   customMenuItems?: UserMenuGroupConfig[];
   showDefaultMenu?: boolean;
 }
+
+const ProBadge = () => (
+  <span
+    className="ml-1 inline-flex items-center rounded bg-gradient-to-r from-blue-500 to-green-400 px-2 py-0.5 text-xs font-semibold text-white shadow"
+    style={{ verticalAlign: 'middle' }}
+    title="Pro user"
+  >
+    PRO
+  </span>
+);
 
 const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNavFooterProps) => {
   const { signOut } = useAuthActions();
@@ -112,7 +123,10 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
           <div
             className={`grid flex-1 ${isRTL ? 'text-right' : 'text-left'} text-sm leading-tight`}
           >
-            <span className="truncate font-medium">{user.name}</span>
+            <span className="truncate font-medium flex items-center">
+              {user.name}
+              {user.isPro && <ProBadge />}
+            </span>
             <span className="text-muted-foreground truncate text-xs">{user.email}</span>
           </div>
           <MoreVerticalIcon className="mr-auto size-4" />
@@ -137,7 +151,10 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
             <div
               className={`grid flex-1 ${isRTL ? 'text-right' : 'text-left'} text-sm leading-tight`}
             >
-              <span className="truncate font-medium">{user.name}</span>
+              <span className="truncate font-medium flex items-center">
+                {user.name}
+                {user.isPro && <ProBadge />}
+              </span>
               <span className="text-muted-foreground truncate text-xs">{user.email}</span>
             </div>
           </div>

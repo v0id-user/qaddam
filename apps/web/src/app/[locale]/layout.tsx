@@ -44,7 +44,6 @@ export default async function RootLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  console.log('locale', locale);
 
   return (
     <ConvexAuthNextjsServerProvider>

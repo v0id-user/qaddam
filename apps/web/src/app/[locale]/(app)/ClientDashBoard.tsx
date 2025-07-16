@@ -45,6 +45,7 @@ export default function ClientDashBoard() {
     userLoaded: !!me,
     hasSurveyCompleted,
     showSurvey,
+    isPro: me.isPro,
   });
 
   return (
@@ -56,6 +57,7 @@ export default function ClientDashBoard() {
           name: me.name ?? '',
           email: me.email ?? '',
           avatar: me.image ?? '',
+          isPro: me.isPro,
         }}
       />
     </>
