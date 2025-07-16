@@ -31,7 +31,7 @@ const Hero = async () => {
         <div className="flex flex-col items-center space-y-6">
           <form
             action={async () => {
-              // YES. I'm not going to make this alone a client side, let the server do it, until I see an issue :P
+              // TODO: YES. I'm not going to make this alone a client side, let the server do it, until I see an issue which is it might be expensive AF :P
               'use server';
               if (isAuthenticated && me) {
                 trackEvent('landing_cta', { source: '/dashboard' }, me.email);

@@ -1,6 +1,7 @@
 import { getTranslations, getLocale } from 'next-intl/server';
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
+import { redirect } from 'next/navigation';
 
 const SaudiRiyal = ({ className = '', size = 0.8 }) => (
   <svg
@@ -47,6 +48,7 @@ const Pricing = async () => {
       isPopular: false,
       buttonText: t('pricing.plans.free.button'),
       buttonClasses: 'bg-foreground text-background border-none',
+      action: '/sign?p=f',
     },
     {
       name: t('pricing.plans.pro.name'),
@@ -64,6 +66,7 @@ const Pricing = async () => {
       isPopular: true,
       buttonText: t('pricing.plans.pro.button'),
       buttonClasses: 'bg-primary text-primary-foreground border-none',
+      action: '/sign?p=p',
     },
   ];
 
@@ -130,11 +133,17 @@ const Pricing = async () => {
                   </li>
                 ))}
               </ul>
+              <form action={async () => {
+                // TODO: I have a funny feeling this will be expensive AF, but leave it for now :P
+                'use server';
+                redirect(plan.action)
+              }}>
                 <Button
                   className={`w-full rounded-xl py-3 text-lg font-semibold transition-all duration-200 ${plan.buttonClasses}`}
                 >
                   {plan.buttonText}
                 </Button>
+              </form>
             </div>
           ))}
         </div>
