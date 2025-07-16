@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function TermsPage({ params }: { params: { locale: string } }) {
+export default async function TermsPage() {
   const t = await getTranslations('terms');
   const isRTL = await getLocale() === 'ar';
 

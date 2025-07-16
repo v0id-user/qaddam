@@ -754,5 +754,45 @@
         "email": "hey@v0id.me"
       }
     }
+  },
+  "refund": {
+    "title": "Refund Policy",
+    "lastUpdated": "Last updated: July 16, 2025",
+    "description": "We do not offer automatic or guaranteed refunds.",
+    "explanation": "This policy exists because our service relies on infrastructure costs that begin as soon as you access or use the platform — including third-party services like AI tools and automation workflows that we pay for on demand.",
+    "sections": {
+      "noUsage": {
+        "title": "No Usage Does Not Equal Free Refund",
+        "content": "Even if you haven't used the service yet, we reserve the right to decline a refund unless there's a technical issue on our side or a legitimate billing mistake."
+      },
+      "exceptions": {
+        "title": "Limited Refund Exceptions",
+        "intro": "We do occasionally issue one-time refunds within 48 hours if:",
+        "conditions": [
+          "You're a new user",
+          "Haven't triggered any workflows",
+          "And reach out to us directly"
+        ]
+      },
+      "processingFees": {
+        "title": "Payment Processing Fees Are Non-Refundable",
+        "content": "If we process a refund manually, the original payment processing fees (charged by Stripe/Polar) are not refunded. This means we absorb that cost, which limits our ability to offer broad refunds."
+      },
+      "chargebacks": {
+        "title": "Chargebacks Policy",
+        "content": "If you open a chargeback without contacting us first, your account may be suspended and we may dispute the charge with our billing partner.",
+        "contactFirst": "Let's talk before it gets there — email us at"
+      },
+      "summary": {
+        "title": "In Summary",
+        "points": [
+          "We don't offer refunds by default.",
+          "We'll review each case manually — but please understand our cost structure before subscribing."
+        ]
+      }
+    },
+    "contact": {
+      "email": "hey@v0id.me"
+    }
   }
 }
