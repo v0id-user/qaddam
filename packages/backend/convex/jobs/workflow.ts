@@ -1,5 +1,5 @@
 import { WorkflowManager } from "@convex-dev/workflow";
-import { components, internal } from "../_generated/api";
+import { api, components, internal } from "../_generated/api";
 import { v } from "convex/values";
 import { action } from "../_generated/server";
 import type { WorkflowId } from "@convex-dev/workflow";
@@ -92,12 +92,12 @@ export const jobSearchWorkflow = workflow.define({
 export const startJobSearchWorkflow = action({
 	args: {
 		cv_storage_id: v.id("_storage"),
-		userId: v.id("users"),
 	},
 	handler: async (
 		ctx,
 		args,
 	): Promise<{ workflowTrackingId: string; workflowId: WorkflowId }> => {
+		const me = await ctx.runQuery(api.users.getMe);
 		console.log("Starting job search workflow with CV:", args.cv_storage_id);
 
 		// const { ok, retryAfter } = await rateLimiter.limit(ctx, "freeTrialSignUp");
@@ -109,7 +109,7 @@ export const startJobSearchWorkflow = action({
 		const workflowTrackingId = await ctx.runMutation(
 			internal.workflow_status.workflowEntryInitial,
 			{
-				userId: args.userId,
+				userId: me?._id!,
 			},
 		);
 
@@ -118,7 +118,7 @@ export const startJobSearchWorkflow = action({
 			internal.jobs.workflow.jobSearchWorkflow,
 			{
 				cv_storage_id: args.cv_storage_id,
-				userId: args.userId,
+				userId: me?._id!,
 				workflowTrackingId,
 			},
 		);

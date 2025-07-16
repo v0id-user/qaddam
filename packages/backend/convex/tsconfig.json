@@ -19,9 +19,6 @@
 		"module": "ESNext",
 		"isolatedModules": true,
 		"noEmit": true,
-		"paths": {
-			"@/*": ["./*"]
-		}
 	},
 	"include": ["./**/*", "../vitest.config.mts"],
 	"exclude": ["./_generated"]

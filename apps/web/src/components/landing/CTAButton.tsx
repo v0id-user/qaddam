@@ -68,7 +68,7 @@ export const PricingCTAButton = ({
             trackEvent('landing_cta', { source: target });
             safePush(router, target);
         } else {
-            const target = `/sign?p=${planType}`;
+            const target = `/sign`;
             trackEvent('landing_cta', { source: target });
             safePush(router, target);
         }

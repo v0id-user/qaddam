@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useAction, useMutation, useQuery } from 'convex/react';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import { api } from '@qaddam/backend/convex/_generated/api';
 import type { Id } from '@qaddam/backend/convex/_generated/dataModel';
 import { toast } from 'react-hot-toast';
 import type { WorkflowId } from '@qaddam/backend/convex/jobs/workflow';
+import { useQueryState } from 'nuqs';
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
@@ -31,6 +32,7 @@ export default function DashboardPage() {
   const getCVDownloadUrl = useMutation(api.upload.getCVDownloadUrl);
   const deleteCV = useMutation(api.upload.deleteCV);
   const me = useQuery(api.users.getMe);
+  const [plan] = useQueryState('p');
 
   // Workflow functions
   const startWorkflow = useAction(api.jobs.workflow.startJobSearchWorkflow);
@@ -43,6 +45,7 @@ export default function DashboardPage() {
     maxSize: 5 * 1024 * 1024, // 5MB
     multiple: false,
     onDrop: async acceptedFiles => {
+      if (!me) return;
       if (acceptedFiles.length > 0) {
         const file = acceptedFiles[0];
         setSelectedFile(file);
@@ -50,6 +53,8 @@ export default function DashboardPage() {
       }
     },
     onDropRejected: fileRejections => {
+      if (!me) return;
+
       setSelectedFile(null);
       const rejection = fileRejections[0];
       if (rejection) {
@@ -158,7 +163,6 @@ export default function DashboardPage() {
 
       const result = await startWorkflow({
         cv_storage_id: uploadedCVId,
-        userId: me._id!,
       });
 
       setWorkflowId(result.workflowId);
