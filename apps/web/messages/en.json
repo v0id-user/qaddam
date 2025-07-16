@@ -706,5 +706,53 @@
         "email": "By email: hey@v0id.me"
       }
     }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: July 16, 2025",
+    "description": "Welcome to Qaddam. By accessing or using our service, you agree to the following Terms of Service.",
+    "agreement": "Please read them carefully. If you do not agree, do not use our service.",
+    "sections": {
+      "service": {
+        "title": "The Service",
+        "content": "Qaddam is a digital platform that helps users find jobs and improve their CVs using AI-powered tools. All purchases and subscriptions are processed securely by our billing partner, Polar.sh."
+      },
+      "subscriptions": {
+        "title": "Subscriptions & Payments",
+        "intro": "All payments are handled through Polar.",
+        "points": [
+          "You may cancel your subscription at any time from your account dashboard.",
+          "You will retain access to your subscription until the end of your current billing period.",
+          "We do not offer refunds once a payment is processed. Please see our Refund Policy for details."
+        ]
+      },
+      "responsibilities": {
+        "title": "User Responsibilities",
+        "intro": "By using our service, you agree:",
+        "points": [
+          "Not to abuse, reverse-engineer, or misuse the platform.",
+          "Not to upload harmful, illegal, or misleading content.",
+          "To use your real information when creating an account."
+        ],
+        "termination": "We reserve the right to suspend or terminate accounts that violate these terms."
+      },
+      "intellectual": {
+        "title": "Intellectual Property",
+        "content": "All content and features of the service (excluding your own uploads or generated data) are the property of Qaddam and may not be copied or redistributed without permission."
+      },
+      "disclaimer": {
+        "title": "Disclaimer",
+        "content": "This service is provided \"as-is.\" We do not guarantee specific results from using Qaddam, and we are not liable for any damages or losses resulting from your use of the platform."
+      },
+      "changes": {
+        "title": "Changes",
+        "content": "We may update these terms from time to time. When we do, we'll update the \"Last updated\" date. Continued use of the service means you accept the new terms."
+      },
+      "contact": {
+        "title": "Contact",
+        "intro": "For questions or support, contact us at:",
+        "email": "hey@v0id.me"
+      }
+    }
   }
 }
