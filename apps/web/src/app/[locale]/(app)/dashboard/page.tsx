@@ -14,8 +14,10 @@ import type { Id } from '@qaddam/backend/convex/_generated/dataModel';
 import { toast } from 'react-hot-toast';
 import type { WorkflowId } from '@qaddam/backend/convex/jobs/workflow';
 import { useQueryState } from 'nuqs';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const t = useTranslations('dashboard');
   const [currentStage, setCurrentStage] = useState<DashboardStage>('upload');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -204,6 +206,12 @@ export default function DashboardPage() {
   if (currentStage === 'results') {
     return <JobResults workflowId={workflowId!} onBackToUpload={handleBackToUpload} />;
   }
+
+  useEffect(() => {
+    if (plan === 'pro') {
+      router.push('/dashboard/upgrade');
+    }
+  }, [plan, router]);
 
   return (
     <div className="min-h-screen px-6 py-16">

@@ -20,13 +20,17 @@ interface PricingCTAButtonProps {
 }
 
 /**
- * Utility to ensure navigation always goes to a clean path (without hash fragments)
- * and replaces the current history entry to avoid "go back" issues with hash links.
+ * Utility to clean the current browser path of any hash fragment and update the history,
+ * then push the new path as intended.
  */
 function safePush(router: ReturnType<typeof useRouter>, path: string) {
-    // Remove any hash or search from the current URL before pushing
-    // This ensures the new route replaces the current one, preventing "go back" to a hash fragment
-    router.replace(path);
+    // Remove hash from the current URL and replace the current history entry
+    if (window.location.hash) {
+        const { pathname, search } = window.location;
+        const cleanUrl = `${pathname}${search}`;
+        window.history.replaceState(null, '', cleanUrl);
+    }
+    router.push(path);
 }
 
 export const HeroCTAButton = ({
@@ -62,16 +66,15 @@ export const PricingCTAButton = ({
 }: PricingCTAButtonProps) => {
     const router = useRouter();
     const handleClick = () => {
+        const isProPlan = planType && planType !== 'free';
+        const basePath = email ? '/dashboard' : '/sign';
+        const target = isProPlan ? `${basePath}?p=${planType}` : basePath;
+
         if (email) {
-            const target = `/dashboard?p=${planType}`;
             posthog.identify(email);
-            trackEvent('landing_cta', { source: target });
-            safePush(router, target);
-        } else {
-            const target = `/sign`;
-            trackEvent('landing_cta', { source: target });
-            safePush(router, target);
         }
+        trackEvent('landing_cta', { source: target });
+        safePush(router, target);
     };
 
     return (

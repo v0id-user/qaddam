@@ -67,7 +67,7 @@
         },
         "pro": {
           "name": "خطة المحترفين",
-          "price": "٣٠",
+          "price": "١٥",
           "currency": "SAR",
           "price_detail": "شهرياً",
           "features": [
@@ -80,7 +80,11 @@
           ],
           "button": "ابدأ التجربة المجانية"
         }
-      }
+      },
+      "upgrade_title": "ترقية إلى المحترفين",
+      "upgrade_subtitle": "افتح الميزات المميزة وارتقِ ببحثك عن الوظائف",
+      "processing": "جاري المعالجة...",
+      "upgrade_error": "فشل بدء عملية الترقية. يرجى المحاولة مرة أخرى."
     },
     "footer": {
       "brand": "قدّم.سي في",
@@ -133,7 +137,9 @@
       "forget_random": "انسى التقديم العشوائي. هذا طريقك.",
       "no_search": "ما تبحث كثير. نرشح لك كثير.",
       "profile_ready": "تحليلك جاهز. فرصك تنتظر."
-    }
+    },
+    "make_an_account_to_continue": "أنشئ حسابًا للمتابعة.",
+    "sign_up_to_access_pro_features": "سجّل للحصول على ميزات المحترفين."
   },
   "dashboard": {
     "cv_upload": {

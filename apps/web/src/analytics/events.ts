@@ -1,4 +1,4 @@
-const EVENTS = {
+export const EVENTS = {
   LANDING: {
     CTA: 'landing_cta',
     SCROLL: 'landing_scroll',
@@ -10,7 +10,7 @@ const EVENTS = {
 } as const;
 
 type EventValue<T> =
-  T extends Record<any, infer U> ? (U extends string ? U : EventValue<U>) : never;
+  T extends Record<string, infer U> ? (U extends string ? U : EventValue<U>) : never;
 
 export type AnalyticsEvent = EventValue<typeof EVENTS>;
 

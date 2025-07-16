@@ -53,6 +53,10 @@
       "title": "Choose Your Plan",
       "description": "Start for free, upgrade when you're ready",
       "popular": "Most Popular",
+      "upgrade_title": "Upgrade to Pro",
+      "upgrade_subtitle": "Unlock premium features and take your job search to the next level",
+      "processing": "Processing...",
+      "upgrade_error": "Failed to start upgrade process. Please try again.",
       "plans": {
         "free": {
           "name": "Free Plan",
@@ -67,7 +71,7 @@
         },
         "pro": {
           "name": "Pro Plan",
-          "price": "8",
+          "price": "4",
           "currency": "USD",
           "price_detail": "monthly",
           "features": [
@@ -133,7 +137,9 @@
       "forget_random": "Forget random applying. This is your path.",
       "no_search": "No need to search. We recommend the best.",
       "profile_ready": "Your profile's ready. The opportunities are waiting."
-    }
+    },
+    "make_an_account_to_continue": "Make an account to continue.",
+    "sign_up_to_access_pro_features": "Sign up to access Pro features."
   },
   "dashboard": {
     "cv_upload": {
