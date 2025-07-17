@@ -28,7 +28,7 @@ export default function ClientDashBoard() {
     if (me) {
       posthog.identify(me.email);
     }
-  }, [me, hasSurveyCompleted]);
+  }, [me, hasSurveyCompleted, logger]);
 
   const handleSurveyComplete = () => {
     logger.info('🎉 Survey completed callback triggered');
