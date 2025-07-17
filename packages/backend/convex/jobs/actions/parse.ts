@@ -2,23 +2,9 @@ import { internalAction } from "../../_generated/server";
 import { internal } from "../../_generated/api";
 import { v } from "convex/values";
 import { openai } from "@ai-sdk/openai";
-import { z } from "zod";
 import { generateObject } from "ai";
 import { logger } from "../../lib/axiom";
-
-// ---------------------------------------------
-// Zod schema describing the structured CV profile returned by the model
-// ---------------------------------------------
-const cvProfileSchema = z.object({
-  skills: z.array(z.string()).min(1),
-  experience_level: z.enum(["entry", "mid", "senior", "executive"]),
-  job_titles: z.array(z.string()).min(1),
-  industries: z.array(z.string()).min(1),
-  keywords: z.array(z.string()).min(1),
-  education: z.string().min(1),
-  years_of_experience: z.number().min(0),
-  preferred_locations: z.array(z.string()).min(1),
-});
+import { CVProfileSchema } from "../../schemas/zod/cv-profile";
 
 // Step 1: Parse CV and extract user profile
 export const aiParseCV = internalAction({
@@ -107,7 +93,7 @@ export const aiParseCV = internalAction({
 						],
 					},
 				],
-				schema: cvProfileSchema,
+				schema: CVProfileSchema,
 			});
 
 			logger.info("AI CV Parsing - Token usage:", {
@@ -116,7 +102,7 @@ export const aiParseCV = internalAction({
 				totalTokens: response.usage?.totalTokens || 0,
 			});
 
-			const result = cvProfileSchema.parse(response.object as unknown);
+			const result = CVProfileSchema.parse(response.object as unknown);
 			logger.info("CV parsing completed:", {
 				skills: result.skills.length,
 				jobTitles: result.job_titles.length,

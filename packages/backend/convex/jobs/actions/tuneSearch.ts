@@ -5,34 +5,9 @@ import { internal } from "../../_generated/api";
 import { v } from "convex/values";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { z } from "zod";
 import { logger } from "../../lib/axiom";
+import { KeywordExtractionSchema } from "../../schemas/zod/keyword-extraction";
 // Step 2: Extract keywords from CV for database job searching
-// ---------------------------------------------
-// Zod schema for keyword-extraction response
-// ---------------------------------------------
-const keywordExtractionSchema = z.object({
-  primary_keywords: z
-    .array(z.string())
-    .min(1)
-    .describe("Most important keywords for job searching - technical skills, job titles, core expertise"),
-  secondary_keywords: z
-    .array(z.string())
-    .min(1)
-    .describe("Additional relevant keywords - related skills, industry terms, experience levels"),
-  search_terms: z
-    .array(z.string())
-    .min(1)
-    .describe("Combined optimized search terms for database queries"),
-  job_title_keywords: z
-    .array(z.string())
-    .min(1)
-    .describe("Specific job titles and role names to search for"),
-  technical_skills: z
-    .array(z.string())
-    .min(1)
-    .describe("Technical skills, programming languages, frameworks, and tools"),
-});
 export const aiTuneJobSearch = internalAction({
 	args: {
 		cvProfile: v.object({
@@ -147,7 +122,7 @@ Make sure each array has at least one relevant keyword.
 						`,
 					},
 				],
-				schema: keywordExtractionSchema,
+				schema: KeywordExtractionSchema,
 			});
 
 			logger.info("AI Keyword Extraction - Token usage:", {
@@ -156,7 +131,7 @@ Make sure each array has at least one relevant keyword.
 				totalTokens: response.usage?.totalTokens || 0,
 			});
 
-			const result = keywordExtractionSchema.parse(response.object as unknown);
+			const result = KeywordExtractionSchema.parse(response.object as unknown);
 			logger.info("Keyword extraction completed:", {
 				primary: result.primary_keywords.length,
 				secondary: result.secondary_keywords.length,
