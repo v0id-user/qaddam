@@ -57,6 +57,8 @@
       "upgrade_subtitle": "Unlock premium features and take your job search to the next level",
       "processing": "Processing...",
       "upgrade_error": "Failed to start upgrade process. Please try again.",
+      "already_pro": "You are already Pro!",
+      "already_pro_message": "You already have a Pro subscription. Enjoy all premium features!",
       "plans": {
         "free": {
           "name": "Free Plan",

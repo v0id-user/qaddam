@@ -5,7 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useAction } from 'convex/react';
+import { useAction, useQuery } from 'convex/react';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import { toast } from 'sonner';
 
@@ -32,6 +32,7 @@ export default function UpgradePage() {
   const locale = useLocale();
   const [isLoading, setIsLoading] = useState(false);
   const generateCheckoutLink = useAction(api.polar.generateCheckoutLink);
+  const me = useQuery(api.users.getMe);
 
   const renderCurrencySymbol = (currency: string) => {
     if (currency === 'USD') {
@@ -132,11 +133,13 @@ export default function UpgradePage() {
         </ul>
 
         <Button
-          onClick={handleUpgrade}
-          disabled={isLoading}
+          onClick={me?.isPro ? undefined : handleUpgrade}
+          disabled={isLoading || me?.isPro}
           className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-xl border-none py-3 text-lg font-semibold transition-all duration-200"
         >
-          {isLoading ? (
+          {me?.isPro ? (
+            t('pricing.already_pro')
+          ) : isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               {t('pricing.processing')}
@@ -145,6 +148,11 @@ export default function UpgradePage() {
             proPlan.buttonText
           )}
         </Button>
+        {me?.isPro && (
+          <p className="text-green-600 text-center mt-4 font-medium">
+            {t('pricing.already_pro_message')}
+          </p>
+        )}
       </Card>
     </div>
   );
