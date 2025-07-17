@@ -4,7 +4,7 @@ import {
   CrawledJobsSchema, 
   CrawledJobsArrayParser,
   type CrawledJobs
-} from "../schemas/zod/crawled-jobs";
+} from "../schemas/zod/crawled_jobs";
 import type { MinimalLinkedInJob } from "../schemas/zod/linkedin";
 import type { MinimalIndeedJob } from "../schemas/zod/indeed";
 import { logger } from "../lib/axiom";

@@ -6,7 +6,7 @@ import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { logger } from "../../lib/axiom";
-import { BatchJobAnalysisSchema } from "../../schemas/zod/batch-job-analysis";
+import { BatchJobAnalysisSchema } from "../../schemas/zod/batch_job_analysis";
 // Internal query to get all jobs for testing/debugging
 export const getAllJobListings = internalQuery({
 	args: {},

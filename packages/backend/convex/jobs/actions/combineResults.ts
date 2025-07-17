@@ -6,7 +6,7 @@ import type { JobResult, JobSearchResults } from "../../types/jobs";
 import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
 import { logger } from "../../lib/axiom";
-import { JobRankingSchema } from "../../schemas/zod/job-ranking";
+import { JobRankingSchema } from "../../schemas/zod/job_ranking";
 // Internal query to get job listing details
 export const getJobListing = internalQuery({
 	args: {

@@ -4,7 +4,7 @@ import { v } from "convex/values";
 import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { logger } from "../../lib/axiom";
-import { CVProfileSchema } from "../../schemas/zod/cv-profile";
+import { CVProfileSchema } from "../../schemas/zod/cv_profile";
 
 // Step 1: Parse CV and extract user profile
 export const aiParseCV = internalAction({
