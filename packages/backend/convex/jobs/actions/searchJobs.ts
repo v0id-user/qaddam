@@ -5,8 +5,8 @@ import type { JobResult } from "../../types/jobs";
 import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { z } from "zod";
 import { logger } from "../../lib/axiom";
+import { BatchJobAnalysisSchema } from "../../schemas/zod/batch-job-analysis";
 // Internal query to get all jobs for testing/debugging
 export const getAllJobListings = internalQuery({
 	args: {},
@@ -94,89 +94,7 @@ export const getSurveyResults = internalQuery({
 	},
 });
 
-// Comprehensive job analysis schema for batch processing
-const batchJobAnalysisSchema = z.object({
-	jobAnalyses: z.array(
-		z.object({
-			jobId: z.string(),
-			// Experience matching
-			experienceMatch: z.object({
-				match_level: z.enum([
-					"excellent_match",
-					"good_match",
-					"partial_match",
-					"mismatch",
-				]),
-				match_score: z.number().min(0).max(1),
-				match_reasons: z.array(z.string()).min(1),
-				experience_gaps: z.array(z.string()),
-				recommendation: z.string(),
-			}),
-			// Location matching
-			locationMatch: z.object({
-				match_score: z.number().min(0).max(1),
-				match_reasons: z.array(z.string()).min(1),
-				work_type_match: z.boolean(),
-			}),
-			// Benefits extraction
-			benefits: z.array(
-				z.object({
-					category: z.enum([
-						"health_insurance",
-						"retirement_savings",
-						"paid_time_off",
-						"flexible_work",
-						"professional_development",
-						"wellness",
-						"financial_perks",
-						"transportation",
-						"family_support",
-						"other",
-					]),
-					description: z.string(),
-					details: z.string().nullable(),
-				}),
-			),
-			// Requirements extraction
-			requirements: z.array(
-				z.object({
-					type: z.enum([
-						"technical_skill",
-						"experience",
-						"education",
-						"certification",
-						"soft_skill",
-						"tool_software",
-						"other",
-					]),
-					description: z.string(),
-					required: z.boolean(),
-					details: z.string().nullable(),
-				}),
-			),
-			// Data extraction
-			dataExtraction: z.object({
-				salary: z.object({
-					min: z.number().nullable(),
-					max: z.number().nullable(),
-					currency: z.string().nullable(),
-					is_salary_mentioned: z.boolean(),
-				}),
-				company: z.object({
-					name: z.string().nullable(),
-					is_company_mentioned: z.boolean(),
-				}),
-				job_type: z.object({
-					type: z
-						.enum(["full_time", "part_time", "contract", "remote"])
-						.nullable(),
-					is_remote: z.boolean(),
-					work_arrangement: z.string().nullable(),
-				}),
-			}),
-		}),
-	),
-});
+// Comprehensive job analysis schema imported from external file
 
 // Step 3: Search with the AI keywords
 export const aiSearchJobs = internalAction({
@@ -394,7 +312,7 @@ Return analysis for each job in order.
 						`,
 					},
 				],
-				schema: batchJobAnalysisSchema,
+				schema: BatchJobAnalysisSchema,
 			});
 
 			logger.info(
@@ -407,7 +325,7 @@ Return analysis for each job in order.
 			);
 
 			// Process batch results
-			const batchData = batchJobAnalysisSchema.parse(batchAnalysis.object as unknown);
+			const batchData = BatchJobAnalysisSchema.parse(batchAnalysis.object as unknown);
 
 			const batchResults = batchData.jobAnalyses
 				.map((analysis, batchIdx) => {

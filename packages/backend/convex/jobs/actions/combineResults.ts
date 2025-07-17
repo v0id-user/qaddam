@@ -2,30 +2,11 @@ import { internalAction, internalQuery } from "../../_generated/server";
 import { internal } from "../../_generated/api";
 import { v } from "convex/values";
 import { openai } from "@ai-sdk/openai";
-import { z } from "zod";
 import type { JobResult, JobSearchResults } from "../../types/jobs";
 import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
 import { logger } from "../../lib/axiom";
-// -------------------------------------------
-// Zod schema for ranking & insights response
-// -------------------------------------------
-const jobRankingSchema = z.object({
-  ranked_jobs: z.array(
-    z.object({
-      id: z.string(),
-      match_reasons: z.array(z.string()),
-      concerns: z.array(z.string()),
-    }),
-  ),
-  insights: z.object({
-    total_relevant: z.number(),
-    avg_match_score: z.number(),
-    top_skills_in_demand: z.array(z.string()),
-    salary_insights: z.string(),
-    market_observations: z.string(),
-  }),
-});
+import { JobRankingSchema } from "../../schemas/zod/job-ranking";
 // Internal query to get job listing details
 export const getJobListing = internalQuery({
 	args: {
@@ -165,7 +146,7 @@ Rank and analyze for insights.
 					`,
 				},
 			],
-			schema: jobRankingSchema,
+							schema: JobRankingSchema,
 		});
 
 		logger.info("AI Job Ranking - Token usage:", {
@@ -174,7 +155,7 @@ Rank and analyze for insights.
 			totalTokens: response.usage?.totalTokens || 0,
 		});
 
-		const rankingData = jobRankingSchema.parse(response.object as unknown);
+		const rankingData = JobRankingSchema.parse(response.object as unknown);
 
 		logger.info("AI ranking completed and insights:", {
 			rankedJobs: rankingData.ranked_jobs.length,
