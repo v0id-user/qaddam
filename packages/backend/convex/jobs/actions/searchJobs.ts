@@ -5,8 +5,10 @@ import type { JobResult } from "../../types/jobs";
 import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { z } from "zod";
 import { logger } from "../../lib/axiom";
+import { validateBatchJobAnalysis } from "../../lib/validators";
+import { batchJobAnalysisSchema } from "../../lib/ai_schemas";
+import type { BatchJobAnalysis } from "../../types/job_types";
 // Internal query to get all jobs for testing/debugging
 export const getAllJobListings = internalQuery({
 	args: {},
@@ -94,89 +96,7 @@ export const getSurveyResults = internalQuery({
 	},
 });
 
-// Comprehensive job analysis schema for batch processing
-const batchJobAnalysisSchema = z.object({
-	jobAnalyses: z.array(
-		z.object({
-			jobId: z.string(),
-			// Experience matching
-			experienceMatch: z.object({
-				match_level: z.enum([
-					"excellent_match",
-					"good_match",
-					"partial_match",
-					"mismatch",
-				]),
-				match_score: z.number().min(0).max(1),
-				match_reasons: z.array(z.string()).min(1),
-				experience_gaps: z.array(z.string()),
-				recommendation: z.string(),
-			}),
-			// Location matching
-			locationMatch: z.object({
-				match_score: z.number().min(0).max(1),
-				match_reasons: z.array(z.string()).min(1),
-				work_type_match: z.boolean(),
-			}),
-			// Benefits extraction
-			benefits: z.array(
-				z.object({
-					category: z.enum([
-						"health_insurance",
-						"retirement_savings",
-						"paid_time_off",
-						"flexible_work",
-						"professional_development",
-						"wellness",
-						"financial_perks",
-						"transportation",
-						"family_support",
-						"other",
-					]),
-					description: z.string(),
-					details: z.string().nullable(),
-				}),
-			),
-			// Requirements extraction
-			requirements: z.array(
-				z.object({
-					type: z.enum([
-						"technical_skill",
-						"experience",
-						"education",
-						"certification",
-						"soft_skill",
-						"tool_software",
-						"other",
-					]),
-					description: z.string(),
-					required: z.boolean(),
-					details: z.string().nullable(),
-				}),
-			),
-			// Data extraction
-			dataExtraction: z.object({
-				salary: z.object({
-					min: z.number().nullable(),
-					max: z.number().nullable(),
-					currency: z.string().nullable(),
-					is_salary_mentioned: z.boolean(),
-				}),
-				company: z.object({
-					name: z.string().nullable(),
-					is_company_mentioned: z.boolean(),
-				}),
-				job_type: z.object({
-					type: z
-						.enum(["full_time", "part_time", "contract", "remote"])
-						.nullable(),
-					is_remote: z.boolean(),
-					work_arrangement: z.string().nullable(),
-				}),
-			}),
-		}),
-	),
-});
+// Comprehensive job analysis schema imported from external file
 
 // Step 3: Search with the AI keywords
 export const aiSearchJobs = internalAction({
@@ -373,11 +293,10 @@ export const aiSearchJobs = internalAction({
 			);
 
 			// OPTIMIZED BATCH AI ANALYSIS - 12 jobs in single AI call
-			const batchAnalysis = await generateObject({
+			const batchAnalysis = await (generateObject as any)({
 				model: openai.chat("gpt-4o-mini", {
 					structuredOutputs: true,
 				}),
-				schemaName: "Batch_Job_Analysis",
 				messages: [
 					{
 						role: "system",
@@ -408,8 +327,10 @@ Return analysis for each job in order.
 			);
 
 			// Process batch results
-			const batchResults = batchAnalysis.object.jobAnalyses
-				.map((analysis, batchIdx) => {
+			const batchData = validateBatchJobAnalysis(batchAnalysis.object as unknown);
+
+			const batchResults = batchData.jobAnalyses
+				.map((analysis: BatchJobAnalysis['jobAnalyses'][0], batchIdx: number) => {
 					const originalJob = chunk[batchIdx];
 					if (!originalJob) {
 						logger.warn(`Missing job data for batch index ${batchIdx}`);
@@ -467,7 +388,7 @@ Return analysis for each job in order.
 						},
 					};
 				})
-				.filter((result) => result !== null);
+				.filter((result: ReturnType<typeof batchData.jobAnalyses.map>[0] | null): result is NonNullable<typeof result> => result !== null);
 
 			jobResults.push(...batchResults);
 			logger.info(

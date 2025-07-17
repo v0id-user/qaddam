@@ -2,11 +2,12 @@ import { internalAction, internalQuery } from "../../_generated/server";
 import { internal } from "../../_generated/api";
 import { v } from "convex/values";
 import { openai } from "@ai-sdk/openai";
-import { z } from "zod";
 import type { JobResult, JobSearchResults } from "../../types/jobs";
 import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
 import { logger } from "../../lib/axiom";
+import { validateJobRanking } from "../../lib/validators";
+import { jobRankingSchema } from "../../lib/ai_schemas";
 // Internal query to get job listing details
 export const getJobListing = internalQuery({
 	args: {
@@ -118,11 +119,10 @@ export const aiCombineJobResults = internalAction({
 			userId: args.userId,
 		});
 
-		const response = await generateObject({
+		const response = await (generateObject as any)({
 			model: openai.chat("gpt-4o-mini", {
 				structuredOutputs: true,
 			}),
-			schemaName: "Job_Ranking_and_Insights",
 			messages: [
 				{
 					role: "system",
@@ -147,22 +147,7 @@ Rank and analyze for insights.
 					`,
 				},
 			],
-			schema: z.object({
-				ranked_jobs: z.array(
-					z.object({
-						id: z.string(),
-						match_reasons: z.array(z.string()),
-						concerns: z.array(z.string()), // Made required instead of optional
-					}),
-				),
-				insights: z.object({
-					total_relevant: z.number(),
-					avg_match_score: z.number(),
-					top_skills_in_demand: z.array(z.string()),
-					salary_insights: z.string(),
-					market_observations: z.string(),
-				}),
-			}),
+							schema: jobRankingSchema,
 		});
 
 		logger.info("AI Job Ranking - Token usage:", {
@@ -171,11 +156,13 @@ Rank and analyze for insights.
 			totalTokens: response.usage?.totalTokens || 0,
 		});
 
+		const rankingData = validateJobRanking(response.object as unknown);
+
 		logger.info("AI ranking completed and insights:", {
-			rankedJobs: response.object.ranked_jobs.length,
-			totalRelevant: response.object.insights.total_relevant,
-			avgScore: response.object.insights.avg_match_score,
-			topSkillsInDemand: response.object.insights.top_skills_in_demand.slice(
+			rankedJobs: rankingData.ranked_jobs.length,
+			totalRelevant: rankingData.insights.total_relevant,
+			avgScore: rankingData.insights.avg_match_score,
+			topSkillsInDemand: rankingData.insights.top_skills_in_demand.slice(
 				0,
 				3,
 			),
@@ -345,7 +332,7 @@ Rank and analyze for insights.
 		return {
 			jobs: finalJobs,
 			totalFound: finalJobs.length,
-			insights: response.object.insights,
+			insights: rankingData.insights,
 			searchParams: {
 				optimized_keywords: [
 					...args.searchParams.primary_keywords,
