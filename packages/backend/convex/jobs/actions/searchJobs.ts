@@ -6,7 +6,8 @@ import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { logger } from "../../lib/axiom";
-import { BatchJobAnalysisSchema } from "../../schemas/zod/batch_job_analysis";
+import { validateBatchJobAnalysis } from "../../lib/validators";
+import { batchJobAnalysisSchema } from "../../lib/ai-schemas";
 // Internal query to get all jobs for testing/debugging
 export const getAllJobListings = internalQuery({
 	args: {},
@@ -312,7 +313,7 @@ Return analysis for each job in order.
 						`,
 					},
 				],
-				schema: BatchJobAnalysisSchema,
+				schema: batchJobAnalysisSchema,
 			});
 
 			logger.info(
@@ -325,7 +326,7 @@ Return analysis for each job in order.
 			);
 
 			// Process batch results
-			const batchData = BatchJobAnalysisSchema.parse(batchAnalysis.object as unknown);
+			const batchData = validateBatchJobAnalysis(batchAnalysis.object as unknown);
 
 			const batchResults = batchData.jobAnalyses
 				.map((analysis, batchIdx) => {

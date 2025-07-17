@@ -34,7 +34,6 @@
 		"convex-test": "^0.0.37",
 		"dotenv": "^17.1.0",
 		"fast-xml-parser": "^5.2.5",
-		"vitest": "^3.2.4",
-		"zod": "^4.0.5"
+		"vitest": "^3.2.4"
 	}
 }

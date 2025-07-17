@@ -1,7 +1,6 @@
 import { jobSchemas } from "../schemas";
 import { Doc } from "../_generated/dataModel";
-import type { MinimalLinkedInJob } from "../schemas/zod/linkedin";
-import type { MinimalIndeedJob } from "../schemas/zod/indeed";
+import type { MinimalLinkedInJob, MinimalIndeedJob } from "../types/job-types";
 
 type JobListing = Doc<"jobListings">;
 

@@ -6,7 +6,8 @@ import { v } from "convex/values";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { logger } from "../../lib/axiom";
-import { KeywordExtractionSchema } from "../../schemas/zod/keyword_extraction";
+import { validateKeywordExtraction } from "../../lib/validators";
+import { keywordExtractionSchema } from "../../lib/ai-schemas";
 // Step 2: Extract keywords from CV for database job searching
 export const aiTuneJobSearch = internalAction({
 	args: {
@@ -122,7 +123,7 @@ Make sure each array has at least one relevant keyword.
 						`,
 					},
 				],
-				schema: KeywordExtractionSchema,
+				schema: keywordExtractionSchema,
 			});
 
 			logger.info("AI Keyword Extraction - Token usage:", {
@@ -131,7 +132,7 @@ Make sure each array has at least one relevant keyword.
 				totalTokens: response.usage?.totalTokens || 0,
 			});
 
-			const result = KeywordExtractionSchema.parse(response.object as unknown);
+			const result = validateKeywordExtraction(response.object as unknown);
 			logger.info("Keyword extraction completed:", {
 				primary: result.primary_keywords.length,
 				secondary: result.secondary_keywords.length,
