@@ -126,7 +126,14 @@ export const startJobSearchWorkflow = action({
 			},
 		);
 
-		// TODO: Schedule a job to search with specific parameters from users survey
+		// Fire a scheduler to add new jobs listing based on user survey
+		ctx.scheduler.runAfter(
+			5000,
+			internal.listings.action.addNewJobsListingAction,
+			{
+				userId: me?._id!,
+			},
+		);
 
 		logger.info("Workflow started with ID:", { workflowId });
 		return { workflowTrackingId, workflowId };

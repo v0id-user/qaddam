@@ -28,6 +28,8 @@ import { useAuthActions } from '@convex-dev/auth/react';
 import { useTranslations, useLocale } from 'next-intl';
 import posthog from 'posthog-js';
 import { useLogger } from '@/lib/axiom/client';
+import { CustomerPortalLink } from '@convex-dev/polar/react';
+import { api } from '@qaddam/backend/convex/_generated/api';
 
 export interface UserMenuItemConfig {
   icon: LucideIcon;
@@ -169,7 +171,7 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
               {group.items.map((item, itemIndex) => {
                 const label = item.label || (item.translationKey ? t(item.translationKey) : '');
 
-                return (
+                const dropdownMenuItem = (
                   <DropdownMenuItem
                     key={`${groupIndex}-${itemIndex}`}
                     className={`cursor-pointer ${isRTL ? 'text-right' : 'text-left'}`}
@@ -179,6 +181,21 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
                     {label}
                   </DropdownMenuItem>
                 );
+
+                if (item.translationKey === 'billing') {
+                  return (
+                    <CustomerPortalLink
+                      key={`${groupIndex}-${itemIndex}`}
+                      polarApi={{
+                        generateCustomerPortalUrl: api.polar.generateCustomerPortalUrl,
+                      }}
+                    >
+                      {dropdownMenuItem}
+                    </CustomerPortalLink>
+                  );
+                }
+
+                return dropdownMenuItem;
               })}
             </DropdownMenuGroup>
             {groupIndex < allMenuItems.length - 1 && <DropdownMenuSeparator />}

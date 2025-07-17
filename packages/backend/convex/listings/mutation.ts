@@ -143,7 +143,9 @@ export const addNewJobsListing = internalMutation({
 							});
 							insertedJobs.push(jobId);
 						} catch (error) {
-							console.error(`Failed to insert job ${jobData.sourceId}:`, error);
+							logger.error(`Failed to insert job ${jobData.sourceId}:`, {
+								error,
+							});
 							skippedJobs++;
 						}
 					} else {

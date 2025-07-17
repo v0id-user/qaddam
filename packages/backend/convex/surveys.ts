@@ -4,9 +4,11 @@ import { v } from "convex/values";
 import { logger } from "./lib/axiom";
 // Get user's survey data
 export const getUserSurvey = query({
-	args: {},
-	handler: async (ctx) => {
-		const userId = await getAuthUserId(ctx);
+	args: {
+		userId: v.optional(v.id("users")),
+	},
+	handler: async (ctx, args) => {
+		const userId = args.userId || (await getAuthUserId(ctx));
 		if (!userId) return null;
 
 		const survey = await ctx.db
