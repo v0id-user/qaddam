@@ -27,6 +27,7 @@ import type { LucideIcon } from 'lucide-react';
 import { useAuthActions } from '@convex-dev/auth/react';
 import { useTranslations, useLocale } from 'next-intl';
 import posthog from 'posthog-js';
+import { useLogger } from '@/lib/axiom/client';
 
 export interface UserMenuItemConfig {
   icon: LucideIcon;
@@ -64,6 +65,7 @@ const ProBadge = () => (
 );
 
 const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNavFooterProps) => {
+  const logger = useLogger();
   const { signOut } = useAuthActions();
   const t = useTranslations('sidebar.user_menu');
   const locale = useLocale();
@@ -76,17 +78,17 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
         {
           icon: UserCircleIcon,
           translationKey: 'account',
-          onClick: () => console.log('Navigate to account settings'),
+          onClick: () => logger.info('Navigate to account settings user: ' + user.email),
         },
         {
           icon: CreditCardIcon,
           translationKey: 'billing',
-          onClick: () => console.log('Navigate to billing'),
+          onClick: () => logger.info('Navigate to billing user: ' + user.email),
         },
         {
           icon: BellIcon,
           translationKey: 'notifications',
-          onClick: () => console.log('Navigate to notifications'),
+          onClick: () => logger.info('Navigate to notifications user: ' + user.email),
         },
       ],
     },
@@ -98,7 +100,7 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
           translationKey: 'sign_out',
           onClick: async () => {
             posthog.reset(true);
-            console.log('Handle logout');
+            logger.info('Handle logout user: ' + user.email);
             await signOut();
             window.location.href = '/sign';
           },
@@ -124,7 +126,7 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
           <div
             className={`grid flex-1 ${isRTL ? 'text-right' : 'text-left'} text-sm leading-tight`}
           >
-            <span className="truncate font-medium flex items-center">
+            <span className="flex items-center truncate font-medium">
               {user.name}
               {user.isPro && <ProBadge />}
             </span>
@@ -152,7 +154,7 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
             <div
               className={`grid flex-1 ${isRTL ? 'text-right' : 'text-left'} text-sm leading-tight`}
             >
-              <span className="truncate font-medium flex items-center">
+              <span className="flex items-center truncate font-medium">
                 {user.name}
                 {user.isPro && <ProBadge />}
               </span>

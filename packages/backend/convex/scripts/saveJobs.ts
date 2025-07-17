@@ -1,7 +1,7 @@
 import { internal } from "../_generated/api";
 import { action, internalAction, internalMutation } from "../_generated/server";
 import { type GenericId, v } from "convex/values";
-
+import { logger } from "../lib/axiom";
 // Simple job data for migration - only essential fields
 interface SimpleJobData {
 	url: string;
@@ -50,7 +50,7 @@ export const migrateJobs = internalMutation({
 					!jobData.company ||
 					!jobData.url
 				) {
-					console.warn(
+					logger.warn(
 						`Skipping job due to missing essential fields: ${jobData.sourceId || "unknown"}`,
 					);
 					skippedJobs++;
@@ -76,15 +76,14 @@ export const migrateJobs = internalMutation({
 
 				insertedJobs.push(jobId);
 			} catch (error) {
-				console.error(
-					`Failed to insert job ${jobData.sourceId || "unknown"}:`,
+				logger.error(`Failed to insert job ${jobData.sourceId || "unknown"}:`, {
 					error,
-				);
+				});
 				skippedJobs++;
 			}
 		}
 
-		console.log(
+		logger.info(
 			`Successfully inserted ${insertedJobs.length} job listings, skipped ${skippedJobs} invalid jobs`,
 		);
 		return insertedJobs;
@@ -146,7 +145,7 @@ function extractEssentialJobData(rawJob: any): SimpleJobData | null {
 			sourceId: rawJob.id,
 		};
 	} catch (error) {
-		console.warn(`Failed to extract job data:`, error);
+		logger.warn(`Failed to extract job data:`, { error });
 		return null;
 	}
 }
@@ -184,7 +183,7 @@ export const migrateJobsAction = internalAction({
 
 			try {
 				if (!fileContent || fileContent.trim() === "") {
-					console.warn(`Skipping empty file from storage ID: ${storageId}`);
+					logger.warn(`Skipping empty file from storage ID: ${storageId}`);
 					skippedFiles++;
 					continue;
 				}
@@ -214,19 +213,18 @@ export const migrateJobsAction = internalAction({
 					}
 				}
 
-				console.log(
+				logger.info(
 					`Storage ${storageId}: Processed ${jobsProcessed} jobs, skipped ${jobsSkipped} invalid jobs`,
 				);
 			} catch (error) {
-				console.error(
-					`Failed to parse job data from storage ID ${storageId}:`,
+				logger.error(`Failed to parse job data from storage ID ${storageId}:`, {
 					error,
-				);
+				});
 				skippedFiles++;
 			}
 		}
 
-		console.log(
+		logger.info(
 			`Found ${allJobListings.length} valid job listings from ${files.length - skippedFiles} files (${skippedFiles} files skipped)`,
 		);
 
@@ -244,12 +242,12 @@ export const migrateJobsAction = internalAction({
 			);
 			insertedJobIds.push(...batchIds);
 
-			console.log(
+			logger.info(
 				`Batch ${Math.floor(i / batchSize) + 1}: Inserted ${batchIds.length}/${batch.length} jobs`,
 			);
 		}
 
-		console.log(
+		logger.info(
 			`Migration complete! Inserted ${insertedJobIds.length} jobs total`,
 		);
 		return insertedJobIds;

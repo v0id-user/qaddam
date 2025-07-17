@@ -554,11 +554,7 @@
           "personalData": {
             "title": "Personal Data",
             "intro": "While using Our Service, We may ask You to provide Us with certain personally identifiable information that can be used to contact or identify You. Personally identifiable information may include, but is not limited to:",
-            "items": [
-              "Email address",
-              "First name and last name",
-              "Usage Data"
-            ]
+            "items": ["Email address", "First name and last name", "Usage Data"]
           },
           "usageData": {
             "title": "Usage Data",
@@ -570,13 +566,7 @@
           "thirdPartyInfo": {
             "title": "Information from Third-Party Social Media Services",
             "intro": "The Company allows You to create an account and log in to use the Service through the following Third-party Social Media Services:",
-            "services": [
-              "Google",
-              "Facebook",
-              "Instagram",
-              "Twitter",
-              "LinkedIn"
-            ],
+            "services": ["Google", "Facebook", "Instagram", "Twitter", "LinkedIn"],
             "dataCollection": "If You decide to register through or otherwise grant us access to a Third-Party Social Media Service, We may collect Personal data that is already associated with Your Third-Party Social Media Service's account, such as Your name, Your email address, Your activities or Your contact list associated with that account.",
             "additionalInfo": "You may also have the option of sharing additional information with the Company through Your Third-Party Social Media Service's account. If You choose to provide such information and Personal Data, during registration or otherwise, You are giving the Company permission to use, share, and store it in a manner consistent with this Privacy Policy."
           }

@@ -6,6 +6,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import Providers from '@/components/providers';
 import { Toaster } from 'react-hot-toast';
 import { getTranslations } from 'next-intl/server';
+import { WebVitals } from '@/lib/axiom/client';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -54,6 +55,7 @@ export default async function RootLayout({
           <Toaster />
           <NextIntlClientProvider>
             <Providers>
+              <WebVitals />
               <div className="grid h-svh grid-rows-[auto_1fr]">{children}</div>
             </Providers>
           </NextIntlClientProvider>

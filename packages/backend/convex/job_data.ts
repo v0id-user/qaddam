@@ -1,14 +1,14 @@
 import { v } from "convex/values";
 import { query } from "./_generated/server";
-import chalk from "chalk";
+
 import { api } from "./_generated/api";
 import type { Doc } from "./_generated/dataModel";
 import { getAuthUserId } from "@convex-dev/auth/server";
-
+import { logger } from "./lib/axiom";
 export const getJobResults = query({
 	args: { workflowId: v.string() },
 	handler: async (ctx, { workflowId }) => {
-		console.log(chalk.blue(`Getting job results for workflow ${workflowId}`));
+		logger.info(`Getting job results for workflow ${workflowId}`);
 
 		// Get the job search results record
 		const searchResults = await ctx.db
@@ -17,15 +17,11 @@ export const getJobResults = query({
 			.first();
 
 		if (!searchResults) {
-			console.log(
-				chalk.yellow(`No search results found for workflow ${workflowId}`),
-			);
+			logger.info(`No search results found for workflow ${workflowId}`);
 			return null;
 		}
 
-		console.log(
-			chalk.green(`Found search results record with ID ${searchResults._id}`),
-		);
+		logger.info(`Found search results record with ID ${searchResults._id}`);
 
 		// Get all job results for this search
 		const jobResults = await ctx.db
@@ -35,7 +31,7 @@ export const getJobResults = query({
 			)
 			.collect();
 
-		console.log(chalk.blue(`Retrieved ${jobResults.length} job results`));
+		logger.info(`Retrieved ${jobResults.length} job results`);
 
 		return {
 			searchResults,
@@ -90,11 +86,7 @@ export const getUserSurvey = query({
 export const getJobResultsWithAnalysis = query({
 	args: { workflowId: v.string() },
 	handler: async (ctx, args) => {
-		console.log(
-			chalk.blue(
-				`Getting enhanced job results for workflow ${args.workflowId}`,
-			),
-		);
+		logger.info(`Getting enhanced job results for workflow ${args.workflowId}`);
 
 		const user = await getAuthUserId(ctx);
 		if (!user) {
@@ -113,15 +105,11 @@ export const getJobResultsWithAnalysis = query({
 			.first();
 
 		if (!searchResults) {
-			console.log(
-				chalk.yellow(`No search results found for workflow ${args.workflowId}`),
-			);
+			logger.info(`No search results found for workflow ${args.workflowId}`);
 			return null;
 		}
 
-		console.log(
-			chalk.green(`Found search results record with ID ${searchResults._id}`),
-		);
+		logger.info(`Found search results record with ID ${searchResults._id}`);
 
 		// Get all job results for this search
 		const jobResults = await ctx.db
@@ -131,7 +119,7 @@ export const getJobResultsWithAnalysis = query({
 			)
 			.collect();
 
-		console.log(chalk.blue(`Retrieved ${jobResults.length} job results`));
+		logger.info(`Retrieved ${jobResults.length} job results`);
 
 		// Get user survey data for context
 		const userSurvey: Doc<"userSurveys"> | null = await ctx.db

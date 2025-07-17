@@ -1,7 +1,7 @@
 import { internalMutation } from "../_generated/server";
 import { type GenericId, v } from "convex/values";
 import type { LinkedInJob } from "../driver/jobs/actors/linkedin_jobs";
-
+import { logger } from "../lib/axiom";
 // Helper type for a raw result coming from the LinkedIn Job actor
 // It can be either a single LinkedInJob object or an object that wraps the
 // jobs inside the `linkedInJobs` array (as returned by the actor dataset).
@@ -185,7 +185,7 @@ export const addNewJobsListing = internalMutation({
 			}
 		}
 
-		console.log(
+		logger.info(
 			`Finished inserting ${insertedJobs.length} job listings, skipped ${skippedJobs} invalid items`,
 		);
 		return insertedJobs;

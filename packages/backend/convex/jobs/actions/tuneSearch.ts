@@ -6,7 +6,7 @@ import { v } from "convex/values";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
-
+import { logger } from "../../lib/axiom";
 // Step 2: Extract keywords from CV for database job searching
 export const aiTuneJobSearch = internalAction({
 	args: {
@@ -34,13 +34,12 @@ export const aiTuneJobSearch = internalAction({
 		technical_skills: string[];
 	}> => {
 		try {
-			console.log(
-				"Starting keyword extraction:",
-				`${args.cvProfile.skills.length} skills,`,
-				`${args.cvProfile.job_titles.length} job titles,`,
-				`${args.cvProfile.years_of_experience}y exp,`,
-				`level: ${args.cvProfile.experience_level}`,
-			);
+			logger.info("Starting keyword extraction:", {
+				skills: args.cvProfile.skills.length,
+				jobTitles: args.cvProfile.job_titles.length,
+				yearsOfExperience: args.cvProfile.years_of_experience,
+				experienceLevel: args.cvProfile.experience_level,
+			});
 
 			// Update workflow status to indicate keyword extraction started
 			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -154,23 +153,22 @@ Make sure each array has at least one relevant keyword.
 				}),
 			});
 
-			console.log("AI Keyword Extraction - Token usage:", {
+			logger.info("AI Keyword Extraction - Token usage:", {
 				promptTokens: response.usage?.promptTokens || 0,
 				completionTokens: response.usage?.completionTokens || 0,
 				totalTokens: response.usage?.totalTokens || 0,
 			});
 
 			const result = response.object;
-			console.log(
-				"Keyword extraction completed:",
-				`${result.primary_keywords.length} primary,`,
-				`${result.secondary_keywords.length} secondary,`,
-				`${result.search_terms.length} search terms,`,
-				`${result.job_title_keywords.length} job titles,`,
-				`${result.technical_skills.length} technical skills`,
-			);
+			logger.info("Keyword extraction completed:", {
+				primary: result.primary_keywords.length,
+				secondary: result.secondary_keywords.length,
+				search: result.search_terms.length,
+				jobTitles: result.job_title_keywords.length,
+				technical: result.technical_skills.length,
+			});
 
-			console.log("Sample keywords:", {
+			logger.info("Sample keywords:", {
 				primary: result.primary_keywords.slice(0, 3).join(", ") + "...",
 				secondary: result.secondary_keywords.slice(0, 3).join(", ") + "...",
 				search: result.search_terms.slice(0, 3).join(", ") + "...",
@@ -192,7 +190,7 @@ Make sure each array has at least one relevant keyword.
 				result.job_title_keywords.length === 0 ||
 				result.technical_skills.length === 0
 			) {
-				console.warn("Some keyword arrays are empty, providing fallbacks");
+				logger.warn("Some keyword arrays are empty, providing fallbacks");
 
 				// Provide fallback keywords based on CV profile
 				const fallbackKeywords = {
@@ -218,17 +216,16 @@ Make sure each array has at least one relevant keyword.
 							: args.cvProfile.skills,
 				};
 
-				console.log(
-					"Using fallback keywords:",
-					`${fallbackKeywords.primary_keywords.length} primary,`,
-					`${fallbackKeywords.secondary_keywords.length} secondary`,
-				);
+				logger.info("Using fallback keywords:", {
+					primary: fallbackKeywords.primary_keywords.length,
+					secondary: fallbackKeywords.secondary_keywords.length,
+				});
 				return fallbackKeywords;
 			}
 
 			return result;
 		} catch (error) {
-			console.error("Error in keyword extraction:", error);
+			logger.error("Error in keyword extraction:", { error });
 
 			// Update workflow status to indicate error
 			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -247,12 +244,11 @@ Make sure each array has at least one relevant keyword.
 				technical_skills: args.cvProfile.skills,
 			};
 
-			console.log(
-				"Using fallback keywords:",
-				`${fallbackResult.primary_keywords.length} primary,`,
-				`${fallbackResult.secondary_keywords.length} secondary,`,
-				`${fallbackResult.search_terms.length} search terms`,
-			);
+			logger.info("Using fallback keywords:", {
+				primary: fallbackResult.primary_keywords.length,
+				secondary: fallbackResult.secondary_keywords.length,
+				search: fallbackResult.search_terms.length,
+			});
 			return fallbackResult;
 		}
 	},

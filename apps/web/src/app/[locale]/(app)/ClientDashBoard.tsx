@@ -6,8 +6,10 @@ import { JobSearchSurvey } from '@/components/dashboard/JobSearchSurvey';
 import { useQuery } from 'convex/react';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import posthog from 'posthog-js';
+import { useLogger } from '@/lib/axiom/client';
 
 export default function ClientDashBoard() {
+  const logger = useLogger();
   const me = useQuery(api.users.getMe);
   const hasSurveyCompleted = useQuery(api.surveys.hasSurveyCompleted);
   const [showSurvey, setShowSurvey] = useState(false);
@@ -15,10 +17,10 @@ export default function ClientDashBoard() {
   useEffect(() => {
     // Show survey if user is loaded and hasn't completed survey
     if (me && hasSurveyCompleted === false) {
-      console.log('🎯 Showing survey - first time user detected');
+      logger.info('🎯 Showing survey - first time user detected');
       setShowSurvey(true);
     } else if (me && hasSurveyCompleted === true) {
-      console.log('✅ Survey already completed');
+      logger.info('✅ Survey already completed');
       setShowSurvey(false);
     }
 
@@ -29,7 +31,7 @@ export default function ClientDashBoard() {
   }, [me, hasSurveyCompleted]);
 
   const handleSurveyComplete = () => {
-    console.log('🎉 Survey completed callback triggered');
+    logger.info('🎉 Survey completed callback triggered');
     setShowSurvey(false);
   };
 
@@ -41,7 +43,7 @@ export default function ClientDashBoard() {
     );
   }
 
-  console.log('🔍 Dashboard state:', {
+  logger.info('🔍 Dashboard state:', {
     userLoaded: !!me,
     hasSurveyCompleted,
     showSurvey,

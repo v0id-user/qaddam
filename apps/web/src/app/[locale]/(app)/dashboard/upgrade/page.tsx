@@ -67,7 +67,7 @@ export default function UpgradePage() {
         origin: window.location.origin,
         successUrl: `${window.location.origin}/dashboard?upgrade=success`,
       });
-      
+
       if (checkoutResult?.url) {
         window.location.href = checkoutResult.url;
       } else {
@@ -82,17 +82,15 @@ export default function UpgradePage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
+    <div className="container mx-auto max-w-2xl px-4 py-8">
       <div className="mb-8 text-center">
         <h1 className="text-foreground mb-4 text-4xl font-bold md:text-5xl">
           {t('pricing.upgrade_title')}
         </h1>
-        <p className="text-muted-foreground text-lg">
-          {t('pricing.upgrade_subtitle')}
-        </p>
+        <p className="text-muted-foreground text-lg">{t('pricing.upgrade_subtitle')}</p>
       </div>
 
-      <Card className="relative rounded-2xl border-2 border-primary bg-white p-8 shadow-lg">
+      <Card className="border-primary relative rounded-2xl border-2 bg-white p-8 shadow-lg">
         <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
           <span className="bg-primary text-primary-foreground rounded-full px-4 py-2 text-sm font-medium">
             {t('pricing.popular')}
@@ -136,7 +134,7 @@ export default function UpgradePage() {
         <Button
           onClick={handleUpgrade}
           disabled={isLoading}
-          className="w-full rounded-xl py-3 text-lg font-semibold bg-primary text-primary-foreground border-none hover:bg-primary/90 transition-all duration-200"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-xl border-none py-3 text-lg font-semibold transition-all duration-200"
         >
           {isLoading ? (
             <>

@@ -10,6 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { useLocale } from 'next-intl';
 import { toast } from 'react-hot-toast';
+import { useLogger } from '@/lib/axiom/client';
+
 interface SurveyData {
   profession: string;
   experience: string;
@@ -28,6 +30,7 @@ interface JobSearchSurveyProps {
 }
 
 export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
+  const logger = useLogger();
   const t = useTranslations('dashboard.survey');
   const locale = useLocale();
   const isRTL = locale === 'ar';
@@ -241,29 +244,33 @@ export function JobSearchSurvey({ onComplete }: JobSearchSurveyProps) {
       };
 
       // Log all collected survey data to console
-      console.log('=== SURVEY COMPLETED ===');
-      console.log('📊 Survey Data:', finalSurveyData);
-      console.log('👨‍💻 Profession:', finalSurveyData.profession);
-      console.log('📅 Experience:', finalSurveyData.experience);
-      console.log('🎯 Career Level:', finalSurveyData.careerLevel);
-      console.log('💼 Job Titles:', finalSurveyData.jobTitles);
-      console.log('🏢 Industries:', finalSurveyData.industries);
-      console.log('🏠 Work Type:', finalSurveyData.workType);
-      console.log('🌍 Locations:', finalSurveyData.locations);
-      console.log('⚡ Skills:', finalSurveyData.skills);
-      console.log('🗣️ Languages:', finalSurveyData.languages);
-      console.log('🏆 Company Types:', finalSurveyData.companyTypes);
-      console.log('========================');
+      logger.info(
+        '=== SURVEY COMPLETED ===\n' +
+          `📊 Survey Data: ${JSON.stringify(finalSurveyData, null, 2)}\n` +
+          `👨‍💻 Profession: ${finalSurveyData.profession}\n` +
+          `📅 Experience: ${finalSurveyData.experience}\n` +
+          `🎯 Career Level: ${finalSurveyData.careerLevel}\n` +
+          `💼 Job Titles: ${finalSurveyData.jobTitles.join(', ')}\n` +
+          `🏢 Industries: ${finalSurveyData.industries.join(', ')}\n` +
+          `🏠 Work Type: ${finalSurveyData.workType}\n` +
+          `🌍 Locations: ${finalSurveyData.locations.join(', ')}\n` +
+          `⚡ Skills: ${finalSurveyData.skills.join(', ')}\n` +
+          `🗣️ Languages: ${finalSurveyData.languages.map(l => `${l.language} (${l.proficiency})`).join(', ')}\n` +
+          `🏆 Company Types: ${finalSurveyData.companyTypes.join(', ')}\n` +
+          '========================'
+      );
 
       const result = await saveSurvey(finalSurveyData);
-      console.log('✅ Backend response:', result);
+      logger.info('✅ Backend response:', result);
 
       // Show success toast
       toast.success(t('toasts.success'));
 
       onComplete();
     } catch (error) {
-      console.error('❌ Error saving survey:', error);
+      logger.error('❌ Error saving survey:', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
       // Show error toast
       toast.error(t('toasts.error'));
     } finally {

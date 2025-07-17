@@ -4,7 +4,7 @@ import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import { ThemeProvider } from './theme-provider';
 import { Toaster } from './ui/sonner';
 import { ConvexAuthNextjsProvider } from '@convex-dev/auth/nextjs';
-import { NuqsAdapter } from 'nuqs/adapters/next/app'
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 

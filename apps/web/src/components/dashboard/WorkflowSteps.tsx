@@ -6,7 +6,7 @@ import { FileText, Search, Target, Combine, CheckCircle, Clock, Circle } from 'l
 import { useQuery } from 'convex/react';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import type { Step, StepStatus } from './types';
-
+import { useLogger } from '@/lib/axiom/client';
 interface WorkflowStepsProps {
   workflowId: string;
   workflowTrackingId: string;
@@ -38,6 +38,7 @@ const STEP_STAGE_MAPPING = {
 };
 
 const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowStepsProps) => {
+  const logger = useLogger();
   const t = useTranslations('dashboard');
   const [steps, setSteps] = useState<Step[]>([
     {
@@ -132,7 +133,7 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
   useEffect(() => {
     if (!workflowStatus || !workflowId) return;
 
-    console.log('Workflow status update:', workflowStatus);
+    logger.info('Workflow status update:', workflowStatus);
 
     const currentStage = workflowStatus.stage;
     const currentPercentage = workflowStatus.percentage;
@@ -155,12 +156,12 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
 
     // Check if workflow is completed
     if (currentStage === 'completed' && currentPercentage === 100) {
-      console.log('Workflow completed');
+      logger.info('Workflow completed workflowId: ' + workflowId);
       setTimeout(() => {
         onComplete();
       }, 1000);
     } else if (currentStage.includes('error')) {
-      console.error('Workflow error:', currentStage);
+      logger.error('Workflow error:', { error: currentStage });
       // Handle error state - could show error message or retry option
     }
   }, [workflowStatus, workflowId, onComplete]);

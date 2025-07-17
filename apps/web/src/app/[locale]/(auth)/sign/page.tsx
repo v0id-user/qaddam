@@ -153,21 +153,25 @@ const SignPage = () => {
   useEffect(() => {
     if (plan && plan === 'pro' && toastShownRef.current !== plan) {
       toast.custom(() => (
-        <div className="rounded-xl bg-gradient-to-br from-white via-gray-50 to-gray-200 p-5 shadow-2xl border border-gray-100 ring-2 ring-indigo-100/40 flex items-center gap-3">
-          <div className="flex-shrink-0 bg-indigo-100 rounded-full p-2 shadow-inner">
+        <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gradient-to-br from-white via-gray-50 to-gray-200 p-5 shadow-2xl ring-2 ring-indigo-100/40">
+          <div className="flex-shrink-0 rounded-full bg-indigo-100 p-2 shadow-inner">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" fill="#6366F1" opacity="0.15"/>
-              <path d="M12 8v4l2.5 2.5" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <circle cx="12" cy="12" r="9" stroke="#6366F1" strokeWidth="1.5" opacity="0.3"/>
+              <circle cx="12" cy="12" r="10" fill="#6366F1" opacity="0.15" />
+              <path
+                d="M12 8v4l2.5 2.5"
+                stroke="#6366F1"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <circle cx="12" cy="12" r="9" stroke="#6366F1" strokeWidth="1.5" opacity="0.3" />
             </svg>
           </div>
           <div>
             <p className="text-base font-medium text-gray-800 drop-shadow-sm">
               {t('make_an_account_to_continue')}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
-              {t('sign_up_to_access_pro_features')}
-            </p>
+            <p className="mt-1 text-xs text-gray-500">{t('sign_up_to_access_pro_features')}</p>
           </div>
         </div>
       ));

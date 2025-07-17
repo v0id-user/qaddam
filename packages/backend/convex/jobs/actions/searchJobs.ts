@@ -6,7 +6,7 @@ import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
-
+import { logger } from "../../lib/axiom";
 // Internal query to get all jobs for testing/debugging
 export const getAllJobListings = internalQuery({
 	args: {},
@@ -23,7 +23,7 @@ export const searchJobListings = internalQuery({
 	handler: async (ctx, args): Promise<Doc<"jobListings">[]> => {
 		// Query all jobs first to get total count
 		const allJobsInDb = await ctx.db.query("jobListings").collect();
-		console.log(
+		logger.info(
 			`DB search: ${allJobsInDb.length} total jobs, query="${args.searchQuery.slice(0, 30)}..."`,
 		);
 
@@ -35,7 +35,7 @@ export const searchJobListings = internalQuery({
 			)
 			.take(50);
 
-		console.log(`Description search: ${descriptionResults.length} results`);
+		logger.info(`Description search: ${descriptionResults.length} results`);
 
 		// Search in job names/titles
 		const nameResults = await ctx.db
@@ -43,7 +43,7 @@ export const searchJobListings = internalQuery({
 			.withSearchIndex("search_name", (q) => q.search("name", args.searchQuery))
 			.take(50);
 
-		console.log(`Name search: ${nameResults.length} results`);
+		logger.info(`Name search: ${nameResults.length} results`);
 
 		// Combine and deduplicate results
 		const allResults = [...descriptionResults, ...nameResults];
@@ -51,11 +51,11 @@ export const searchJobListings = internalQuery({
 			(job, index, self) => index === self.findIndex((j) => j._id === job._id),
 		);
 
-		console.log(`Combined: ${uniqueResults.length} unique results`);
+		logger.info(`Combined: ${uniqueResults.length} unique results`);
 
 		// If no results from search indexes, try simple text matching
 		if (uniqueResults.length === 0) {
-			console.log("No search results, trying text matching...");
+			logger.info("No search results, trying text matching...");
 
 			// Filter jobs that contain any of the search terms (case insensitive)
 			const searchTerms = args.searchQuery
@@ -63,7 +63,7 @@ export const searchJobListings = internalQuery({
 				.split(" ")
 				.filter((term) => term.length > 2);
 
-			console.log(
+			logger.info(
 				`Text matching with ${searchTerms.length} terms: ${searchTerms.slice(0, 3).join(", ")}...`,
 			);
 
@@ -73,7 +73,7 @@ export const searchJobListings = internalQuery({
 				return searchTerms.some((term) => jobText.includes(term));
 			});
 
-			console.log(`Text matching: ${filteredJobs.length} jobs matched`);
+			logger.info(`Text matching: ${filteredJobs.length} jobs matched`);
 			return filteredJobs;
 		}
 
@@ -209,12 +209,11 @@ export const aiSearchJobs = internalAction({
 		totalFound: number;
 		searchParams: typeof args.searchParams;
 	}> => {
-		console.log(
-			"Starting job search:",
-			`${args.searchParams.technical_skills.length} tech skills,`,
-			`${args.searchParams.job_title_keywords.length} job titles,`,
-			`${args.cvProfile.years_of_experience}y exp`,
-		);
+		logger.info("Starting job search:", {
+			technicalSkills: args.searchParams.technical_skills.length,
+			jobTitles: args.searchParams.job_title_keywords.length,
+			yearsOfExperience: args.cvProfile.years_of_experience,
+		});
 
 		// Update workflow status to indicate job search started
 		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -236,11 +235,10 @@ export const aiSearchJobs = internalAction({
 			...searchParams.primary_keywords.slice(0, 3),
 		];
 
-		console.log(
-			"Search strategies:",
-			`${searchStrategies.length} terms:`,
-			searchStrategies.slice(0, 3).join(", ") + "...",
-		);
+		logger.info("Search strategies:", {
+			terms: searchStrategies.length,
+			strategies: searchStrategies.slice(0, 3).join(", ") + "...",
+		});
 
 		// Update workflow status to indicate database search started
 		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -257,7 +255,7 @@ export const aiSearchJobs = internalAction({
 		for (const searchTerm of searchStrategies) {
 			if (searchTerm && searchTerm.trim().length > 2) {
 				searchCount++;
-				console.log(
+				logger.info(
 					`[${searchCount}/${searchStrategies.length}] Searching: "${searchTerm.slice(0, 20)}..."`,
 				);
 
@@ -276,7 +274,7 @@ export const aiSearchJobs = internalAction({
 					{ searchQuery: searchTerm.trim() },
 				);
 
-				console.log(`  → Found ${results.length} results`);
+				logger.info(`  → Found ${results.length} results`);
 				allResults.push(...results);
 			}
 		}
@@ -286,7 +284,7 @@ export const aiSearchJobs = internalAction({
 			(job, index, self) => index === self.findIndex((j) => j._id === job._id),
 		);
 
-		console.log(
+		logger.info(
 			`Search complete: ${uniqueResults.length} unique jobs from ${allResults.length} total results`,
 		);
 
@@ -306,7 +304,7 @@ export const aiSearchJobs = internalAction({
 
 		// Convert database results to JobResult format
 		const jobResults: JobResult[] = [];
-		console.log("Processing jobs for comprehensive AI analysis...");
+		logger.info("Processing jobs for comprehensive AI analysis...");
 
 		// Prepare job data for batched processing
 		const jobsToProcess = uniqueResults.map((job, index) => {
@@ -342,13 +340,13 @@ export const aiSearchJobs = internalAction({
 			chunks.push(jobsToProcess.slice(i, i + BATCH_SIZE));
 		}
 
-		console.log(
+		logger.info(
 			`Processing ${jobsToProcess.length} jobs in ${chunks.length} batches of ${BATCH_SIZE} (using optimized batch AI analysis)`,
 		);
 
 		// Process each chunk with batch AI analysis
 		for (const [chunkIndex, chunk] of chunks.entries()) {
-			console.log(
+			logger.info(
 				`Processing batch ${chunkIndex + 1}/${chunks.length} (${chunk.length} jobs)...`,
 			);
 
@@ -400,7 +398,7 @@ Return analysis for each job in order.
 				schema: batchJobAnalysisSchema,
 			});
 
-			console.log(
+			logger.info(
 				`AI Batch Analysis [Batch ${chunkIndex + 1}] - Token usage:`,
 				{
 					promptTokens: batchAnalysis.usage?.promptTokens || 0,
@@ -414,7 +412,7 @@ Return analysis for each job in order.
 				.map((analysis, batchIdx) => {
 					const originalJob = chunk[batchIdx];
 					if (!originalJob) {
-						console.warn(`Missing job data for batch index ${batchIdx}`);
+						logger.warn(`Missing job data for batch index ${batchIdx}`);
 						return null;
 					}
 
@@ -432,7 +430,7 @@ Return analysis for each job in order.
 							: "location_mismatch";
 					}
 
-					console.log(
+					logger.info(
 						`  Job ${index + 1}: "${job.name.slice(0, 30)}..." - ${matchedSkills.length} skills matched, Experience: ${analysis.experienceMatch.match_level} (${analysis.experienceMatch.match_score}), Location: ${analysis.locationMatch.match_score}`,
 					);
 
@@ -472,7 +470,7 @@ Return analysis for each job in order.
 				.filter((result) => result !== null);
 
 			jobResults.push(...batchResults);
-			console.log(
+			logger.info(
 				`Batch ${chunkIndex + 1} completed. Total processed: ${jobResults.length}/${jobsToProcess.length}`,
 			);
 
@@ -496,9 +494,8 @@ Return analysis for each job in order.
 		});
 
 		const finalResults = jobResults.slice(0, 20);
-		console.log(
-			`Returning ${finalResults.length} jobs:`,
-			`avg score: ${(finalResults.reduce((sum, job) => sum + job.experienceMatchScore, 0) / finalResults.length).toFixed(2)}`,
+		logger.info(
+			`Returning ${finalResults.length} jobs: avg score: ${(finalResults.reduce((sum, job) => sum + job.experienceMatchScore, 0) / finalResults.length).toFixed(2)}`,
 		);
 
 		return {

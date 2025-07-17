@@ -4,7 +4,7 @@ import { v } from "convex/values";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 import { generateObject } from "ai";
-
+import { logger } from "../../lib/axiom";
 // Step 1: Parse CV and extract user profile
 export const aiParseCV = internalAction({
 	args: {
@@ -21,11 +21,11 @@ export const aiParseCV = internalAction({
 				throw new Error("CV file not found in storage");
 			}
 
-			console.log(
-				"Starting CV parsing:",
-				`storage ID: ${cv_storage_id.slice(0, 8)}...`,
-				`user: ${args.userId.slice(0, 8) + "..."}`,
-			);
+			logger.info("Starting CV parsing:", {
+				storageId: cv_storage_id,
+				userId: args.userId,
+				workflowTrackingId: args.workflowTrackingId,
+			});
 
 			// Update workflow status to indicate CV parsing started
 			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -35,7 +35,7 @@ export const aiParseCV = internalAction({
 				userId: args.userId,
 			});
 
-			console.log("Calling AI model for CV analysis...");
+			logger.info("Calling AI model for CV analysis...");
 
 			// Update workflow status to indicate AI processing started
 			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -105,27 +105,26 @@ export const aiParseCV = internalAction({
 				}),
 			});
 
-			console.log("AI CV Parsing - Token usage:", {
+			logger.info("AI CV Parsing - Token usage:", {
 				promptTokens: response.usage?.promptTokens || 0,
 				completionTokens: response.usage?.completionTokens || 0,
 				totalTokens: response.usage?.totalTokens || 0,
 			});
 
 			const result = response.object;
-			console.log(
-				"CV parsing completed:",
-				`${result.skills.length} skills,`,
-				`${result.job_titles.length} job titles,`,
-				`${result.industries.length} industries,`,
-				`${result.years_of_experience}y exp,`,
-				`level: ${result.experience_level}`,
-			);
+			logger.info("CV parsing completed:", {
+				skills: result.skills.length,
+				jobTitles: result.job_titles.length,
+				industries: result.industries.length,
+				yearsOfExperience: result.years_of_experience,
+				experienceLevel: result.experience_level,
+			});
 
-			console.log("Sample extracted data:", {
-				skills: result.skills.slice(0, 3).join(", ") + "...",
-				titles: result.job_titles.slice(0, 2).join(", ") + "...",
-				industries: result.industries.slice(0, 2).join(", ") + "...",
-				locations: result.preferred_locations.slice(0, 2).join(", ") + "...",
+			logger.info("Sample extracted data:", {
+				skills: result.skills.slice(0, 3),
+				titles: result.job_titles.slice(0, 2),
+				industries: result.industries.slice(0, 2),
+				locations: result.preferred_locations.slice(0, 2),
 			});
 
 			// Update workflow status to indicate CV parsing completed
@@ -144,7 +143,7 @@ export const aiParseCV = internalAction({
 				result.keywords.length === 0 ||
 				result.preferred_locations.length === 0
 			) {
-				console.warn("Some required arrays are empty, providing fallbacks");
+				logger.warn("Some required arrays are empty, providing fallbacks");
 
 				// Provide fallback data
 				const fallbackResult = {
@@ -164,17 +163,16 @@ export const aiParseCV = internalAction({
 							: ["Any Location"],
 				};
 
-				console.log(
-					"Using fallback data:",
-					`${fallbackResult.skills.length} skills,`,
-					`${fallbackResult.job_titles.length} job titles`,
-				);
+				logger.info("Using fallback data:", {
+					skills: fallbackResult.skills.length,
+					jobTitles: fallbackResult.job_titles,
+				});
 				return fallbackResult;
 			}
 
 			return result;
 		} catch (error) {
-			console.error("Error in CV parsing:", error);
+			logger.error("Error in CV parsing:", { error });
 
 			// Update workflow status to indicate error
 			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -196,12 +194,11 @@ export const aiParseCV = internalAction({
 				preferred_locations: ["Any Location"],
 			};
 
-			console.log(
-				"Using fallback profile:",
-				`${fallbackProfile.skills.length} skills,`,
-				`${fallbackProfile.job_titles.length} job titles,`,
-				`level: ${fallbackProfile.experience_level}`,
-			);
+			logger.info("Using fallback profile:", {
+				skills: fallbackProfile.skills.length,
+				jobTitles: fallbackProfile.job_titles,
+				experienceLevel: fallbackProfile.experience_level,
+			});
 			return fallbackProfile;
 		}
 	},

@@ -4,6 +4,7 @@ import { v } from "convex/values";
 import { action } from "../_generated/server";
 import type { WorkflowId } from "@convex-dev/workflow";
 import rateLimiter from "../ratelimiter";
+import { logger } from "../lib/axiom";
 export type { WorkflowId };
 
 export const workflow = new WorkflowManager(components.workflow, {
@@ -98,7 +99,9 @@ export const startJobSearchWorkflow = action({
 		args,
 	): Promise<{ workflowTrackingId: string; workflowId: WorkflowId }> => {
 		const me = await ctx.runQuery(api.users.getMe);
-		console.log("Starting job search workflow with CV:", args.cv_storage_id);
+		logger.info("Starting job search workflow with CV:", {
+			cv_storage_id: args.cv_storage_id,
+		});
 
 		// const { ok, retryAfter } = await rateLimiter.limit(ctx, "freeTrialSignUp");
 		// if (!ok) {
@@ -125,7 +128,7 @@ export const startJobSearchWorkflow = action({
 
 		// TODO: Schedule a job to search with specific parameters from users survey
 
-		console.log("Workflow started with ID:", workflowId);
+		logger.info("Workflow started with ID:", { workflowId });
 		return { workflowTrackingId, workflowId };
 	},
 });

@@ -15,8 +15,10 @@ import { toast } from 'react-hot-toast';
 import type { WorkflowId } from '@qaddam/backend/convex/jobs/workflow';
 import { useQueryState } from 'nuqs';
 import { useRouter } from 'next/navigation';
+import { useLogger } from '@/lib/axiom/client';
 
 export default function DashboardPage() {
+  const logger = useLogger();
   const router = useRouter();
   const t = useTranslations('dashboard');
   const [currentStage, setCurrentStage] = useState<DashboardStage>('upload');
@@ -160,7 +162,7 @@ export default function DashboardPage() {
     }
 
     try {
-      console.log('Starting job search workflow with CV:', uploadedCVId);
+      logger.info('Starting job search workflow with CV:', uploadedCVId);
       toast.success(t('job_results.messages.workflow_starting'));
 
       const result = await startWorkflow({
@@ -171,15 +173,17 @@ export default function DashboardPage() {
       setWorkflowTrackingId(result.workflowTrackingId);
       setCurrentStage('workflow');
 
-      console.log('Workflow started successfully:', result);
+      logger.info('Workflow started successfully:', result);
     } catch (error) {
-      console.error('Error starting workflow:', error);
+      logger.error('Error starting workflow:', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
       toast.error(t('job_results.errors.workflow_start_failed'));
     }
   };
 
   const handleWorkflowComplete = () => {
-    console.log('Workflow completed with results');
+    logger.info('Workflow completed with results');
     setCurrentStage('results');
     toast.success(t('job_results.messages.workflow_completed'));
   };

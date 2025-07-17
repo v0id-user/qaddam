@@ -11,10 +11,9 @@ export const getMe = query({
 			userId: userId,
 		});
 
-
 		const productKey = subscription?.productKey;
 
-		const isPro = productKey === 'premiumMonthly';
+		const isPro = productKey === "premiumMonthly";
 
 		const user = await ctx.db.get(userId);
 		return {
@@ -23,7 +22,6 @@ export const getMe = query({
 		};
 	},
 });
-
 
 export const getUser = query({
 	handler: async (ctx) => {

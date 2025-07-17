@@ -6,7 +6,7 @@ import { z } from "zod";
 import type { JobResult, JobSearchResults } from "../../types/jobs";
 import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
-
+import { logger } from "../../lib/axiom";
 // Internal query to get job listing details
 export const getJobListing = internalQuery({
 	args: {
@@ -52,12 +52,11 @@ export const aiCombineJobResults = internalAction({
 		workflowTrackingId: v.string(),
 	},
 	handler: async (ctx, args): Promise<JobSearchResults> => {
-		console.log(
-			"Starting job ranking:",
-			`${args.jobResults.jobs.length} jobs,`,
-			`${args.searchParams.primary_keywords.length} primary keywords,`,
-			`${args.cvProfile.skills.length} skills`,
-		);
+		logger.info("Starting job ranking:", {
+			jobResults: args.jobResults.jobs.length,
+			primaryKeywords: args.searchParams.primary_keywords.length,
+			skills: args.cvProfile.skills.length,
+		});
 
 		// Update workflow status to indicate job ranking started
 		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -69,7 +68,7 @@ export const aiCombineJobResults = internalAction({
 
 		// If no jobs found, return empty results with default insights
 		if (!args.jobResults.jobs || args.jobResults.jobs.length === 0) {
-			console.log("No jobs found, returning empty results");
+			logger.info("No jobs found, returning empty results");
 
 			// Update workflow status to indicate completion with no results
 			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -109,7 +108,7 @@ export const aiCombineJobResults = internalAction({
 			} as JobSearchResults;
 		}
 
-		console.log("Calling AI ranking model for job analysis...");
+		logger.info("Calling AI ranking model for job analysis...");
 
 		// Update workflow status to indicate AI analysis started
 		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -166,24 +165,21 @@ Rank and analyze for insights.
 			}),
 		});
 
-		console.log("AI Job Ranking - Token usage:", {
+		logger.info("AI Job Ranking - Token usage:", {
 			promptTokens: response.usage?.promptTokens || 0,
 			completionTokens: response.usage?.completionTokens || 0,
 			totalTokens: response.usage?.totalTokens || 0,
 		});
 
-		console.log(
-			"AI ranking completed:",
-			`${response.object.ranked_jobs.length} ranked jobs,`,
-			`${response.object.insights.total_relevant} relevant,`,
-			`avg score: ${response.object.insights.avg_match_score}`,
-		);
-
-		console.log(
-			"Top skills in demand:",
-			response.object.insights.top_skills_in_demand.slice(0, 3).join(", ") +
-				"...",
-		);
+		logger.info("AI ranking completed and insights:", {
+			rankedJobs: response.object.ranked_jobs.length,
+			totalRelevant: response.object.insights.total_relevant,
+			avgScore: response.object.insights.avg_match_score,
+			topSkillsInDemand: response.object.insights.top_skills_in_demand.slice(
+				0,
+				3,
+			),
+		});
 
 		// Update workflow status to indicate data extraction started
 		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -194,11 +190,14 @@ Rank and analyze for insights.
 		});
 
 		const originalJobs = args.jobResults.jobs;
-		console.log("Processing original job results...");
+		logger.info("Processing original job results...");
 
 		// Use pre-extracted data instead of making additional AI calls
-		console.log(
+		logger.info(
 			"Using pre-extracted data from searchJobs.ts (no additional AI calls needed)",
+			{
+				originalJobs: originalJobs.length,
+			},
 		);
 
 		const extractedData = {
@@ -247,7 +246,7 @@ Rank and analyze for insights.
 		});
 
 		// Process extracted data to get final values
-		console.log("Processing extracted data for final results...");
+		logger.info("Processing extracted data for final results...");
 
 		// Calculate salary range
 		let finalSalaryRange = {
@@ -287,7 +286,7 @@ Rank and analyze for insights.
 			.slice(0, 3)
 			.map(([type]) => type);
 
-		console.log("Extraction results:", {
+		logger.info("Extraction results:", {
 			salaryRange: finalSalaryRange,
 			companies: uniqueCompanies.length,
 			jobTypes: preferredJobTypes.length,
@@ -329,12 +328,11 @@ Rank and analyze for insights.
 			})
 			.sort((a, b) => b.matchScore - a.matchScore);
 
-		console.log(
-			"Final processing complete:",
-			`${finalJobs.length} jobs,`,
-			`top score: ${finalJobs[0]?.matchScore || 0}`,
-			`lowest score: ${finalJobs[finalJobs.length - 1]?.matchScore || 0}`,
-		);
+		logger.info("Final processing complete:", {
+			totalJobs: finalJobs.length,
+			topScore: finalJobs[0]?.matchScore || 0,
+			lowestScore: finalJobs[finalJobs.length - 1]?.matchScore || 0,
+		});
 
 		// Update workflow status to indicate job ranking completed
 		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
