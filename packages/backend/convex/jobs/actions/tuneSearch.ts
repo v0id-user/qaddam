@@ -5,8 +5,9 @@ import { internal } from "../../_generated/api";
 import { v } from "convex/values";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { z } from "zod";
 import { logger } from "../../lib/axiom";
+import { validateKeywordExtraction } from "../../lib/validators";
+import { keywordExtractionSchema } from "../../lib/ai_schemas";
 // Step 2: Extract keywords from CV for database job searching
 export const aiTuneJobSearch = internalAction({
 	args: {
@@ -57,11 +58,10 @@ export const aiTuneJobSearch = internalAction({
 				userId: args.userId,
 			});
 
-			const response = await generateObject({
+			const response = await (generateObject as any)({
 				model: openai.chat("gpt-4o-mini", {
 					structuredOutputs: true,
 				}),
-				schemaName: "CV_Keywords_Extraction",
 				messages: [
 					{
 						role: "system",
@@ -123,34 +123,7 @@ Make sure each array has at least one relevant keyword.
 						`,
 					},
 				],
-				schema: z.object({
-					primary_keywords: z
-						.array(z.string())
-						.min(1)
-						.describe(
-							"Most important keywords for job searching - technical skills, job titles, core expertise",
-						),
-					secondary_keywords: z
-						.array(z.string())
-						.min(1)
-						.describe(
-							"Additional relevant keywords - related skills, industry terms, experience levels",
-						),
-					search_terms: z
-						.array(z.string())
-						.min(1)
-						.describe("Combined optimized search terms for database queries"),
-					job_title_keywords: z
-						.array(z.string())
-						.min(1)
-						.describe("Specific job titles and role names to search for"),
-					technical_skills: z
-						.array(z.string())
-						.min(1)
-						.describe(
-							"Technical skills, programming languages, frameworks, and tools",
-						),
-				}),
+				schema: keywordExtractionSchema,
 			});
 
 			logger.info("AI Keyword Extraction - Token usage:", {
@@ -159,7 +132,7 @@ Make sure each array has at least one relevant keyword.
 				totalTokens: response.usage?.totalTokens || 0,
 			});
 
-			const result = response.object;
+			const result = validateKeywordExtraction(response.object as unknown);
 			logger.info("Keyword extraction completed:", {
 				primary: result.primary_keywords.length,
 				secondary: result.secondary_keywords.length,

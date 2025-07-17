@@ -1,10 +1,10 @@
 "use node";
 
 import { ApifyDriver } from "../../apify";
-import { Actor } from "../../apify/actors";
 import type { ActorRun } from "apify-client";
 import type { JobSource } from "../types/job_source";
-import type { JobSearchActor, JobSearchInput } from "../driver";
+import type { JobSearchInput } from "../driver";
+import { BaseJobSearchActor } from "./index";
 
 /*
  * LinkedIn Jobs Actor
@@ -73,14 +73,15 @@ export interface LinkedInJobsResult {
 	linkedInJobs: LinkedInJob[];
 }
 
-export class LinkedInJobsActor
-	extends Actor
-	implements JobSearchActor<LinkedInJobsInput, LinkedInJobsResult>
-{
-	private static readonly ACTOR_ID: string = "hKByXkMQaC5Qt9UMN";
+export class LinkedInJobsActor extends BaseJobSearchActor<LinkedInJobsInput, LinkedInJobsResult> {
+	protected readonly actorId = "hKByXkMQaC5Qt9UMN";
+	protected readonly jobSource: JobSource = {
+		source: "linked-in",
+		searchUrl: "https://www.linkedin.com/jobs/search/?keywords={query}",
+	};
 
 	constructor(apifyDriver: ApifyDriver) {
-		super(LinkedInJobsActor.ACTOR_ID, apifyDriver);
+		super(apifyDriver, "hKByXkMQaC5Qt9UMN");
 	}
 
 	async search(input: LinkedInJobsInput): Promise<ActorRun> {
@@ -92,25 +93,5 @@ export class LinkedInJobsActor
 		};
 
 		return await this.call(jobInput);
-	}
-
-	async getResults(run: ActorRun): Promise<LinkedInJobsResult[]> {
-		const client = this.getClient();
-		const { items } = await client.dataset(run.defaultDatasetId).listItems();
-		return items as unknown as LinkedInJobsResult[];
-	}
-
-	async searchAndGetResults(
-		input: LinkedInJobsInput,
-	): Promise<LinkedInJobsResult[]> {
-		const run = await this.search(input);
-		return await this.getResults(run);
-	}
-
-	getJobSource(): JobSource {
-		return {
-			source: "linked-in",
-			searchUrl: "https://www.linkedin.com/jobs/search/?keywords={query}",
-		};
 	}
 }
