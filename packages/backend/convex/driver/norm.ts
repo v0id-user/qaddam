@@ -126,7 +126,7 @@ const normalizeIndeedJob = (rawJob: MinimalIndeedJob): JobListing | null => {
 		return {
 			name: rawJob.positionName,
 			descriptionHtml: "", // Indeed doesn't provide HTML description
-			description: rawJob.jobType.join(", "), // Use job types as description
+			description: rawJob.jobType?.join(", ") ?? "", // Use job types as description
 			location: rawJob.location,
 			salary,
 			currency,
