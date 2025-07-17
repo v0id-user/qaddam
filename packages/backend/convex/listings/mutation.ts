@@ -1,12 +1,7 @@
 import { internalMutation } from "../_generated/server";
 import { type GenericId, v } from "convex/values";
-import { 
-  CrawledJobsSchema, 
-  CrawledJobsArrayParser,
-  type CrawledJobs
-} from "../schemas/zod/crawled_jobs";
-import type { MinimalLinkedInJob } from "../schemas/zod/linkedin";
-import type { MinimalIndeedJob } from "../schemas/zod/indeed";
+import { validateCrawledJobsArray } from "../lib/validators";
+import type { CrawledJobs, MinimalLinkedInJob, MinimalIndeedJob } from "../types/job_types";
 import { logger } from "../lib/axiom";
 import { normalizeJobListing } from "../driver/norm";
 
@@ -44,8 +39,8 @@ export const addNewJobsListing = internalMutation({
 		const insertedJobs: GenericId<"jobListings">[] = [];
 		let skippedJobs = 0;
 
-		// Validate & parse with Zod (throws on invalid input)
-		const parsedInput: CrawledJobs[] = CrawledJobsArrayParser.parse(jobSearchResults);
+		// Validate with lightweight validators (throws on invalid input)
+		const parsedInput: CrawledJobs[] = validateCrawledJobsArray(jobSearchResults);
 
 		// Insert all jobs, respecting the explicit source tag
 		for (const { source, jobs } of parsedInput) {

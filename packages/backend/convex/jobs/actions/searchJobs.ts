@@ -6,7 +6,9 @@ import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { logger } from "../../lib/axiom";
-import { BatchJobAnalysisSchema } from "../../schemas/zod/batch_job_analysis";
+import { validateBatchJobAnalysis } from "../../lib/validators";
+import { batchJobAnalysisSchema } from "../../lib/ai_schemas";
+import type { BatchJobAnalysis } from "../../types/job_types";
 // Internal query to get all jobs for testing/debugging
 export const getAllJobListings = internalQuery({
 	args: {},
@@ -312,7 +314,7 @@ Return analysis for each job in order.
 						`,
 					},
 				],
-				schema: BatchJobAnalysisSchema,
+				schema: batchJobAnalysisSchema,
 			});
 
 			logger.info(
@@ -325,10 +327,10 @@ Return analysis for each job in order.
 			);
 
 			// Process batch results
-			const batchData = BatchJobAnalysisSchema.parse(batchAnalysis.object as unknown);
+			const batchData = validateBatchJobAnalysis(batchAnalysis.object as unknown);
 
 			const batchResults = batchData.jobAnalyses
-				.map((analysis, batchIdx) => {
+				.map((analysis: BatchJobAnalysis['jobAnalyses'][0], batchIdx: number) => {
 					const originalJob = chunk[batchIdx];
 					if (!originalJob) {
 						logger.warn(`Missing job data for batch index ${batchIdx}`);
@@ -386,7 +388,7 @@ Return analysis for each job in order.
 						},
 					};
 				})
-				.filter((result) => result !== null);
+				.filter((result: ReturnType<typeof batchData.jobAnalyses.map>[0] | null): result is NonNullable<typeof result> => result !== null);
 
 			jobResults.push(...batchResults);
 			logger.info(

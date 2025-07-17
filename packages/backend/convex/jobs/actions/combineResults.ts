@@ -6,7 +6,8 @@ import type { JobResult, JobSearchResults } from "../../types/jobs";
 import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
 import { logger } from "../../lib/axiom";
-import { JobRankingSchema } from "../../schemas/zod/job_ranking";
+import { validateJobRanking } from "../../lib/validators";
+import { jobRankingSchema } from "../../lib/ai_schemas";
 // Internal query to get job listing details
 export const getJobListing = internalQuery({
 	args: {
@@ -146,7 +147,7 @@ Rank and analyze for insights.
 					`,
 				},
 			],
-							schema: JobRankingSchema,
+							schema: jobRankingSchema,
 		});
 
 		logger.info("AI Job Ranking - Token usage:", {
@@ -155,7 +156,7 @@ Rank and analyze for insights.
 			totalTokens: response.usage?.totalTokens || 0,
 		});
 
-		const rankingData = JobRankingSchema.parse(response.object as unknown);
+		const rankingData = validateJobRanking(response.object as unknown);
 
 		logger.info("AI ranking completed and insights:", {
 			rankedJobs: rankingData.ranked_jobs.length,

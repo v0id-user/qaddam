@@ -3,8 +3,7 @@
 import { internalAction } from "../_generated/server";
 import { api, internal } from "../_generated/api";
 import JobSearchEngine from "../driver/jobs/driver";
-import type { MinimalLinkedInJob } from "../schemas/zod/linkedin";
-import type { MinimalIndeedJob } from "../schemas/zod/indeed";
+import type { MinimalLinkedInJob, MinimalIndeedJob } from "../types/job_types";
 import { LinkedInJobsActor, type LinkedInJobsInput } from "../driver/jobs/actors/linkedin_jobs";
 import { IndeedJobsActor, type IndeedJobsInput } from "../driver/jobs/actors/indeed_jobs";
 import { v } from "convex/values";

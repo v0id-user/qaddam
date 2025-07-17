@@ -1,3 +1,3 @@
-// Re-export minimal schemas from the new location
-export { MinimalLinkedInJobSchema as LinkedInJobSchema, type MinimalLinkedInJob as LinkedInJob } from "../../schemas/zod/linkedin";
-export { MinimalIndeedJobSchema as IndeedJobSchema, type MinimalIndeedJob as IndeedJob } from "../../schemas/zod/indeed"; 
+// Re-export types from the new location
+export type { MinimalLinkedInJob as LinkedInJob } from "../../types/job_types";
+export type { MinimalIndeedJob as IndeedJob } from "../../types/job_types"; 
