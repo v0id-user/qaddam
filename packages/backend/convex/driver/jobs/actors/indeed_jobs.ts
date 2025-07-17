@@ -1,10 +1,10 @@
 "use node";
 
 import { ApifyDriver } from "../../apify";
-import { Actor } from "../../apify/actors";
 import type { ActorRun } from "apify-client";
 import type { JobSource } from "../types/job_source";
-import type { JobSearchActor, JobSearchInput } from "../driver";
+import type { JobSearchInput } from "../driver";
+import { BaseJobSearchActor } from "./index";
 
 /*
  * Indeed Jobs Actor
@@ -61,14 +61,15 @@ export interface IndeedJobsResult {
 	indeedJobs: IndeedJob[];
 }
 
-export class IndeedJobsActor
-	extends Actor
-	implements JobSearchActor<IndeedJobsInput, IndeedJobsResult>
-{
-	private static readonly ACTOR_ID: string = "hKByXkMQaC5Qt9UMN";
+export class IndeedJobsActor extends BaseJobSearchActor<IndeedJobsInput, IndeedJobsResult> {
+	protected readonly actorId = "hMvNSpz3JnHgl5jkh";
+	protected readonly jobSource: JobSource = {
+		source: "indeed",
+		searchUrl: "https://www.indeed.com/jobs?q={query}",
+	};
 
 	constructor(apifyDriver: ApifyDriver) {
-		super(IndeedJobsActor.ACTOR_ID, apifyDriver);
+		super(apifyDriver, "hMvNSpz3JnHgl5jkh");
 	}
 
 	async search(input: IndeedJobsInput): Promise<ActorRun> {
@@ -82,25 +83,5 @@ export class IndeedJobsActor
 			saveOnlyUniqueItems: input.saveOnlyUniqueItems,
 		};
 		return await this.call(jobInput);
-	}
-
-	async getResults(run: ActorRun): Promise<IndeedJobsResult[]> {
-		const client = this.getClient();
-		const { items } = await client.dataset(run.defaultDatasetId).listItems();
-		return items as unknown as IndeedJobsResult[];
-	}
-
-	async searchAndGetResults(
-		input: IndeedJobsInput,
-	): Promise<IndeedJobsResult[]> {
-		const run = await this.search(input);
-		return await this.getResults(run);
-	}
-
-	getJobSource(): JobSource {
-		return {
-			source: "indeed",
-			searchUrl: "https://www.indeed.com/jobs?q={query}",
-		};
 	}
 }

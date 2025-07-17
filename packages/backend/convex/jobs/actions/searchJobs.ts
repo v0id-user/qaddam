@@ -373,11 +373,10 @@ export const aiSearchJobs = internalAction({
 			);
 
 			// OPTIMIZED BATCH AI ANALYSIS - 12 jobs in single AI call
-			const batchAnalysis = await generateObject({
+			const batchAnalysis = await (generateObject as any)({
 				model: openai.chat("gpt-4o-mini", {
 					structuredOutputs: true,
 				}),
-				schemaName: "Batch_Job_Analysis",
 				messages: [
 					{
 						role: "system",
@@ -408,7 +407,9 @@ Return analysis for each job in order.
 			);
 
 			// Process batch results
-			const batchResults = batchAnalysis.object.jobAnalyses
+			const batchData = batchJobAnalysisSchema.parse(batchAnalysis.object as unknown);
+
+			const batchResults = batchData.jobAnalyses
 				.map((analysis, batchIdx) => {
 					const originalJob = chunk[batchIdx];
 					if (!originalJob) {

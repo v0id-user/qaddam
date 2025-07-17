@@ -1,17 +1,56 @@
 import { internalMutation } from "../_generated/server";
 import { type GenericId, v } from "convex/values";
-import type { LinkedInJob } from "../driver/jobs/actors/linkedin_jobs";
+import { z } from "zod";
+import { 
+  LinkedInJobSchema, 
+  IndeedJobSchema, 
+  type LinkedInJob as ParsedLinkedInJob, 
+  type IndeedJob as ParsedIndeedJob,
+} from "../driver/jobs/schemas";
+import type { LinkedInJob as LinkedInJobFull } from "../driver/jobs/actors/linkedin_jobs";
+import type { IndeedJob as IndeedJobFull } from "../driver/jobs/actors/indeed_jobs";
 import { logger } from "../lib/axiom";
-// Helper type for a raw result coming from the LinkedIn Job actor
-// It can be either a single LinkedInJob object or an object that wraps the
-// jobs inside the `linkedInJobs` array (as returned by the actor dataset).
-// This allows the mutation to remain flexible with the incoming payload.
-type LinkedInJobResult = LinkedInJob | { linkedInJobs: LinkedInJob[] };
+import { normalizeJobListing } from "../driver/norm";
 
-// Mutation that receives the raw job-search results and persists them in the
-// `jobListings` table after extracting only the essential fields we care about.
+// -----------------------------------------------
+// Runtime-checked schema for what the Action sends
+// -----------------------------------------------
+export const CrawledJobsSchema = z.union([
+  z.object({
+    source: z.literal("linkedIn"),
+    jobs: z.array(LinkedInJobSchema),
+  }),
+  z.object({
+    source: z.literal("indeed"),
+    jobs: z.array(IndeedJobSchema),
+  }),
+]);
+
+export type CrawledJobs = z.infer<typeof CrawledJobsSchema>;
+
+// Helper function to insert a normalized job
+const insertJob = async (
+	ctx: any,
+	normalizedJob: any,
+	insertedJobs: GenericId<"jobListings">[],
+	jobSource: string
+): Promise<boolean> => {
+	try {
+		const jobId = await ctx.db.insert("jobListings", normalizedJob);
+		insertedJobs.push(jobId);
+		return true;
+	} catch (error) {
+		logger.error(`Failed to insert ${jobSource} job ${normalizedJob.sourceId}:`, {
+			error,
+		});
+		return false;
+	}
+};
+
+// Mutation that receives raw job-search results from multiple sources and persists them
+// in the `jobListings` table after normalizing them appropriately.
 export const addNewJobsListing = internalMutation({
-	// Keep the validator broad – the action will pass the raw actor results.
+	// Keep the validator broad – the action will pass raw actor results from multiple sources.
 	// We validate/clean the data ourselves before inserting.
 	args: {
 		jobSearchResults: v.any(),
@@ -23,164 +62,26 @@ export const addNewJobsListing = internalMutation({
 		const insertedJobs: GenericId<"jobListings">[] = [];
 		let skippedJobs = 0;
 
-		// --- helper to pull out the fields we need from a LinkedIn job object ---
-		const extractEssentialJobData = (
-			rawJob: LinkedInJob,
-		): {
-			url: string;
-			title: string;
-			descriptionHtml: string;
-			description: string;
-			company: string;
-			location: string;
-			salary?: number;
-			currency?: string;
-			datePosted?: number;
-			sourceId: string;
-		} | null => {
-			try {
-				if (!rawJob.id || !rawJob.title || !rawJob.link) {
-					return null;
-				}
-				// Salary parsing (best-effort)
-				let salary: number | undefined;
-				let currency: string | undefined;
-				if (
-					rawJob.salaryInfo &&
-					Array.isArray(rawJob.salaryInfo) &&
-					rawJob.salaryInfo.length > 0
-				) {
-					const salaryText = rawJob.salaryInfo[0];
-					if (salaryText && typeof salaryText === "string") {
-						// Extract salary range if present (e.g. "100,000 - 150,000")
-						const salaryRangeMatch = salaryText.match(
-							/([\d,]+)\s*-\s*([\d,]+)/,
-						);
-						if (salaryRangeMatch) {
-							const minSalary = parseInt(salaryRangeMatch[1].replace(/,/g, ""));
-							const maxSalary = parseInt(salaryRangeMatch[2].replace(/,/g, ""));
-							// Use average of range
-							salary = Math.floor((minSalary + maxSalary) / 2);
-						} else {
-							// Fall back to single number
-							const singleSalaryMatch = salaryText.match(/[\d,]+/);
-							if (singleSalaryMatch) {
-								salary = parseInt(singleSalaryMatch[0].replace(/,/g, ""));
-							}
-						}
+		// Validate & parse with Zod (throws on invalid input)
+		const parsedInput: CrawledJobs[] = z.array(CrawledJobsSchema).parse(jobSearchResults);
 
-						// Extract currency symbol/code with more comprehensive matching
-						const currencyMatch = salaryText.match(
-							/(\$|USD|EUR|£|GBP|AED|SAR|€)/i,
-						);
-						if (currencyMatch) {
-							// Normalize currency codes
-							const currencyMap: Record<string, string> = {
-								$: "USD",
-								"£": "GBP",
-								"€": "EUR",
-							};
-							currency = currencyMap[currencyMatch[0]] || currencyMatch[0];
-						}
-					}
-				}
+		// Insert all jobs, respecting the explicit source tag
+		for (const { source, jobs } of parsedInput) {
+			for (const rawJob of jobs as (ParsedLinkedInJob | ParsedIndeedJob)[]) {
+				const normalizedJob = normalizeJobListing(
+					rawJob as unknown as LinkedInJobFull | IndeedJobFull,
+					source,
+				);
 
-				// Date parsing (best-effort)
-				let datePosted: number | undefined;
-				if (rawJob.postedAt) {
-					const parsedDate = new Date(rawJob.postedAt);
-					if (!isNaN(parsedDate.getTime())) {
-						datePosted = parsedDate.getTime();
-					}
-				}
+				if (normalizedJob) {
+					const success = await insertJob(
+						ctx,
+						normalizedJob,
+						insertedJobs,
+						source,
+					);
 
-				return {
-					url: rawJob.link,
-					title: rawJob.title,
-					descriptionHtml: rawJob.descriptionHtml,
-					description: rawJob.descriptionText ?? "",
-					company: rawJob.companyName ?? "Unknown Company",
-					location: rawJob.location ?? "Unknown Location",
-					salary,
-					currency,
-					datePosted,
-					sourceId: rawJob.id,
-				};
-			} catch {
-				return null;
-			}
-		};
-
-		// Normalise the incoming payload to an array for simpler processing.
-		const resultsArray: LinkedInJobResult[] = Array.isArray(jobSearchResults)
-			? (jobSearchResults as LinkedInJobResult[])
-			: [jobSearchResults as LinkedInJobResult];
-
-		// Iterate over all items and persist the extracted jobs.
-		for (const result of resultsArray) {
-			// If the actor wrapped the jobs inside `linkedInJobs`, handle that.
-			if (result && Array.isArray((result as any).linkedInJobs)) {
-				for (const raw of (result as { linkedInJobs: LinkedInJob[] })
-					.linkedInJobs) {
-					const jobData = extractEssentialJobData(raw);
-					if (jobData) {
-						try {
-							const jobId = await ctx.db.insert("jobListings", {
-								name: jobData.title,
-								descriptionHtml: jobData.descriptionHtml,
-								description: jobData.description,
-								location: jobData.location,
-								salary: jobData.salary,
-								currency: jobData.currency,
-								source: "LinkedIn", // TODO: This is hardcoded for now, change later
-								sourceId: jobData.sourceId,
-								datePosted: jobData.datePosted,
-								sourceUrl: jobData.url,
-								sourceName: jobData.company,
-								sourceLogo: undefined,
-								sourceDescription: undefined,
-								sourceLocation: jobData.location,
-							});
-							insertedJobs.push(jobId);
-						} catch (error) {
-							logger.error(`Failed to insert job ${jobData.sourceId}:`, {
-								error,
-							});
-							skippedJobs++;
-						}
-					} else {
-						skippedJobs++;
-					}
-				}
-			} else {
-				// Treat the result itself as a LinkedInJob object.
-				const jobData = extractEssentialJobData(result as LinkedInJob);
-				if (jobData) {
-					try {
-						const jobId = await ctx.db.insert("jobListings", {
-							name: jobData.title,
-							descriptionHtml: jobData.descriptionHtml,
-							description: jobData.description,
-							location: jobData.location,
-							salary: jobData.salary,
-							currency: jobData.currency,
-							source: "LinkedIn", // TODO: This is hardcoded for now, change later
-							sourceId: jobData.sourceId,
-							datePosted: jobData.datePosted,
-							sourceUrl: jobData.url,
-							sourceName: jobData.company,
-							sourceLogo: undefined,
-							sourceDescription: undefined,
-							sourceLocation: jobData.location,
-						});
-						insertedJobs.push(jobId);
-					} catch (error) {
-						console.error(
-							`Failed to insert job ${jobData?.sourceId ?? "unknown"}:`,
-							error,
-						);
-						skippedJobs++;
-					}
+					if (!success) skippedJobs++;
 				} else {
 					skippedJobs++;
 				}

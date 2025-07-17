@@ -22,6 +22,7 @@ import type * as driver_jobs_driver from "../driver/jobs/driver.js";
 import type * as driver_jobs_index from "../driver/jobs/index.js";
 import type * as driver_jobs_types_index from "../driver/jobs/types/index.js";
 import type * as driver_jobs_types_job_source from "../driver/jobs/types/job_source.js";
+import type * as driver_norm from "../driver/norm.js";
 import type * as healthCheck from "../healthCheck.js";
 import type * as http from "../http.js";
 import type * as job_data from "../job_data.js";
@@ -79,6 +80,7 @@ declare const fullApi: ApiFromModules<{
   "driver/jobs/index": typeof driver_jobs_index;
   "driver/jobs/types/index": typeof driver_jobs_types_index;
   "driver/jobs/types/job_source": typeof driver_jobs_types_job_source;
+  "driver/norm": typeof driver_norm;
   healthCheck: typeof healthCheck;
   http: typeof http;
   job_data: typeof job_data;

@@ -3,8 +3,65 @@
 import { internalAction } from "../_generated/server";
 import { api, internal } from "../_generated/api";
 import JobSearchEngine from "../driver/jobs/driver";
-import { LinkedInJobsActor } from "../driver/jobs/actors/linkedin_jobs";
+import type { LinkedInJob } from "../driver/jobs/actors/linkedin_jobs";
+import type { IndeedJob } from "../driver/jobs/actors/indeed_jobs";
+import { LinkedInJobsActor, type LinkedInJobsInput } from "../driver/jobs/actors/linkedin_jobs";
+import { IndeedJobsActor, type IndeedJobsInput } from "../driver/jobs/actors/indeed_jobs";
 import { v } from "convex/values";
+
+// Generic crawler factory
+async function runCrawler<TInput, TResult>(
+	ActorClass: new (apifyDriver: any) => any,
+	input: TInput,
+	cost: string
+): Promise<TResult[]> {
+	const jobSearch = new JobSearchEngine(ActorClass);
+	return await jobSearch.runAndGetResults(input);
+}
+
+// LinkedIn crawler configuration
+const createLinkedInInput = (keywords: string[], countries: string[]): LinkedInJobsInput => {
+	const searchUrl = new URL("https://www.linkedin.com/jobs/search/");
+	keywords.forEach((word) => {
+		searchUrl.searchParams.set("keywords", word);
+	});
+	countries.forEach((country) => {
+		searchUrl.searchParams.set("location", country);
+	});
+	searchUrl.searchParams.set("trk", "public_jobs_jobs-search-bar_search-submit");
+	searchUrl.searchParams.set("position", "1");
+	searchUrl.searchParams.set("pageNum", "0");
+	
+	return {
+		urls: [searchUrl.toString()],
+		countryCode: 10,
+		scrapeCompany: true,
+		count: 100, // Cost: ~$0.10 for 100 jobs
+	};
+};
+
+// Indeed crawler configuration
+const createIndeedInput = (): IndeedJobsInput => ({
+	country: "US",
+	followApplyRedirects: false,
+	location: "San Francisco",
+	maxItems: 50, // Cost: ~$0.25 for 50 jobs (100 jobs = ~$0.50)
+	parseCompanyDetails: true,
+	position: "web developer", // TODO: Make this dynamic based on keywords from user survey
+	saveOnlyUniqueItems: true,
+});
+
+// --- LinkedIn Crawler ---
+async function runLinkedInCrawler(keywords: string[], countries: string[]) {
+	const input = createLinkedInInput(keywords, countries);
+	return await runCrawler(LinkedInJobsActor, input, "~$0.10 for 100 jobs");
+}
+
+// --- Indeed Crawler ---
+async function runIndeedCrawler() {
+	const input = createIndeedInput();
+	return await runCrawler(IndeedJobsActor, input, "~$0.25 for 50 jobs");
+}
 
 export const addNewJobsListingAction = internalAction({
 	args: {
@@ -64,34 +121,33 @@ export const addNewJobsListingAction = internalAction({
 			];
 		}
 
-		// Run search
-		const jobSearch = new JobSearchEngine(LinkedInJobsActor);
-		const searchUrl = new URL("https://www.linkedin.com/jobs/search/");
+		// --- Run all crawlers in parallel ---
+		const [linkedInJobSearchResults, indeedJobSearchResults] = await Promise.all([
+			runLinkedInCrawler(keywords, countries),
+			runIndeedCrawler(),
+		]);
 
-		keywords.forEach((word) => {
-			searchUrl.searchParams.set("keywords", word);
-		});
-		countries.forEach((country) => {
-			searchUrl.searchParams.set("location", country);
-		});
-		searchUrl.searchParams.set(
-			"trk",
-			"public_jobs_jobs-search-bar_search-submit",
-		); // > ??????????
+		// --------------------
+		// Normalize crawler outputs into a discriminated-union payload so the mutation
+		// doesn’t have to spend time guessing what each item is.
+		// --------------------
 
-		searchUrl.searchParams.set("position", "1");
-		searchUrl.searchParams.set("pageNum", "0");
+		const linkedInJobs: LinkedInJob[] = (linkedInJobSearchResults as any[]).flatMap(
+			(r) => ("linkedInJobs" in r ? (r.linkedInJobs as LinkedInJob[]) : ([] as LinkedInJob[])),
+		);
 
-		const jobSearchResults = await jobSearch.runAndGetResults({
-			urls: [searchUrl.toString()],
-			countryCode: 10,
-			scrapeCompany: true,
-			count: 100, // At least 100 which they cost around ~ $0.10
-		});
+		const indeedJobs: IndeedJob[] = (indeedJobSearchResults as any[]).flatMap((r) =>
+			"indeedJobs" in r ? (r.indeedJobs as IndeedJob[]) : ([] as IndeedJob[]),
+		);
 
-		// Pass results to mutation and return inserted IDs
+		const combinedResults = [
+			{ source: "linkedIn" as const, jobs: linkedInJobs },
+			{ source: "indeed" as const, jobs: indeedJobs },
+		];
+
+		// Send discriminated payload to mutation
 		await ctx.runMutation(internal.listings.mutation.addNewJobsListing, {
-			jobSearchResults,
+			jobSearchResults: combinedResults,
 		});
 	},
 });
