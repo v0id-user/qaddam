@@ -149,7 +149,7 @@ export default function UpgradePage() {
           )}
         </Button>
         {me?.isPro && (
-          <p className="text-green-600 text-center mt-4 font-medium">
+          <p className="mt-4 text-center font-medium text-green-600">
             {t('pricing.already_pro_message')}
           </p>
         )}

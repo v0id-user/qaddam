@@ -38,6 +38,12 @@ export default function DashboardPage() {
   const me = useQuery(api.users.getMe);
   const [plan] = useQueryState('p');
 
+  useEffect(() => {
+    if (plan === 'pro') {
+      router.push('/dashboard/upgrade');
+    }
+  }, [plan, router]);
+
   // Workflow functions
   const startWorkflow = useAction(api.jobs.workflow.startJobSearchWorkflow);
 
@@ -210,12 +216,6 @@ export default function DashboardPage() {
   if (currentStage === 'results') {
     return <JobResults workflowId={workflowId!} onBackToUpload={handleBackToUpload} />;
   }
-
-  useEffect(() => {
-    if (plan === 'pro') {
-      router.push('/dashboard/upgrade');
-    }
-  }, [plan, router]);
 
   return (
     <div className="min-h-screen px-6 py-16">

@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function PrivacyPage({ params }: { params: { locale: string } }) {
+export default async function PrivacyPage() {
   const t = await getTranslations('privacy');
   const isRTL = (await getLocale()) === 'ar';
 

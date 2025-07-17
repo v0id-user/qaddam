@@ -164,7 +164,7 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
       logger.error('Workflow error:', { error: currentStage });
       // Handle error state - could show error message or retry option
     }
-  }, [workflowStatus, workflowId, onComplete]);
+  }, [workflowStatus, workflowId, onComplete, logger]);
 
   const getStatusIcon = (status: StepStatus) => {
     switch (status) {
