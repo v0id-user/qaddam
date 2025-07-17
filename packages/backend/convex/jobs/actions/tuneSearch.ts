@@ -6,7 +6,7 @@ import { v } from "convex/values";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { logger } from "../../lib/axiom";
-import { KeywordExtractionSchema } from "../../schemas/zod/keyword-extraction";
+import { KeywordExtractionSchema } from "../../schemas/zod/keyword_extraction";
 // Step 2: Extract keywords from CV for database job searching
 export const aiTuneJobSearch = internalAction({
 	args: {
