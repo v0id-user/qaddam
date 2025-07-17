@@ -1,7 +1,7 @@
 import { jobSchemas } from "../schemas";
 import { Doc } from "../_generated/dataModel";
-import type { MinimalLinkedInJob } from "../schemas/zod/linkedin";
-import type { MinimalIndeedJob } from "../schemas/zod/indeed";
+import type { LinkedInJob } from "../driver/jobs/actors/linkedin_jobs";
+import type { IndeedJob } from "../driver/jobs/actors/indeed_jobs";
 
 type JobListing = Doc<"jobListings">;
 
@@ -40,12 +40,12 @@ const parseSalary = (salaryText: string): { salary?: number; currency?: string }
 	return { salary, currency };
 };
 
-export const normalizeJobListing = (jobResult: MinimalLinkedInJob | MinimalIndeedJob, source: 'indeed' | 'linkedIn'): JobListing | null => {
+export const normalizeJobListing = (jobResult: LinkedInJob | IndeedJob, source: 'indeed' | 'linkedIn'): JobListing | null => {
 	try {
 		if (source === 'linkedIn') {
-			return normalizeLinkedInJob(jobResult as MinimalLinkedInJob);
+			return normalizeLinkedInJob(jobResult as LinkedInJob);
 		} else if (source === 'indeed') {
-			return normalizeIndeedJob(jobResult as MinimalIndeedJob);
+			return normalizeIndeedJob(jobResult as IndeedJob);
 		}
 		return null;
 	} catch {
@@ -53,7 +53,7 @@ export const normalizeJobListing = (jobResult: MinimalLinkedInJob | MinimalIndee
 	}
 };
 
-const normalizeLinkedInJob = (rawJob: MinimalLinkedInJob): JobListing | null => {
+const normalizeLinkedInJob = (rawJob: LinkedInJob): JobListing | null => {
 	try {
 		if (!rawJob.id || !rawJob.title || !rawJob.link) {
 			return null;
@@ -105,7 +105,7 @@ const normalizeLinkedInJob = (rawJob: MinimalLinkedInJob): JobListing | null => 
 	}
 };
 
-const normalizeIndeedJob = (rawJob: MinimalIndeedJob): JobListing | null => {
+const normalizeIndeedJob = (rawJob: IndeedJob): JobListing | null => {
 	try {
 		if (!rawJob.positionName || !rawJob.url) {
 			return null;

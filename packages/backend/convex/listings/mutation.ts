@@ -1,14 +1,32 @@
 import { internalMutation } from "../_generated/server";
 import { type GenericId, v } from "convex/values";
+import { z } from "zod";
 import { 
-  CrawledJobsSchema, 
-  CrawledJobsArrayParser,
-  type CrawledJobs
-} from "../schemas/zod/crawled-jobs";
-import type { MinimalLinkedInJob } from "../schemas/zod/linkedin";
-import type { MinimalIndeedJob } from "../schemas/zod/indeed";
+  LinkedInJobSchema, 
+  IndeedJobSchema, 
+  type LinkedInJob as ParsedLinkedInJob, 
+  type IndeedJob as ParsedIndeedJob,
+} from "../driver/jobs/schemas";
+import type { LinkedInJob as LinkedInJobFull } from "../driver/jobs/actors/linkedin_jobs";
+import type { IndeedJob as IndeedJobFull } from "../driver/jobs/actors/indeed_jobs";
 import { logger } from "../lib/axiom";
 import { normalizeJobListing } from "../driver/norm";
+
+// -----------------------------------------------
+// Runtime-checked schema for what the Action sends
+// -----------------------------------------------
+export const CrawledJobsSchema = z.union([
+  z.object({
+    source: z.literal("linkedIn"),
+    jobs: z.array(LinkedInJobSchema),
+  }),
+  z.object({
+    source: z.literal("indeed"),
+    jobs: z.array(IndeedJobSchema),
+  }),
+]);
+
+export type CrawledJobs = z.infer<typeof CrawledJobsSchema>;
 
 // Helper function to insert a normalized job
 const insertJob = async (
@@ -45,13 +63,13 @@ export const addNewJobsListing = internalMutation({
 		let skippedJobs = 0;
 
 		// Validate & parse with Zod (throws on invalid input)
-		const parsedInput: CrawledJobs[] = CrawledJobsArrayParser.parse(jobSearchResults);
+		const parsedInput: CrawledJobs[] = z.array(CrawledJobsSchema).parse(jobSearchResults);
 
 		// Insert all jobs, respecting the explicit source tag
 		for (const { source, jobs } of parsedInput) {
-			for (const rawJob of jobs as (MinimalLinkedInJob | MinimalIndeedJob)[]) {
+			for (const rawJob of jobs as (ParsedLinkedInJob | ParsedIndeedJob)[]) {
 				const normalizedJob = normalizeJobListing(
-					rawJob,
+					rawJob as unknown as LinkedInJobFull | IndeedJobFull,
 					source,
 				);
 

@@ -3,8 +3,8 @@
 import { internalAction } from "../_generated/server";
 import { api, internal } from "../_generated/api";
 import JobSearchEngine from "../driver/jobs/driver";
-import type { MinimalLinkedInJob } from "../schemas/zod/linkedin";
-import type { MinimalIndeedJob } from "../schemas/zod/indeed";
+import type { LinkedInJob } from "../driver/jobs/actors/linkedin_jobs";
+import type { IndeedJob } from "../driver/jobs/actors/indeed_jobs";
 import { LinkedInJobsActor, type LinkedInJobsInput } from "../driver/jobs/actors/linkedin_jobs";
 import { IndeedJobsActor, type IndeedJobsInput } from "../driver/jobs/actors/indeed_jobs";
 import { v } from "convex/values";
@@ -132,12 +132,12 @@ export const addNewJobsListingAction = internalAction({
 		// doesn’t have to spend time guessing what each item is.
 		// --------------------
 
-		const linkedInJobs: MinimalLinkedInJob[] = (linkedInJobSearchResults as any[]).flatMap(
-			(r) => ("linkedInJobs" in r ? (r.linkedInJobs as MinimalLinkedInJob[]) : ([] as MinimalLinkedInJob[])),
+		const linkedInJobs: LinkedInJob[] = (linkedInJobSearchResults as any[]).flatMap(
+			(r) => ("linkedInJobs" in r ? (r.linkedInJobs as LinkedInJob[]) : ([] as LinkedInJob[])),
 		);
 
-		const indeedJobs: MinimalIndeedJob[] = (indeedJobSearchResults as any[]).flatMap((r) =>
-			"indeedJobs" in r ? (r.indeedJobs as MinimalIndeedJob[]) : ([] as MinimalIndeedJob[]),
+		const indeedJobs: IndeedJob[] = (indeedJobSearchResults as any[]).flatMap((r) =>
+			"indeedJobs" in r ? (r.indeedJobs as IndeedJob[]) : ([] as IndeedJob[]),
 		);
 
 		const combinedResults = [
