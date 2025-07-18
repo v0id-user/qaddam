@@ -3,9 +3,9 @@ export interface MinimalLinkedInJob {
   id: string;
   title: string;
   link: string;
-  companyName?: string;
-  descriptionHtml?: string;
-  descriptionText?: string;
+  companyName: string;  // Required in crawler output
+  descriptionHtml: string;  // Required in crawler output
+  descriptionText: string;  // Required in crawler output
   location?: string;
   salaryInfo?: string[];
   postedAt?: string;
@@ -15,17 +15,27 @@ export interface MinimalIndeedJob {
   positionName: string;
   url: string;
   company: string;
-  salary?: string;
+  location: string;  // Required in crawler output
+  salary?: string | null;
   jobType?: string[];
-  location?: string;
+  rating?: number | null;
+  reviewsCount?: number | null;
   companyInfo?: {
-    companyLogo?: string;
-    companyDescription?: string;
+    companyLogo?: string | null;
+    companyDescription?: string | null;
+    indeedUrl?: string;
+    url?: string | null;
+    rating?: number | null;
+    reviewCount?: number | null;
+    companySize?: {
+      min: number | null;
+      max: number | null;
+    } | null;
   };
 }
 
 export interface CrawledJobs {
-  source: "linkedIn" | "indeed";
+  source: "linkedIn" | "linked-in" | "indeed";
   jobs: (MinimalLinkedInJob | MinimalIndeedJob)[];
 }
 

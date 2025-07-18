@@ -134,8 +134,9 @@ const normalizeIndeedJob = (rawJob: MinimalIndeedJob): JobListing | null => {
 			datePosted: undefined, // Indeed doesn't provide posting date
 			sourceUrl: rawJob.url,
 			sourceName: rawJob.company,
-			sourceLogo: rawJob.companyInfo?.companyLogo,
-			sourceDescription: rawJob.companyInfo?.companyDescription,
+			// Convert null to undefined for optional fields - Convex v.optional(v.string()) doesn't accept null
+			sourceLogo: rawJob.companyInfo?.companyLogo || undefined,
+			sourceDescription: rawJob.companyInfo?.companyDescription || undefined,
 			sourceLocation: rawJob.location,
 		} as JobListing;
 	} catch {

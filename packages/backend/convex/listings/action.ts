@@ -46,7 +46,7 @@ const createIndeedInput = (): IndeedJobsInput => ({
 	location: "San Francisco",
 	maxItems: 50, // Cost: ~$0.25 for 50 jobs (100 jobs = ~$0.50)
 	parseCompanyDetails: true,
-	position: "web developer", // TODO: Make this dynamic based on keywords from user survey
+	position: "software engineer", // TODO: Make this dynamic based on keywords from user survey
 	saveOnlyUniqueItems: true,
 });
 
@@ -128,16 +128,26 @@ export const addNewJobsListingAction = internalAction({
 
 		// --------------------
 		// Normalize crawler outputs into a discriminated-union payload so the mutation
-		// doesn’t have to spend time guessing what each item is.
+		// doesn't have to spend time guessing what each item is.
 		// --------------------
 
 		const linkedInJobs: MinimalLinkedInJob[] = (linkedInJobSearchResults as any[]).flatMap(
-			(r) => ("linkedInJobs" in r ? (r.linkedInJobs as MinimalLinkedInJob[]) : ([] as MinimalLinkedInJob[])),
+			(r) => {
+				if ("linkedInJobs" in r && Array.isArray(r.linkedInJobs)) {
+					// The crawler returns LinkedInJob objects which now match MinimalLinkedInJob structure
+					return r.linkedInJobs as MinimalLinkedInJob[];
+				}
+				return [];
+			},
 		);
 
-		const indeedJobs: MinimalIndeedJob[] = (indeedJobSearchResults as any[]).flatMap((r) =>
-			"indeedJobs" in r ? (r.indeedJobs as MinimalIndeedJob[]) : ([] as MinimalIndeedJob[]),
-		);
+		const indeedJobs: MinimalIndeedJob[] = (indeedJobSearchResults as any[]).flatMap((r) => {
+			if ("indeedJobs" in r && Array.isArray(r.indeedJobs)) {
+				// The crawler returns IndeedJob objects which now match MinimalIndeedJob structure
+				return r.indeedJobs as MinimalIndeedJob[];
+			}
+			return [];
+		});
 
 		const combinedResults = [
 			{ source: "linkedIn" as const, jobs: linkedInJobs },

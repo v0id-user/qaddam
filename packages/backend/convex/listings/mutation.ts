@@ -2,7 +2,6 @@ import { internalMutation } from "../_generated/server";
 import { type GenericId, v } from "convex/values";
 import { validateCrawledJobsArray } from "../lib/validators";
 import type { CrawledJobs, MinimalLinkedInJob, MinimalIndeedJob } from "../types/job_types";
-import { logger } from "../lib/axiom";
 import { normalizeJobListing } from "../driver/norm";
 
 // Helper function to insert a normalized job
@@ -17,9 +16,8 @@ const insertJob = async (
 		insertedJobs.push(jobId);
 		return true;
 	} catch (error) {
-		logger.error(`Failed to insert ${jobSource} job ${normalizedJob.sourceId}:`, {
-			error,
-		});
+		// Use console.log instead of Axiom logger in mutations
+		console.error(`Failed to insert ${jobSource} job ${normalizedJob.sourceId}:`, error);
 		return false;
 	}
 };
@@ -44,10 +42,13 @@ export const addNewJobsListing = internalMutation({
 
 		// Insert all jobs, respecting the explicit source tag
 		for (const { source, jobs } of parsedInput) {
+			// Normalize source name for the normalizeJobListing function
+			const normalizedSource = source === "linked-in" ? "linkedIn" : source;
+			
 			for (const rawJob of jobs as (MinimalLinkedInJob | MinimalIndeedJob)[]) {
 				const normalizedJob = normalizeJobListing(
 					rawJob,
-					source,
+					normalizedSource,
 				);
 
 				if (normalizedJob) {
@@ -55,7 +56,7 @@ export const addNewJobsListing = internalMutation({
 						ctx,
 						normalizedJob,
 						insertedJobs,
-						source,
+						normalizedSource,
 					);
 
 					if (!success) skippedJobs++;
@@ -65,7 +66,8 @@ export const addNewJobsListing = internalMutation({
 			}
 		}
 
-		logger.info(
+		// Use console.log instead of Axiom logger in mutations
+		console.log(
 			`Finished inserting ${insertedJobs.length} job listings, skipped ${skippedJobs} invalid items`,
 		);
 		return insertedJobs;

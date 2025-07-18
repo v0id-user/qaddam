@@ -15,13 +15,15 @@ export const isLinkedInJob = (obj: unknown): obj is MinimalLinkedInJob => {
   
   const record = obj as Record<string, unknown>;
   
+  // Accept the actual structure returned by LinkedIn crawler
+  // The crawler returns companyName, descriptionHtml, descriptionText as required fields
   return (
     typeof record.id === "string" &&
     typeof record.title === "string" &&
     typeof record.link === "string" &&
-    (record.companyName === undefined || typeof record.companyName === "string") &&
-    (record.descriptionHtml === undefined || typeof record.descriptionHtml === "string") &&
-    (record.descriptionText === undefined || typeof record.descriptionText === "string") &&
+    typeof record.companyName === "string" &&
+    typeof record.descriptionHtml === "string" &&
+    typeof record.descriptionText === "string" &&
     (record.location === undefined || typeof record.location === "string") &&
     (record.salaryInfo === undefined || Array.isArray(record.salaryInfo)) &&
     (record.postedAt === undefined || typeof record.postedAt === "string")
@@ -33,18 +35,26 @@ export const isIndeedJob = (obj: unknown): obj is MinimalIndeedJob => {
   
   const record = obj as Record<string, unknown>;
   
+  // Accept the actual structure returned by Indeed crawler
   return (
     typeof record.positionName === "string" &&
     typeof record.url === "string" &&
     typeof record.company === "string" &&
-    (record.salary === undefined || typeof record.salary === "string") &&
+    typeof record.location === "string" &&
+    (record.salary === null || typeof record.salary === "string") &&
     (record.jobType === undefined || Array.isArray(record.jobType)) &&
-    (record.location === undefined || typeof record.location === "string") &&
+    (record.rating === null || typeof record.rating === "number") &&
+    (record.reviewsCount === null || typeof record.reviewsCount === "number") &&
     (record.companyInfo === undefined || (
       typeof record.companyInfo === "object" &&
       record.companyInfo !== null &&
-      ((record.companyInfo as Record<string, unknown>).companyLogo === undefined || typeof (record.companyInfo as Record<string, unknown>).companyLogo === "string") &&
-      ((record.companyInfo as Record<string, unknown>).companyDescription === undefined || typeof (record.companyInfo as Record<string, unknown>).companyDescription === "string")
+      ((record.companyInfo as Record<string, unknown>).companyLogo === null || typeof (record.companyInfo as Record<string, unknown>).companyLogo === "string") &&
+      ((record.companyInfo as Record<string, unknown>).companyDescription === null || typeof (record.companyInfo as Record<string, unknown>).companyDescription === "string") &&
+      ((record.companyInfo as Record<string, unknown>).indeedUrl === undefined || typeof (record.companyInfo as Record<string, unknown>).indeedUrl === "string") &&
+      ((record.companyInfo as Record<string, unknown>).url === null || typeof (record.companyInfo as Record<string, unknown>).url === "string") &&
+      ((record.companyInfo as Record<string, unknown>).rating === null || typeof (record.companyInfo as Record<string, unknown>).rating === "number") &&
+      ((record.companyInfo as Record<string, unknown>).reviewCount === null || typeof (record.companyInfo as Record<string, unknown>).reviewCount === "number") &&
+      ((record.companyInfo as Record<string, unknown>).companySize === null || typeof (record.companyInfo as Record<string, unknown>).companySize === "object")
     ))
   );
 };
@@ -54,11 +64,12 @@ export const isCrawledJobs = (obj: unknown): obj is CrawledJobs => {
   
   const record = obj as Record<string, unknown>;
   
+  // Accept both "linked-in" (from crawler) and "linkedIn" (normalized form) as valid sources
   return (
-    (record.source === "linkedIn" || record.source === "indeed") &&
+    (record.source === "linkedIn" || record.source === "linked-in" || record.source === "indeed") &&
     Array.isArray(record.jobs) &&
     record.jobs.every((job: unknown) => 
-      record.source === "linkedIn" ? isLinkedInJob(job) : isIndeedJob(job)
+      (record.source === "linkedIn" || record.source === "linked-in") ? isLinkedInJob(job) : isIndeedJob(job)
     )
   );
 };
@@ -70,11 +81,14 @@ export const validateCrawledJobsArray = (data: unknown): CrawledJobs[] => {
   
   const validatedJobs: CrawledJobs[] = [];
   
-  for (const item of data) {
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
     if (isCrawledJobs(item)) {
       validatedJobs.push(item);
     } else {
-      throw new Error(`Invalid crawled jobs data: ${JSON.stringify(item).slice(0, 100)}...`);
+      // Provide more detailed error information
+      const itemPreview = JSON.stringify(item).slice(0, 200);
+      throw new Error(`Invalid crawled jobs data at index ${i}: ${itemPreview}${itemPreview.length >= 200 ? '...' : ''}`);
     }
   }
   
