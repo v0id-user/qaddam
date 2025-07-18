@@ -6,7 +6,7 @@ import type { JobResult, JobSearchResults } from "../../types/jobs";
 import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
 import { validateJobRanking } from "../../lib/validators";
-import { jobRankingSchema } from "../../lib/ai_schemas";
+import { job_ranking_schema } from "../../lib/schemas/job_ranking";
 // Internal query to get job listing details
 export const getJobListing = internalQuery({
 	args: {
@@ -146,7 +146,7 @@ Rank and analyze for insights.
 					`,
 				},
 			],
-			schema: jobRankingSchema,
+			schema: job_ranking_schema,
 		});
 
 		console.log("AI Job Ranking - Token usage:", {

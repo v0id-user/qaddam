@@ -4,7 +4,7 @@ import { v } from "convex/values";
 import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { validateCVProfile } from "../../lib/validators";
-import { cvProfileSchema } from "../../lib/ai_schemas";
+import { cv_profile_schema } from "../../lib/schemas/cv_profile";
 
 // Step 1: Parse CV and extract user profile
 export const aiParseCV = internalAction({
@@ -93,7 +93,7 @@ export const aiParseCV = internalAction({
 						],
 					},
 				],
-				schema: cvProfileSchema,
+				schema: cv_profile_schema,
 			});
 
 			console.log("AI CV Parsing - Token usage:", {

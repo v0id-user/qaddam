@@ -6,7 +6,7 @@ import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { validateBatchJobAnalysis } from "../../lib/validators";
-import { batchJobAnalysisSchema } from "../../lib/ai_schemas";
+import { batch_job_analysis_schema } from "../../lib/schemas/batch_job_analysis";
 import type { BatchJobAnalysis } from "../../types/job_types";
 import type { JobType } from "../../types/jobs";
 // Internal query to get all jobs for testing/debugging
@@ -314,7 +314,7 @@ Return analysis for each job in order.
 						`,
 					},
 				],
-				schema: batchJobAnalysisSchema,
+				schema: batch_job_analysis_schema,
 			});
 
 			console.log(
