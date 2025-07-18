@@ -1,7 +1,6 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { logger } from "./lib/axiom";
 // Get user's survey data
 export const getUserSurvey = query({
 	args: {
@@ -102,7 +101,7 @@ export const saveSurvey = mutation({
 			version: 1, // For future schema migrations
 		};
 
-		logger.info("💾 Saving survey for user and data:", { userId, surveyData });
+		console.log("💾 Saving survey for user and data:", { userId, surveyData });
 
 		try {
 			// Check if user already has a survey
@@ -112,11 +111,11 @@ export const saveSurvey = mutation({
 				.first();
 
 			if (existingSurvey) {
-				logger.info("🔄 Updating existing survey for user:", { userId });
+				console.log("🔄 Updating existing survey for user:", { userId });
 				// Update existing survey
 				await ctx.db.patch(existingSurvey._id, surveyData);
 			} else {
-				logger.info("✨ Creating new survey for user:", { userId });
+				console.log("✨ Creating new survey for user:", { userId });
 				// Create new survey
 				await ctx.db.insert("userSurveys", {
 					userId,
@@ -124,14 +123,14 @@ export const saveSurvey = mutation({
 				});
 			}
 
-			logger.info("✅ Survey saved successfully for user:", { userId });
+			console.log("✅ Survey saved successfully for user:", { userId });
 			return {
 				success: true,
 				message: "Survey saved successfully",
 				timestamp: Date.now(),
 			};
 		} catch (error) {
-			logger.error("❌ Error saving survey:", { error });
+			console.log("❌ Error saving survey:", { error });
 			const errorMessage =
 				error instanceof Error ? error.message : "Unknown error occurred";
 			throw new Error(`Failed to save survey: ${errorMessage}`);
@@ -155,7 +154,7 @@ export const deleteSurvey = mutation({
 
 		if (existingSurvey) {
 			await ctx.db.delete(existingSurvey._id);
-			logger.info("🗑️ Survey deleted for user:", { userId });
+			console.log("🗑️ Survey deleted for user:", { userId });
 			return { success: true, message: "Survey deleted successfully" };
 		} else {
 			return { success: false, message: "No survey found to delete" };

@@ -5,10 +5,10 @@ import type { JobResult } from "../../types/jobs";
 import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { logger } from "../../lib/axiom";
 import { validateBatchJobAnalysis } from "../../lib/validators";
 import { batchJobAnalysisSchema } from "../../lib/ai_schemas";
 import type { BatchJobAnalysis } from "../../types/job_types";
+import type { JobType } from "../../types/jobs";
 // Internal query to get all jobs for testing/debugging
 export const getAllJobListings = internalQuery({
 	args: {},
@@ -25,7 +25,7 @@ export const searchJobListings = internalQuery({
 	handler: async (ctx, args): Promise<Doc<"jobListings">[]> => {
 		// Query all jobs first to get total count
 		const allJobsInDb = await ctx.db.query("jobListings").collect();
-		logger.info(
+		console.log(
 			`DB search: ${allJobsInDb.length} total jobs, query="${args.searchQuery.slice(0, 30)}..."`,
 		);
 
@@ -37,7 +37,7 @@ export const searchJobListings = internalQuery({
 			)
 			.take(50);
 
-		logger.info(`Description search: ${descriptionResults.length} results`);
+		console.log(`Description search: ${descriptionResults.length} results`);
 
 		// Search in job names/titles
 		const nameResults = await ctx.db
@@ -45,7 +45,7 @@ export const searchJobListings = internalQuery({
 			.withSearchIndex("search_name", (q) => q.search("name", args.searchQuery))
 			.take(50);
 
-		logger.info(`Name search: ${nameResults.length} results`);
+		console.log(`Name search: ${nameResults.length} results`);
 
 		// Combine and deduplicate results
 		const allResults = [...descriptionResults, ...nameResults];
@@ -53,11 +53,11 @@ export const searchJobListings = internalQuery({
 			(job, index, self) => index === self.findIndex((j) => j._id === job._id),
 		);
 
-		logger.info(`Combined: ${uniqueResults.length} unique results`);
+		console.log(`Combined: ${uniqueResults.length} unique results`);
 
 		// If no results from search indexes, try simple text matching
 		if (uniqueResults.length === 0) {
-			logger.info("No search results, trying text matching...");
+			console.log("No search results, trying text matching...");
 
 			// Filter jobs that contain any of the search terms (case insensitive)
 			const searchTerms = args.searchQuery
@@ -65,7 +65,7 @@ export const searchJobListings = internalQuery({
 				.split(" ")
 				.filter((term) => term.length > 2);
 
-			logger.info(
+			console.log(
 				`Text matching with ${searchTerms.length} terms: ${searchTerms.slice(0, 3).join(", ")}...`,
 			);
 
@@ -75,7 +75,7 @@ export const searchJobListings = internalQuery({
 				return searchTerms.some((term) => jobText.includes(term));
 			});
 
-			logger.info(`Text matching: ${filteredJobs.length} jobs matched`);
+			console.log(`Text matching: ${filteredJobs.length} jobs matched`);
 			return filteredJobs;
 		}
 
@@ -129,7 +129,7 @@ export const aiSearchJobs = internalAction({
 		totalFound: number;
 		searchParams: typeof args.searchParams;
 	}> => {
-		logger.info("Starting job search:", {
+		console.log("Starting job search:", {
 			technicalSkills: args.searchParams.technical_skills.length,
 			jobTitles: args.searchParams.job_title_keywords.length,
 			yearsOfExperience: args.cvProfile.years_of_experience,
@@ -155,7 +155,7 @@ export const aiSearchJobs = internalAction({
 			...searchParams.primary_keywords.slice(0, 3),
 		];
 
-		logger.info("Search strategies:", {
+		console.log("Search strategies:", {
 			terms: searchStrategies.length,
 			strategies: searchStrategies.slice(0, 3).join(", ") + "...",
 		});
@@ -175,7 +175,7 @@ export const aiSearchJobs = internalAction({
 		for (const searchTerm of searchStrategies) {
 			if (searchTerm && searchTerm.trim().length > 2) {
 				searchCount++;
-				logger.info(
+				console.log(
 					`[${searchCount}/${searchStrategies.length}] Searching: "${searchTerm.slice(0, 20)}..."`,
 				);
 
@@ -194,7 +194,7 @@ export const aiSearchJobs = internalAction({
 					{ searchQuery: searchTerm.trim() },
 				);
 
-				logger.info(`  → Found ${results.length} results`);
+				console.log(`  → Found ${results.length} results`);
 				allResults.push(...results);
 			}
 		}
@@ -204,7 +204,7 @@ export const aiSearchJobs = internalAction({
 			(job, index, self) => index === self.findIndex((j) => j._id === job._id),
 		);
 
-		logger.info(
+		console.log(
 			`Search complete: ${uniqueResults.length} unique jobs from ${allResults.length} total results`,
 		);
 
@@ -224,7 +224,7 @@ export const aiSearchJobs = internalAction({
 
 		// Convert database results to JobResult format
 		const jobResults: JobResult[] = [];
-		logger.info("Processing jobs for comprehensive AI analysis...");
+		console.log("Processing jobs for comprehensive AI analysis...");
 
 		// Prepare job data for batched processing
 		const jobsToProcess = uniqueResults.map((job, index) => {
@@ -260,13 +260,13 @@ export const aiSearchJobs = internalAction({
 			chunks.push(jobsToProcess.slice(i, i + BATCH_SIZE));
 		}
 
-		logger.info(
+		console.log(
 			`Processing ${jobsToProcess.length} jobs in ${chunks.length} batches of ${BATCH_SIZE} (using optimized batch AI analysis)`,
 		);
 
 		// Process each chunk with batch AI analysis
 		for (const [chunkIndex, chunk] of chunks.entries()) {
-			logger.info(
+			console.log(
 				`Processing batch ${chunkIndex + 1}/${chunks.length} (${chunk.length} jobs)...`,
 			);
 
@@ -317,7 +317,7 @@ Return analysis for each job in order.
 				schema: batchJobAnalysisSchema,
 			});
 
-			logger.info(
+			console.log(
 				`AI Batch Analysis [Batch ${chunkIndex + 1}] - Token usage:`,
 				{
 					promptTokens: batchAnalysis.usage?.promptTokens || 0,
@@ -327,71 +327,84 @@ Return analysis for each job in order.
 			);
 
 			// Process batch results
-			const batchData = validateBatchJobAnalysis(batchAnalysis.object as unknown);
+			const batchData = validateBatchJobAnalysis(
+				batchAnalysis.object as unknown,
+			);
 
 			const batchResults = batchData.jobAnalyses
-				.map((analysis: BatchJobAnalysis['jobAnalyses'][0], batchIdx: number) => {
-					const originalJob = chunk[batchIdx];
-					if (!originalJob) {
-						logger.warn(`Missing job data for batch index ${batchIdx}`);
-						return null;
-					}
+				.map(
+					(analysis: BatchJobAnalysis["jobAnalyses"][0], batchIdx: number) => {
+						const originalJob = chunk[batchIdx];
+						if (!originalJob) {
+							console.warn(`Missing job data for batch index ${batchIdx}`);
+							return null;
+						}
 
-					const { job, index, matchedSkills, missingSkills } = originalJob;
+						const { job, index, matchedSkills, missingSkills } = originalJob;
 
-					// Check location match
-					let locationMatch = "no_location_provided";
-					if (args.cvProfile.preferred_locations.length > 0) {
-						const jobLocation = (job.location || "").toLowerCase();
-						const matchingLocation = args.cvProfile.preferred_locations.some(
-							(location) => jobLocation.includes(location.toLowerCase()),
+						// Check location match
+						let locationMatch = "no_location_provided";
+						if (args.cvProfile.preferred_locations.length > 0) {
+							const jobLocation = (job.location || "").toLowerCase();
+							const matchingLocation = args.cvProfile.preferred_locations.some(
+								(location) => jobLocation.includes(location.toLowerCase()),
+							);
+							locationMatch = matchingLocation
+								? "location_match"
+								: "location_mismatch";
+						}
+
+						console.log(
+							`  Job ${index + 1}: "${job.name.slice(0, 30)}..." - ${matchedSkills.length} skills matched, Experience: ${analysis.experienceMatch.match_level} (${analysis.experienceMatch.match_score}), Location: ${analysis.locationMatch.match_score}`,
 						);
-						locationMatch = matchingLocation
-							? "location_match"
-							: "location_mismatch";
-					}
 
-					logger.info(
-						`  Job ${index + 1}: "${job.name.slice(0, 30)}..." - ${matchedSkills.length} skills matched, Experience: ${analysis.experienceMatch.match_level} (${analysis.experienceMatch.match_score}), Location: ${analysis.locationMatch.match_score}`,
-					);
-
-					return {
-						jobListingId: job._id,
-						// Benefits - convert to simple string array
-						benefits: analysis.benefits.map((benefit) =>
-							benefit.details
-								? `${benefit.description} (${benefit.details})`
-								: benefit.description,
-						),
-						// Requirements - convert to simple string array
-						requirements: analysis.requirements.map((req) =>
-							req.details
-								? `${req.description} (${req.details})`
-								: req.description,
-						),
-						matchedSkills,
-						missingSkills,
-						// Experience matching
-						experienceMatch: analysis.experienceMatch.match_level,
-						experienceMatchScore: analysis.experienceMatch.match_score,
-						experienceMatchReasons: analysis.experienceMatch.match_reasons,
-						// Location matching
-						locationMatchScore: analysis.locationMatch.match_score,
-						locationMatchReasons: analysis.locationMatch.match_reasons,
-						locationMatch,
-						workTypeMatch: analysis.locationMatch.work_type_match,
-						// Data extraction (for use in combineResults)
-						extractedData: {
-							salary: analysis.dataExtraction.salary,
-							company: analysis.dataExtraction.company,
-							jobType: analysis.dataExtraction.job_type,
-						},
-					};
-				})
-				.filter((result: ReturnType<typeof batchData.jobAnalyses.map>[0] | null): result is NonNullable<typeof result> => result !== null);
+						return {
+							jobListingId: job._id,
+							// Benefits - convert to simple string array
+							benefits: analysis.benefits.map((benefit) =>
+								benefit.details
+									? `${benefit.description} (${benefit.details})`
+									: benefit.description,
+							),
+							// Requirements - convert to simple string array
+							requirements: analysis.requirements.map((req) =>
+								req.details
+									? `${req.description} (${req.details})`
+									: req.description,
+							),
+							matchedSkills,
+							missingSkills,
+							// Experience matching
+							experienceMatch: analysis.experienceMatch.match_level,
+							experienceMatchScore: analysis.experienceMatch.match_score,
+							experienceMatchReasons: analysis.experienceMatch.match_reasons,
+							// Location matching
+							locationMatchScore: analysis.locationMatch.match_score,
+							locationMatchReasons: analysis.locationMatch.match_reasons,
+							locationMatch,
+							workTypeMatch: ["remote", "hybrid", "onsite"].includes(
+								(analysis.locationMatch.work_type_match || "").toLowerCase(),
+							),
+							// Data extraction (for use in combineResults)
+							extractedData: {
+								salary: analysis.dataExtraction.salary,
+								company: analysis.dataExtraction.company,
+								jobType: {
+									type:
+										(analysis.dataExtraction.job_type.type as JobType) || null,
+									is_remote: false,
+									work_arrangement: null,
+								},
+							},
+						};
+					},
+				)
+				.filter(
+					(result): result is Exclude<typeof result, null> => result !== null,
+				);
 
 			jobResults.push(...batchResults);
-			logger.info(
+			console.log(
 				`Batch ${chunkIndex + 1} completed. Total processed: ${jobResults.length}/${jobsToProcess.length}`,
 			);
 
@@ -415,7 +428,7 @@ Return analysis for each job in order.
 		});
 
 		const finalResults = jobResults.slice(0, 20);
-		logger.info(
+		console.log(
 			`Returning ${finalResults.length} jobs: avg score: ${(finalResults.reduce((sum, job) => sum + job.experienceMatchScore, 0) / finalResults.length).toFixed(2)}`,
 		);
 

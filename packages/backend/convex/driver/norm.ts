@@ -5,7 +5,9 @@ import type { MinimalLinkedInJob, MinimalIndeedJob } from "../types/job_types";
 type JobListing = Doc<"jobListings">;
 
 // Shared utility function for salary parsing
-const parseSalary = (salaryText: string): { salary?: number; currency?: string } => {
+const parseSalary = (
+	salaryText: string,
+): { salary?: number; currency?: string } => {
 	let salary: number | undefined;
 	let currency: string | undefined;
 
@@ -39,11 +41,14 @@ const parseSalary = (salaryText: string): { salary?: number; currency?: string }
 	return { salary, currency };
 };
 
-export const normalizeJobListing = (jobResult: MinimalLinkedInJob | MinimalIndeedJob, source: 'indeed' | 'linkedIn'): JobListing | null => {
+export const normalizeJobListing = (
+	jobResult: MinimalLinkedInJob | MinimalIndeedJob,
+	source: "indeed" | "linkedIn",
+): JobListing | null => {
 	try {
-		if (source === 'linkedIn') {
+		if (source === "linkedIn") {
 			return normalizeLinkedInJob(jobResult as MinimalLinkedInJob);
-		} else if (source === 'indeed') {
+		} else if (source === "indeed") {
 			return normalizeIndeedJob(jobResult as MinimalIndeedJob);
 		}
 		return null;
@@ -52,7 +57,9 @@ export const normalizeJobListing = (jobResult: MinimalLinkedInJob | MinimalIndee
 	}
 };
 
-const normalizeLinkedInJob = (rawJob: MinimalLinkedInJob): JobListing | null => {
+const normalizeLinkedInJob = (
+	rawJob: MinimalLinkedInJob,
+): JobListing | null => {
 	try {
 		if (!rawJob.id || !rawJob.title || !rawJob.link) {
 			return null;
@@ -120,7 +127,7 @@ const normalizeIndeedJob = (rawJob: MinimalIndeedJob): JobListing | null => {
 		}
 
 		// Generate a unique sourceId for Indeed jobs (using URL as base)
-		const sourceId = rawJob.url.split('/').pop() || rawJob.url;
+		const sourceId = rawJob.url.split("/").pop() || rawJob.url;
 
 		return {
 			name: rawJob.positionName,

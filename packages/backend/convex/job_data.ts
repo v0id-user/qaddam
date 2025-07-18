@@ -4,11 +4,10 @@ import { query } from "./_generated/server";
 import { api } from "./_generated/api";
 import type { Doc } from "./_generated/dataModel";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { logger } from "./lib/axiom";
 export const getJobResults = query({
 	args: { workflowId: v.string() },
 	handler: async (ctx, { workflowId }) => {
-		logger.info(`Getting job results for workflow ${workflowId}`);
+		console.log(`Getting job results for workflow ${workflowId}`);
 
 		// Get the job search results record
 		const searchResults = await ctx.db
@@ -17,11 +16,11 @@ export const getJobResults = query({
 			.first();
 
 		if (!searchResults) {
-			logger.info(`No search results found for workflow ${workflowId}`);
+			console.log(`No search results found for workflow ${workflowId}`);
 			return null;
 		}
 
-		logger.info(`Found search results record with ID ${searchResults._id}`);
+		console.log(`Found search results record with ID ${searchResults._id}`);
 
 		// Get all job results for this search
 		const jobResults = await ctx.db
@@ -31,7 +30,7 @@ export const getJobResults = query({
 			)
 			.collect();
 
-		logger.info(`Retrieved ${jobResults.length} job results`);
+		console.log(`Retrieved ${jobResults.length} job results`);
 
 		return {
 			searchResults,
@@ -86,7 +85,7 @@ export const getUserSurvey = query({
 export const getJobResultsWithAnalysis = query({
 	args: { workflowId: v.string() },
 	handler: async (ctx, args) => {
-		logger.info(`Getting enhanced job results for workflow ${args.workflowId}`);
+		console.log(`Getting enhanced job results for workflow ${args.workflowId}`);
 
 		const user = await getAuthUserId(ctx);
 		if (!user) {
@@ -105,11 +104,11 @@ export const getJobResultsWithAnalysis = query({
 			.first();
 
 		if (!searchResults) {
-			logger.info(`No search results found for workflow ${args.workflowId}`);
+			console.log(`No search results found for workflow ${args.workflowId}`);
 			return null;
 		}
 
-		logger.info(`Found search results record with ID ${searchResults._id}`);
+		console.log(`Found search results record with ID ${searchResults._id}`);
 
 		// Get all job results for this search
 		const jobResults = await ctx.db
@@ -119,7 +118,7 @@ export const getJobResultsWithAnalysis = query({
 			)
 			.collect();
 
-		logger.info(`Retrieved ${jobResults.length} job results`);
+		console.log(`Retrieved ${jobResults.length} job results`);
 
 		// Get user survey data for context
 		const userSurvey: Doc<"userSurveys"> | null = await ctx.db

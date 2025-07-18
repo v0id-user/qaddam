@@ -4,7 +4,6 @@ import { v } from "convex/values";
 import { action } from "../_generated/server";
 import type { WorkflowId } from "@convex-dev/workflow";
 import rateLimiter from "../ratelimiter";
-import { logger } from "../lib/axiom";
 export type { WorkflowId };
 
 export const workflow = new WorkflowManager(components.workflow, {
@@ -99,7 +98,7 @@ export const startJobSearchWorkflow = action({
 		args,
 	): Promise<{ workflowTrackingId: string; workflowId: WorkflowId }> => {
 		const me = await ctx.runQuery(api.users.getMe);
-		logger.info("Starting job search workflow with CV:", {
+		console.log("Starting job search workflow with CV:", {
 			cv_storage_id: args.cv_storage_id,
 		});
 
@@ -135,7 +134,7 @@ export const startJobSearchWorkflow = action({
 			},
 		);
 
-		logger.info("Workflow started with ID:", { workflowId });
+		console.log("Workflow started with ID:", { workflowId });
 		return { workflowTrackingId, workflowId };
 	},
 });

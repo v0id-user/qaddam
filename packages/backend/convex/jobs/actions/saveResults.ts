@@ -2,7 +2,6 @@ import { internalAction, internalMutation } from "../../_generated/server";
 import { internal } from "../../_generated/api";
 import { v } from "convex/values";
 import type { JobSearchResults } from "../../types/jobs";
-import { logger } from "../../lib/axiom";
 // Step 5: Save job search results to database
 export const aiSaveJobResults = internalAction({
 	args: {
@@ -13,7 +12,7 @@ export const aiSaveJobResults = internalAction({
 		workflowTrackingId: v.string(),
 	},
 	handler: async (ctx, args): Promise<{ saved: boolean; resultId: string }> => {
-		logger.info("Step 5: Saving job search results:", {
+		console.log("Step 5: Saving job search results:", {
 			jobs: args.results.jobs.length,
 			workflow: args.workflowId,
 		});
@@ -30,7 +29,7 @@ export const aiSaveJobResults = internalAction({
 		const now = Date.now();
 
 		try {
-			logger.info("Saving main job search results record...");
+			console.log("Saving main job search results record...");
 
 			// Save main job search results record
 			const jobSearchResultsId = await ctx.runMutation(
@@ -44,8 +43,8 @@ export const aiSaveJobResults = internalAction({
 				},
 			);
 
-			logger.info(`Main record saved with ID: ${jobSearchResultsId}`);
-			logger.info(`Saving ${results.jobs.length} individual job results...`);
+			console.log(`Main record saved with ID: ${jobSearchResultsId}`);
+			console.log(`Saving ${results.jobs.length} individual job results...`);
 
 			// Update workflow status to indicate individual job results saving
 			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -58,7 +57,7 @@ export const aiSaveJobResults = internalAction({
 			// Save individual job results
 			for (const [index, job] of results.jobs.entries()) {
 				if (index % 5 === 0) {
-					logger.info(`  Saving job ${index + 1}/${results.jobs.length}...`);
+					console.log(`  Saving job ${index + 1}/${results.jobs.length}...`);
 
 					// Update progress during individual job saving
 					const progressPercentage =
@@ -79,7 +78,7 @@ export const aiSaveJobResults = internalAction({
 				});
 			}
 
-			logger.info("Save complete:", {
+			console.log("Save complete:", {
 				jobs: results.jobs.length,
 				workflow: args.workflowId,
 				totalInsights: results.insights.total_relevant,
@@ -98,7 +97,7 @@ export const aiSaveJobResults = internalAction({
 				resultId: jobSearchResultsId,
 			};
 		} catch (error) {
-			logger.error("Error saving job search results:", { error });
+			console.log("Error saving job search results:", { error });
 
 			// Update workflow status to indicate error
 			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -125,7 +124,7 @@ export const saveJobSearchResults = internalMutation({
 	handler: async (ctx, args) => {
 		const results = args.results as JobSearchResults;
 
-		logger.info("Inserting main record:", {
+		console.log("Inserting main record:", {
 			totalFound: results.totalFound,
 			totalRelevant: results.insights.total_relevant,
 			keywords: results.searchParams.optimized_keywords.length,
@@ -175,7 +174,7 @@ export const saveJobResult = internalMutation({
 	handler: async (ctx, args) => {
 		const job = args.job as JobSearchResults["jobs"][0];
 
-		logger.info("Inserting job result:", {
+		console.log("Inserting job result:", {
 			jobListingId: job.jobListingId,
 			matchScore: job.experienceMatchScore,
 			matchedSkills: job.matchedSkills.length,

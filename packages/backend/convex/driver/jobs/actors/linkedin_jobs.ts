@@ -73,7 +73,10 @@ export interface LinkedInJobsResult {
 	linkedInJobs: LinkedInJob[];
 }
 
-export class LinkedInJobsActor extends BaseJobSearchActor<LinkedInJobsInput, LinkedInJobsResult> {
+export class LinkedInJobsActor extends BaseJobSearchActor<
+	LinkedInJobsInput,
+	LinkedInJobsResult
+> {
 	protected readonly actorId = "hKByXkMQaC5Qt9UMN";
 	protected readonly jobSource: JobSource = {
 		source: "linked-in",

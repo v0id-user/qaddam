@@ -3,7 +3,6 @@ import { internal } from "../../_generated/api";
 import { v } from "convex/values";
 import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
-import { logger } from "../../lib/axiom";
 import { validateCVProfile } from "../../lib/validators";
 import { cvProfileSchema } from "../../lib/ai_schemas";
 
@@ -23,7 +22,7 @@ export const aiParseCV = internalAction({
 				throw new Error("CV file not found in storage");
 			}
 
-			logger.info("Starting CV parsing:", {
+			console.log("Starting CV parsing:", {
 				storageId: cv_storage_id,
 				userId: args.userId,
 				workflowTrackingId: args.workflowTrackingId,
@@ -37,7 +36,7 @@ export const aiParseCV = internalAction({
 				userId: args.userId,
 			});
 
-			logger.info("Calling AI model for CV analysis...");
+			console.log("Calling AI model for CV analysis...");
 
 			// Update workflow status to indicate AI processing started
 			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -97,14 +96,14 @@ export const aiParseCV = internalAction({
 				schema: cvProfileSchema,
 			});
 
-			logger.info("AI CV Parsing - Token usage:", {
+			console.log("AI CV Parsing - Token usage:", {
 				promptTokens: response.usage?.promptTokens || 0,
 				completionTokens: response.usage?.completionTokens || 0,
 				totalTokens: response.usage?.totalTokens || 0,
 			});
 
 			const result = validateCVProfile(response.object as unknown);
-			logger.info("CV parsing completed:", {
+			console.log("CV parsing completed:", {
 				skills: result.skills.length,
 				jobTitles: result.job_titles.length,
 				industries: result.industries.length,
@@ -112,7 +111,7 @@ export const aiParseCV = internalAction({
 				experienceLevel: result.experience_level,
 			});
 
-			logger.info("Sample extracted data:", {
+			console.log("Sample extracted data:", {
 				skills: result.skills.slice(0, 3),
 				titles: result.job_titles.slice(0, 2),
 				industries: result.industries.slice(0, 2),
@@ -135,7 +134,7 @@ export const aiParseCV = internalAction({
 				result.keywords.length === 0 ||
 				result.preferred_locations.length === 0
 			) {
-				logger.warn("Some required arrays are empty, providing fallbacks");
+				console.log("Some required arrays are empty, providing fallbacks");
 
 				// Provide fallback data
 				const fallbackResult = {
@@ -155,7 +154,7 @@ export const aiParseCV = internalAction({
 							: ["Any Location"],
 				};
 
-				logger.info("Using fallback data:", {
+				console.log("Using fallback data:", {
 					skills: fallbackResult.skills.length,
 					jobTitles: fallbackResult.job_titles,
 				});
@@ -164,7 +163,7 @@ export const aiParseCV = internalAction({
 
 			return result;
 		} catch (error) {
-			logger.error("Error in CV parsing:", { error });
+			console.log("Error in CV parsing:", { error });
 
 			// Update workflow status to indicate error
 			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -186,7 +185,7 @@ export const aiParseCV = internalAction({
 				preferred_locations: ["Any Location"],
 			};
 
-			logger.info("Using fallback profile:", {
+			console.log("Using fallback profile:", {
 				skills: fallbackProfile.skills.length,
 				jobTitles: fallbackProfile.job_titles,
 				experienceLevel: fallbackProfile.experience_level,
