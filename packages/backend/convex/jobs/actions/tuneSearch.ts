@@ -5,7 +5,6 @@ import { internal } from "../../_generated/api";
 import { v } from "convex/values";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { logger } from "../../lib/axiom";
 import { validateKeywordExtraction } from "../../lib/validators";
 import { keywordExtractionSchema } from "../../lib/ai_schemas";
 // Step 2: Extract keywords from CV for database job searching
@@ -35,7 +34,7 @@ export const aiTuneJobSearch = internalAction({
 		technical_skills: string[];
 	}> => {
 		try {
-			logger.info("Starting keyword extraction:", {
+			console.log("Starting keyword extraction:", {
 				skills: args.cvProfile.skills.length,
 				jobTitles: args.cvProfile.job_titles.length,
 				yearsOfExperience: args.cvProfile.years_of_experience,
@@ -126,14 +125,14 @@ Make sure each array has at least one relevant keyword.
 				schema: keywordExtractionSchema,
 			});
 
-			logger.info("AI Keyword Extraction - Token usage:", {
+				console.log("AI Keyword Extraction - Token usage:", {
 				promptTokens: response.usage?.promptTokens || 0,
 				completionTokens: response.usage?.completionTokens || 0,
 				totalTokens: response.usage?.totalTokens || 0,
 			});
 
 			const result = validateKeywordExtraction(response.object as unknown);
-			logger.info("Keyword extraction completed:", {
+			console.log("Keyword extraction completed:", {
 				primary: result.primary_keywords.length,
 				secondary: result.secondary_keywords.length,
 				search: result.search_terms.length,
@@ -141,7 +140,7 @@ Make sure each array has at least one relevant keyword.
 				technical: result.technical_skills.length,
 			});
 
-			logger.info("Sample keywords:", {
+			console.log("Sample keywords:", {
 				primary: result.primary_keywords.slice(0, 3).join(", ") + "...",
 				secondary: result.secondary_keywords.slice(0, 3).join(", ") + "...",
 				search: result.search_terms.slice(0, 3).join(", ") + "...",
@@ -163,7 +162,7 @@ Make sure each array has at least one relevant keyword.
 				result.job_title_keywords.length === 0 ||
 				result.technical_skills.length === 0
 			) {
-				logger.warn("Some keyword arrays are empty, providing fallbacks");
+				console.warn("Some keyword arrays are empty, providing fallbacks");
 
 				// Provide fallback keywords based on CV profile
 				const fallbackKeywords = {
@@ -189,7 +188,7 @@ Make sure each array has at least one relevant keyword.
 							: args.cvProfile.skills,
 				};
 
-				logger.info("Using fallback keywords:", {
+				console.log("Using fallback keywords:", {
 					primary: fallbackKeywords.primary_keywords.length,
 					secondary: fallbackKeywords.secondary_keywords.length,
 				});
@@ -198,7 +197,7 @@ Make sure each array has at least one relevant keyword.
 
 			return result;
 		} catch (error) {
-			logger.error("Error in keyword extraction:", { error });
+			console.error("Error in keyword extraction:", { error });
 
 			// Update workflow status to indicate error
 			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -217,7 +216,7 @@ Make sure each array has at least one relevant keyword.
 				technical_skills: args.cvProfile.skills,
 			};
 
-			logger.info("Using fallback keywords:", {
+			console.log("Using fallback keywords:", {
 				primary: fallbackResult.primary_keywords.length,
 				secondary: fallbackResult.secondary_keywords.length,
 				search: fallbackResult.search_terms.length,
