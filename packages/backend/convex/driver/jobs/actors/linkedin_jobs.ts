@@ -94,4 +94,15 @@ export class LinkedInJobsActor extends BaseJobSearchActor<LinkedInJobsInput, Lin
 
 		return await this.call(jobInput);
 	}
+
+	async getResults(run: ActorRun): Promise<LinkedInJobsResult[]> {
+		const client = this.getClient();
+		const { items } = await client.dataset(run.defaultDatasetId).listItems();
+		// The actor returns an array of job objects, so we wrap it in the expected result shape
+		return [
+			{
+				linkedInJobs: items as unknown as LinkedInJob[],
+			},
+		];
+	}
 }

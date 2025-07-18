@@ -131,8 +131,17 @@ export const addNewJobsListingAction = internalAction({
 		// doesn't have to spend time guessing what each item is.
 		// --------------------
 
+		// console.log("LinkedIn raw results:", JSON.stringify(linkedInJobSearchResults, null, 2));
+
 		const linkedInJobs: MinimalLinkedInJob[] = (linkedInJobSearchResults as any[]).flatMap(
 			(r) => {
+				console.log("Processing LinkedIn result item:", {
+					hasLinkedInJobs: "linkedInJobs" in r,
+					isArray: "linkedInJobs" in r ? Array.isArray(r.linkedInJobs) : false,
+					length: "linkedInJobs" in r && Array.isArray(r.linkedInJobs) ? r.linkedInJobs.length : 0,
+					keys: Object.keys(r || {})
+				});
+				
 				if ("linkedInJobs" in r && Array.isArray(r.linkedInJobs)) {
 					// The crawler returns LinkedInJob objects which now match MinimalLinkedInJob structure
 					return r.linkedInJobs as MinimalLinkedInJob[];
@@ -141,6 +150,8 @@ export const addNewJobsListingAction = internalAction({
 			},
 		);
 
+		console.log(`Found ${linkedInJobs.length} LinkedIn jobs`);
+
 		const indeedJobs: MinimalIndeedJob[] = (indeedJobSearchResults as any[]).flatMap((r) => {
 			if ("indeedJobs" in r && Array.isArray(r.indeedJobs)) {
 				// The crawler returns IndeedJob objects which now match MinimalIndeedJob structure
@@ -148,6 +159,8 @@ export const addNewJobsListingAction = internalAction({
 			}
 			return [];
 		});
+
+		console.log(`Found ${indeedJobs.length} Indeed jobs`);
 
 		const combinedResults = [
 			{ source: "linkedIn" as const, jobs: linkedInJobs },

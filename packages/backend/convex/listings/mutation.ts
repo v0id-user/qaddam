@@ -37,21 +37,43 @@ export const addNewJobsListing = internalMutation({
 		const insertedJobs: GenericId<"jobListings">[] = [];
 		let skippedJobs = 0;
 
+		console.log("addNewJobsListing: Received jobSearchResults input", {
+			type: typeof jobSearchResults,
+			isArray: Array.isArray(jobSearchResults),
+			length: Array.isArray(jobSearchResults) ? jobSearchResults.length : undefined,
+		});
+
 		// Validate with lightweight validators (throws on invalid input)
-		const parsedInput: CrawledJobs[] = validateCrawledJobsArray(jobSearchResults);
+		let parsedInput: CrawledJobs[];
+		try {
+			parsedInput = validateCrawledJobsArray(jobSearchResults);
+			console.log(`addNewJobsListing: Parsed input contains ${parsedInput.length} sources`);
+		} catch (err) {
+			console.error("addNewJobsListing: Failed to validate jobSearchResults", err);
+			throw err;
+		}
 
 		// Insert all jobs, respecting the explicit source tag
 		for (const { source, jobs } of parsedInput) {
+			console.log(
+				`addNewJobsListing: Processing source "${source}" with ${jobs.length} jobs`
+			);
 			// Normalize source name for the normalizeJobListing function
 			const normalizedSource = source === "linked-in" ? "linkedIn" : source;
 			
-			for (const rawJob of jobs as (MinimalLinkedInJob | MinimalIndeedJob)[]) {
+			for (const [jobIdx, rawJob] of (jobs as (MinimalLinkedInJob | MinimalIndeedJob)[]).entries()) {
+				console.log(
+					`addNewJobsListing: Normalizing job #${jobIdx + 1} from source "${normalizedSource}"`
+				);
 				const normalizedJob = normalizeJobListing(
 					rawJob,
-					normalizedSource,
+					normalizedSource as "linkedIn" | "indeed",
 				);
 
 				if (normalizedJob) {
+					console.log(
+						`addNewJobsListing: Inserting normalized job from source "${normalizedSource}" with title "${normalizedJob.name ?? "unknown"}"`
+					);
 					const success = await insertJob(
 						ctx,
 						normalizedJob,
@@ -59,8 +81,16 @@ export const addNewJobsListing = internalMutation({
 						normalizedSource,
 					);
 
-					if (!success) skippedJobs++;
+					if (!success) {
+						console.warn(
+							`addNewJobsListing: Failed to insert job from source "${normalizedSource}" (title: "${normalizedJob.name ?? "unknown"}")`
+						);
+						skippedJobs++;
+					}
 				} else {
+					console.warn(
+						`addNewJobsListing: Skipped invalid/unnormalizable job from source "${normalizedSource}" at index ${jobIdx}`
+					);
 					skippedJobs++;
 				}
 			}
@@ -68,7 +98,7 @@ export const addNewJobsListing = internalMutation({
 
 		// Use console.log instead of Axiom logger in mutations
 		console.log(
-			`Finished inserting ${insertedJobs.length} job listings, skipped ${skippedJobs} invalid items`,
+			`addNewJobsListing: Finished inserting ${insertedJobs.length} job listings, skipped ${skippedJobs} invalid items`
 		);
 		return insertedJobs;
 	},

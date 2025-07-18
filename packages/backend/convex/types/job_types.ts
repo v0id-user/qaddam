@@ -3,12 +3,41 @@ export interface MinimalLinkedInJob {
   id: string;
   title: string;
   link: string;
-  companyName: string;  // Required in crawler output
-  descriptionHtml: string;  // Required in crawler output
-  descriptionText: string;  // Required in crawler output
+  companyName: string;
+  descriptionHtml: string;
+  descriptionText: string;
   location?: string;
   salaryInfo?: string[];
   postedAt?: string;
+  // Additional fields from LinkedIn crawler output
+  trackingId?: string;
+  refId?: string;
+  companyLinkedinUrl?: string;
+  companyLogo?: string;
+  benefits?: string[];
+  applicantsCount?: string;
+  applyUrl?: string;
+  jobPosterName?: string;
+  jobPosterTitle?: string;
+  jobPosterPhoto?: string;
+  jobPosterProfileUrl?: string;
+  seniorityLevel?: string;
+  employmentType?: string;
+  jobFunction?: string;
+  industries?: string;
+  inputUrl?: string;
+  companyEmployeesCount?: number;
+  companyDescription?: string;
+  companyAddress?: {
+    type: string;
+    streetAddress: string;
+    addressLocality: string;
+    addressRegion: string;
+    postalCode: string;
+    addressCountry: string;
+  };
+  companyWebsite?: string;
+  companySlogan?: string;
 }
 
 export interface MinimalIndeedJob {
