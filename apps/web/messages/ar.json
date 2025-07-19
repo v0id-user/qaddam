@@ -141,7 +141,9 @@
       "profile_ready": "تحليلك جاهز. فرصك تنتظر."
     },
     "make_an_account_to_continue": "أنشئ حسابًا للمتابعة.",
-    "sign_up_to_access_pro_features": "سجّل للحصول على ميزات المحترفين."
+    "sign_up_to_access_pro_features": "سجّل للحصول على ميزات المحترفين.",
+    "tester_announcement": "هذه الصفحة للمختبرين فقط. يجب أن تتواصل مع",
+    "tester_announcement_end": "لفهم ما يجب عليك فعله."
   },
   "dashboard": {
     "cv_upload": {

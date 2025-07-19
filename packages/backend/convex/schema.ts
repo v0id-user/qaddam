@@ -4,6 +4,7 @@ import { surveySchemas } from "./schemas/surveys";
 import { jobSchemas } from "./schemas/jobs";
 import { uploadSchemas } from "./schemas/uploads";
 import { workflowStageSchemas } from "./schemas/workflowStage";
+import { userConfigSchemas } from "./schemas/user_config";
 
 export default defineSchema({
 	// Authentication tables
@@ -20,4 +21,7 @@ export default defineSchema({
 
 	// Workflow-related tables
 	...workflowStageSchemas,
+
+	// User config tables
+	...userConfigSchemas,
 });

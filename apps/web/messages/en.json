@@ -141,7 +141,9 @@
       "profile_ready": "Your profile's ready. The opportunities are waiting."
     },
     "make_an_account_to_continue": "Make an account to continue.",
-    "sign_up_to_access_pro_features": "Sign up to access Pro features."
+    "sign_up_to_access_pro_features": "Sign up to access Pro features.",
+    "tester_announcement": "This page is only for testers. You must be contacted by",
+    "tester_announcement_end": "to understand what to do."
   },
   "dashboard": {
     "cv_upload": {

@@ -44,10 +44,10 @@ import type * as normalize_job from "../normalize_job.js";
 import type * as polar from "../polar.js";
 import type * as ratelimiter from "../ratelimiter.js";
 import type * as schemas_auth from "../schemas/auth.js";
-import type * as schemas_index from "../schemas/index.js";
 import type * as schemas_jobs from "../schemas/jobs.js";
 import type * as schemas_surveys from "../schemas/surveys.js";
 import type * as schemas_uploads from "../schemas/uploads.js";
+import type * as schemas_user_config from "../schemas/user_config.js";
 import type * as schemas_workflowStage from "../schemas/workflowStage.js";
 import type * as scripts_saveJobs from "../scripts/saveJobs.js";
 import type * as surveys from "../surveys.js";
@@ -56,6 +56,7 @@ import type * as types_jobs from "../types/jobs.js";
 import type * as types_workflow from "../types/workflow.js";
 import type * as upload from "../upload.js";
 import type * as users from "../users.js";
+import type * as usersConfig from "../usersConfig.js";
 import type * as workflow_status from "../workflow_status.js";
 
 import type {
@@ -109,10 +110,10 @@ declare const fullApi: ApiFromModules<{
   polar: typeof polar;
   ratelimiter: typeof ratelimiter;
   "schemas/auth": typeof schemas_auth;
-  "schemas/index": typeof schemas_index;
   "schemas/jobs": typeof schemas_jobs;
   "schemas/surveys": typeof schemas_surveys;
   "schemas/uploads": typeof schemas_uploads;
+  "schemas/user_config": typeof schemas_user_config;
   "schemas/workflowStage": typeof schemas_workflowStage;
   "scripts/saveJobs": typeof scripts_saveJobs;
   surveys: typeof surveys;
@@ -121,6 +122,7 @@ declare const fullApi: ApiFromModules<{
   "types/workflow": typeof types_workflow;
   upload: typeof upload;
   users: typeof users;
+  usersConfig: typeof usersConfig;
   workflow_status: typeof workflow_status;
 }>;
 declare const fullApiWithMounts: typeof fullApi;

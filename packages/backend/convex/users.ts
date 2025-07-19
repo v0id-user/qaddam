@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { query } from "./_generated/server";
 import { polar } from "./polar";
+import { api } from "./_generated/api";
 
 export const getMe = query({
 	handler: async (ctx) => {
@@ -16,9 +17,12 @@ export const getMe = query({
 		const isPro = productKey === "premiumMonthly";
 
 		const user = await ctx.db.get(userId);
+		const userConfig = await ctx.db.query("userConfig").withIndex("by_userId", (q) => q.eq("userId", userId)).first();
+
 		return {
 			...user,
 			isPro,
+			role: userConfig?.role,
 		};
 	},
 });
