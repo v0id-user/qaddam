@@ -6,6 +6,7 @@ import { useAuthActions } from '@convex-dev/auth/react';
 import { useQueryState } from 'nuqs';
 import { useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
+import { trackEvent } from '@/analytics/client';
 const GoogleIcon = () => (
   <svg
     className="h-5 w-5"
@@ -216,6 +217,7 @@ const SignPage = () => {
           <div className="space-y-4">
             <Button
               onClick={() => {
+                trackEvent('sign_click_google', { source: 'sign' });
                 let target = `/dashboard`;
                 if (plan && plan !== 'free') {
                   target += `?p=${plan}`;

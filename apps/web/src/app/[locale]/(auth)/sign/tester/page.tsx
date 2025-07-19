@@ -6,6 +6,7 @@ import { useAuthActions } from '@convex-dev/auth/react';
 import { useQueryState } from 'nuqs';
 import { useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
+import { trackEvent } from '@/analytics/client';
 
 const GoogleIcon = () => (
   <svg
@@ -237,6 +238,7 @@ const TesterSignPage = () => {
           <div className="space-y-4">
             <Button
               onClick={() => {
+                trackEvent('sign_click_google', { source: 'sign_tester' });
                 let target = `/dashboard/set_tester`;
                 signIn('google', { redirectTo: target });
               }}

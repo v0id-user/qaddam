@@ -51,7 +51,7 @@ export default async function TermsPage() {
               {t.raw('sections.subscriptions.points').map((point: string, index: number) => (
                 <li key={index} className="flex items-start">
                   <span className={`text-primary ${isRTL ? 'ml-2' : 'mr-2'}`}>•</span>
-                  <span>{point}</span>
+                  <span dangerouslySetInnerHTML={{ __html: point }} />
                 </li>
               ))}
             </ul>

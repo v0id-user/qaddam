@@ -4,8 +4,9 @@ export const EVENTS = {
     SCROLL: 'landing_scroll',
   },
   SIGNUP: {
-    SUCCESS: 'signup_success',
-    FAIL: 'signup_fail',
+    CLICK: 'sign_click_google',
+    SUCCESS: 'sign_success',
+    FAIL: 'sign_fail',
   },
 } as const;
 
@@ -16,7 +17,8 @@ export type AnalyticsEvent = EventValue<typeof EVENTS>;
 
 export type EventPayloads = {
   landing_cta: { source: string };
-  signup_success: { userId: string };
-  signup_fail: { reason: string };
+  sign_success: { userId: string };
+  sign_click_google: { source: string };
+  sign_fail: { reason: string };
   landing_scroll: { position: number };
 };
