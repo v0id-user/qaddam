@@ -166,7 +166,7 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
         <div className="mb-5">
           <div className="mb-2">
             <span className="text-muted-foreground text-xs font-medium">
-              {t('job_results.matching_skills')}
+              {t('job_results.skills.matching_skills')}
             </span>
           </div>
           <div className="flex flex-wrap gap-1.5">
