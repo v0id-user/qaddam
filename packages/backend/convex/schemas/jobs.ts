@@ -30,7 +30,9 @@ export const jobSchemas = {
 		.searchIndex("search_name", {
 			searchField: "name",
 			filterFields: ["location", "source", "sourceName"],
-		}),
+		})
+		.index("by_location", ["location"])
+		.index("by_source", ["source"]),
 
 	// User job applications tracking
 	userApplications: defineTable({

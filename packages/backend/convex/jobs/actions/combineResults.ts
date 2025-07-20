@@ -118,7 +118,7 @@ export const aiCombineJobResults = internalAction({
 			userId: args.userId,
 		});
 
-		const response = await (generateObject as any)({
+		const response = await generateObject({
 			model: openai.chat("gpt-4o-mini", {
 				structuredOutputs: true,
 			}),

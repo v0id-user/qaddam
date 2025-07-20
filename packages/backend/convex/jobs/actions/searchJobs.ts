@@ -144,59 +144,41 @@ export const aiSearchJobs = internalAction({
 
 		const { searchParams } = args;
 
-		// Try different search strategies with single terms (Convex limit: 16 terms max)
+		// OPTIMIZATION 1: Use only top 3 most relevant search terms to reduce API calls
 		const searchStrategies = [
-			// Strategy 1: Individual technical skills
-			...searchParams.technical_skills.slice(0, 3),
-			// Strategy 2: Job titles
-			...searchParams.job_title_keywords.slice(0, 2),
-			// Strategy 3: Primary keywords
-			...searchParams.primary_keywords.slice(0, 3),
-		];
+			// Strategy 1: Top technical skills (reduced from 3 to 2)
+			...searchParams.technical_skills.slice(0, 2),
+			// Strategy 2: Primary job title (reduced from 2 to 1)
+			...searchParams.job_title_keywords.slice(0, 1),
+		].filter(term => term && term.trim().length > 2);
 
-		console.log("Search strategies:", {
+		console.log("Optimized search strategies:", {
 			terms: searchStrategies.length,
 			strategies: searchStrategies.slice(0, 3).join(", ") + "...",
 		});
 
-		// Update workflow status to indicate database search started
+		// OPTIMIZATION 2: Run all database searches in parallel instead of sequentially
+		console.log(`Running ${searchStrategies.length} parallel database searches...`);
+		const searchPromises = searchStrategies.map(async (searchTerm) => {
+			console.log(`Parallel search: "${searchTerm.slice(0, 20)}..."`);
+			return await ctx.runQuery(
+				internal.jobs.actions.searchJobs.searchJobListings,
+				{ searchQuery: searchTerm.trim() },
+			);
+		});
+
+		const searchResults = await Promise.all(searchPromises);
+		const allResults = searchResults.flat();
+
+		console.log(`Parallel search completed: ${allResults.length} total results`);
+
+		// OPTIMIZATION 3: Single workflow update after all searches complete
 		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
 			workflowId: args.workflowTrackingId,
 			stage: "searching_jobs",
-			percentage: 48,
+			percentage: 52,
 			userId: args.userId,
 		});
-
-		const allResults: Doc<"jobListings">[] = [];
-		let searchCount = 0;
-
-		// Try each search term individually (better for Convex search)
-		for (const searchTerm of searchStrategies) {
-			if (searchTerm && searchTerm.trim().length > 2) {
-				searchCount++;
-				console.log(
-					`[${searchCount}/${searchStrategies.length}] Searching: "${searchTerm.slice(0, 20)}..."`,
-				);
-
-				// Update progress for each search term
-				const searchProgress =
-					48 + Math.round((searchCount / searchStrategies.length) * 4); // 48% to 52% spread across search terms
-				await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
-					workflowId: args.workflowTrackingId,
-					stage: "searching_jobs",
-					percentage: searchProgress,
-					userId: args.userId,
-				});
-
-				const results = await ctx.runQuery(
-					internal.jobs.actions.searchJobs.searchJobListings,
-					{ searchQuery: searchTerm.trim() },
-				);
-
-				console.log(`  → Found ${results.length} results`);
-				allResults.push(...results);
-			}
-		}
 
 		// Remove duplicates
 		const uniqueResults = allResults.filter(
@@ -215,71 +197,66 @@ export const aiSearchJobs = internalAction({
 			userId: args.userId,
 		});
 
-		// Get survey results once for all jobs
-		const surveyResults = await ctx.runQuery(
-			internal.jobs.actions.searchJobs.getSurveyResults,
-			{ userId: args.userId },
-		);
+		// OPTIMIZATION 4: Cache survey results and run parallel with job processing
+		const [surveyResults] = await Promise.all([
+			ctx.runQuery(internal.jobs.actions.searchJobs.getSurveyResults, { userId: args.userId }),
+			ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+				workflowId: args.workflowTrackingId,
+				stage: "processing_jobs",
+				percentage: 55,
+				userId: args.userId,
+			})
+		]);
 
-		// Extract survey data for AI analysis
+		// Extract survey data for AI analysis (optimized string building)
 		const surveyData = surveyResults[0];
 		const userSurveyInfo = surveyData
-			? `
-USER SURVEY DATA:
-- Profession: ${surveyData.profession}
-- Experience Level: ${surveyData.experience} years
-- Career Level: ${surveyData.careerLevel}
-- Preferred Job Titles: ${surveyData.jobTitles.join(", ")}
-- Preferred Industries: ${surveyData.industries.join(", ")}
-- Work Type Preference: ${surveyData.workType}
-- Preferred Locations: ${surveyData.locations.join(", ")}
-- Skills: ${surveyData.skills.join(", ")}
-- Languages: ${surveyData.languages.map((l) => `${l.language} (${l.proficiency})`).join(", ")}
-- Company Types: ${surveyData.companyTypes.join(", ")}
-`
+			? `USER: ${surveyData.profession} (${surveyData.experience}y, ${surveyData.careerLevel}) | Titles: ${surveyData.jobTitles.slice(0, 3).join(", ")} | Industries: ${surveyData.industries.slice(0, 3).join(", ")} | Work: ${surveyData.workType} | Locations: ${surveyData.locations.slice(0, 3).join(", ")} | Skills: ${surveyData.skills.slice(0, 8).join(", ")} | Companies: ${surveyData.companyTypes.slice(0, 3).join(", ")}`
 			: "No survey data available";
 
 		// Convert database results to JobResult format
 		const jobResults: JobResult[] = [];
 		console.log("Processing jobs for comprehensive AI analysis...");
 
-		// Prepare job data for batched processing
-		const jobsToProcess = uniqueResults.map((job, index) => {
-			const jobText =
-				`${job.name} ${job.description} ${job.sourceName || ""}`.toLowerCase();
-			const matchedSkills = searchParams.technical_skills.filter((skill) =>
-				jobText.includes(skill.toLowerCase()),
-			);
+		// OPTIMIZATION 5: Efficient job preprocessing with early filtering
+		const jobsToProcess = uniqueResults.slice(0, 20).map((job, index) => {
+			// Pre-lowercase job text once
+			const jobText = `${job.name} ${job.description}`.toLowerCase();
+			
+			// Optimize skill matching with early exit
+			const matchedSkills: string[] = [];
+			const missingSkills: string[] = [];
+			
+			for (const skill of searchParams.technical_skills) {
+				const skillLower = skill.toLowerCase();
+				if (jobText.includes(skillLower)) {
+					matchedSkills.push(skill);
+				} else {
+					missingSkills.push(skill);
+				}
+			}
 
 			return {
 				job,
 				index,
-				jobText,
 				matchedSkills,
-				missingSkills: searchParams.technical_skills.filter(
-					(skill) => !matchedSkills.includes(skill),
-				),
+				missingSkills,
 			};
 		});
 
-		// Update workflow status to indicate AI analysis started
-		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
-			workflowId: args.workflowTrackingId,
-			stage: "processing_jobs",
-			percentage: 55,
-			userId: args.userId,
-		});
-
-		// Batch AI requests in chunks to avoid overwhelming the API
-		const BATCH_SIZE = 12; // Increased from 5 to 12 jobs per batch for maximum efficiency
+		// OPTIMIZATION 6: Reduce AI batch size for faster response time
+		const BATCH_SIZE = 8; // Reduced from 12 to 8 for faster processing
 		const chunks = [];
 		for (let i = 0; i < jobsToProcess.length; i += BATCH_SIZE) {
 			chunks.push(jobsToProcess.slice(i, i + BATCH_SIZE));
 		}
 
 		console.log(
-			`Processing ${jobsToProcess.length} jobs in ${chunks.length} batches of ${BATCH_SIZE} (using optimized batch AI analysis)`,
+			`Processing ${jobsToProcess.length} jobs in ${chunks.length} batches of ${BATCH_SIZE} (optimized for speed)`,
 		);
+
+		// OPTIMIZATION 7: Minimize workflow updates - only update every 2nd batch
+		let lastProgressUpdate = 55;
 
 		// Process each chunk with batch AI analysis
 		for (const [chunkIndex, chunk] of chunks.entries()) {
@@ -287,29 +264,19 @@ USER SURVEY DATA:
 				`Processing batch ${chunkIndex + 1}/${chunks.length} (${chunk.length} jobs)...`,
 			);
 
-			// Update progress at the start of each batch - 55% to 75% spread across batches (20% range)
-			const batchStartProgress =
-				55 + Math.round((chunkIndex / chunks.length) * 20);
-			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
-				workflowId: args.workflowTrackingId,
-				stage: "processing_jobs",
-				percentage: batchStartProgress,
-				userId: args.userId,
-			});
-
-			// Prepare optimized batch data for AI analysis
+			// OPTIMIZATION 8: Prepare compact batch data for AI analysis
 			const batchJobData = chunk.map(
-				({ job, index, matchedSkills, missingSkills }) => ({
+				({ job, matchedSkills, missingSkills }) => ({
 					id: job._id,
-					title: job.name.slice(0, 60), // Truncate title for efficiency
-					desc: job.description.slice(0, 300), // Reduced from 1000 to 300 chars
+					title: job.name.slice(0, 50), // Reduced from 60 to 50 chars
+					desc: job.description.slice(0, 200), // Reduced from 300 to 200 chars
 					location: job.location || "Remote",
-					matched: matchedSkills.slice(0, 5).join(","), // Limit to top 5 skills
-					missing: missingSkills.slice(0, 3).join(","), // Limit to top 3 missing skills
+					matched: matchedSkills.slice(0, 4).join(","), // Reduced from 5 to 4 skills
+					missing: missingSkills.slice(0, 2).join(","), // Reduced from 3 to 2 missing skills
 				}),
 			);
 
-			// OPTIMIZED BATCH AI ANALYSIS - 12 jobs in single AI call
+			// OPTIMIZATION 9: Streamlined AI prompt for faster processing
 			const batchAnalysis = await generateObject({
 				model: openai.chat("gpt-4o-mini", {
 					structuredOutputs: true,
@@ -317,20 +284,16 @@ USER SURVEY DATA:
 				messages: [
 					{
 						role: "system",
-						content: `Analyze ${chunk.length} jobs for candidate fit using both CV profile and user survey preferences. Extract: experience match (score 0-1), location compatibility (score 0-1), benefits, requirements, salary/company/job type. Consider survey preferences for work type, company types, and career level alignment. Be concise and consistent.`,
+						content: `Analyze ${chunk.length} jobs for candidate fit. Extract: experience match (0-1 score), location match (0-1 score), top 3 benefits, top 3 requirements, salary/company/job type. Be concise.`,
 					},
 					{
 						role: "user",
-						content: `
-${userSurveyInfo}
+						content: `${userSurveyInfo}
 
-CANDIDATE CV: ${args.cvProfile.experience_level} (${args.cvProfile.years_of_experience}y) | Skills: ${args.cvProfile.skills.slice(0, 8).join(",")} | Locations: ${args.cvProfile.preferred_locations.join(",")}
+CV: ${args.cvProfile.experience_level} (${args.cvProfile.years_of_experience}y) | Skills: ${args.cvProfile.skills.slice(0, 6).join(",")} | Locations: ${args.cvProfile.preferred_locations.slice(0, 3).join(",")}
 
 JOBS:
-${batchJobData.map((job, idx) => `${idx + 1}. ${job.title} @${job.location} | ${job.desc.slice(0, 200)}... | ✓${job.matched} | ✗${job.missing}`).join("\n")}
-
-Return analysis for each job in order, considering both CV skills and survey preferences.
-						`,
+${batchJobData.map((job, idx) => `${idx + 1}. ${job.title} @${job.location} | ${job.desc} | ✓${job.matched} | ✗${job.missing}`).join("\n")}`,
 					},
 				],
 				schema: batch_job_analysis_schema,
@@ -383,35 +346,22 @@ Return analysis for each job in order, considering both CV skills and survey pre
 
 			const batchResults: JobResult[] = [];
 
-			for (
-				let batchIdx = 0;
-				batchIdx < batchData.jobAnalyses.length;
-				batchIdx++
-			) {
+			// OPTIMIZATION 10: Efficient batch result processing
+			for (let batchIdx = 0; batchIdx < batchData.jobAnalyses.length; batchIdx++) {
 				const analysis = batchData.jobAnalyses[batchIdx];
 				const originalJob = chunk[batchIdx];
-				if (!originalJob) {
-					console.warn(`Missing job data for batch index ${batchIdx}`);
-					continue;
-				}
+				if (!originalJob) continue;
 
-				const { job, index, matchedSkills, missingSkills } = originalJob;
+				const { job, matchedSkills, missingSkills } = originalJob;
 
-				// Check location match
+				// OPTIMIZATION 11: Simplified location matching
 				let locationMatch = "no_location_provided";
 				if (args.cvProfile.preferred_locations.length > 0) {
 					const jobLocation = (job.location || "").toLowerCase();
-					const matchingLocation = args.cvProfile.preferred_locations.some(
-						(location) => jobLocation.includes(location.toLowerCase()),
-					);
-					locationMatch = matchingLocation
-						? "location_match"
-						: "location_mismatch";
+					locationMatch = args.cvProfile.preferred_locations.some(
+						(location) => jobLocation.includes(location.toLowerCase())
+					) ? "location_match" : "location_mismatch";
 				}
-
-				console.log(
-					`  Job ${index + 1}: "${job.name.slice(0, 30)}..." - ${matchedSkills.length} skills matched, Experience: ${analysis.experienceMatch.match_level} (${analysis.experienceMatch.match_score}), Location: ${analysis.locationMatch.match_score}`,
-				);
 
 				const jobResult: JobResult = {
 					jobListingId: job._id,
@@ -448,19 +398,23 @@ Return analysis for each job in order, considering both CV skills and survey pre
 			}
 
 			jobResults.push(...batchResults);
-			console.log(
-				`Batch ${chunkIndex + 1} completed. Total processed: ${jobResults.length}/${jobsToProcess.length}`,
-			);
 
-			// Update progress after each batch completes
-			const batchCompleteProgress =
-				55 + Math.round(((chunkIndex + 1) / chunks.length) * 20);
-			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
-				workflowId: args.workflowTrackingId,
-				stage: "processing_jobs",
-				percentage: batchCompleteProgress,
-				userId: args.userId,
-			});
+			// OPTIMIZATION 12: Reduce progress updates frequency - only update every 2nd batch or at end
+			const shouldUpdateProgress = chunkIndex % 2 === 0 || chunkIndex === chunks.length - 1;
+			if (shouldUpdateProgress) {
+				const batchCompleteProgress = 55 + Math.round(((chunkIndex + 1) / chunks.length) * 20);
+				if (batchCompleteProgress > lastProgressUpdate) {
+					lastProgressUpdate = batchCompleteProgress;
+					await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+						workflowId: args.workflowTrackingId,
+						stage: "processing_jobs",
+						percentage: batchCompleteProgress,
+						userId: args.userId,
+					});
+				}
+			}
+
+			console.log(`Batch ${chunkIndex + 1}/${chunks.length} completed (${jobResults.length} total processed)`);
 		}
 
 		// Update workflow status to indicate all batches completed
@@ -471,10 +425,13 @@ Return analysis for each job in order, considering both CV skills and survey pre
 			userId: args.userId,
 		});
 
+		// OPTIMIZATION 13: Return top results with performance metrics
 		const finalResults = jobResults.slice(0, 20);
-		console.log(
-			`Returning ${finalResults.length} jobs: avg score: ${(finalResults.reduce((sum, job) => sum + job.experienceMatchScore, 0) / finalResults.length).toFixed(2)}`,
-		);
+		const avgScore = finalResults.length > 0 
+			? (finalResults.reduce((sum, job) => sum + job.experienceMatchScore, 0) / finalResults.length).toFixed(2)
+			: "0.00";
+		
+		console.log(`✅ Optimized search completed: ${finalResults.length} jobs, avg score: ${avgScore}`);
 
 		return {
 			jobs: finalResults,
