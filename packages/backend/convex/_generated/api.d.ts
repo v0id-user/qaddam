@@ -32,6 +32,7 @@ import type * as jobs_actions_parse from "../jobs/actions/parse.js";
 import type * as jobs_actions_saveResults from "../jobs/actions/saveResults.js";
 import type * as jobs_actions_searchJobs from "../jobs/actions/searchJobs.js";
 import type * as jobs_actions_tuneSearch from "../jobs/actions/tuneSearch.js";
+import type * as jobs_results from "../jobs/results.js";
 import type * as jobs_workflow from "../jobs/workflow.js";
 import type * as lib_schemas_batch_job_analysis from "../lib/schemas/batch_job_analysis.js";
 import type * as lib_schemas_cv_profile from "../lib/schemas/cv_profile.js";
@@ -40,7 +41,6 @@ import type * as lib_schemas_keyword_extraction from "../lib/schemas/keyword_ext
 import type * as lib_validators from "../lib/validators.js";
 import type * as listings_action from "../listings/action.js";
 import type * as listings_mutation from "../listings/mutation.js";
-import type * as normalize_job from "../normalize_job.js";
 import type * as polar from "../polar.js";
 import type * as ratelimiter from "../ratelimiter.js";
 import type * as schemas_auth from "../schemas/auth.js";
@@ -98,6 +98,7 @@ declare const fullApi: ApiFromModules<{
   "jobs/actions/saveResults": typeof jobs_actions_saveResults;
   "jobs/actions/searchJobs": typeof jobs_actions_searchJobs;
   "jobs/actions/tuneSearch": typeof jobs_actions_tuneSearch;
+  "jobs/results": typeof jobs_results;
   "jobs/workflow": typeof jobs_workflow;
   "lib/schemas/batch_job_analysis": typeof lib_schemas_batch_job_analysis;
   "lib/schemas/cv_profile": typeof lib_schemas_cv_profile;
@@ -106,7 +107,6 @@ declare const fullApi: ApiFromModules<{
   "lib/validators": typeof lib_validators;
   "listings/action": typeof listings_action;
   "listings/mutation": typeof listings_mutation;
-  normalize_job: typeof normalize_job;
   polar: typeof polar;
   ratelimiter: typeof ratelimiter;
   "schemas/auth": typeof schemas_auth;

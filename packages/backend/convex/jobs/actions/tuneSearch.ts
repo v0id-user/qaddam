@@ -41,14 +41,6 @@ export const aiTuneJobSearch = internalAction({
 				experienceLevel: args.cvProfile.experience_level,
 			});
 
-			// Update workflow status to indicate keyword extraction started
-			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
-				workflowId: args.workflowTrackingId,
-				stage: "extracting_keywords",
-				percentage: 22,
-				userId: args.userId,
-			});
-
 			// Update workflow status to indicate AI processing started
 			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
 				workflowId: args.workflowTrackingId,
@@ -57,7 +49,7 @@ export const aiTuneJobSearch = internalAction({
 				userId: args.userId,
 			});
 
-			const response = await (generateObject as any)({
+			const response = await generateObject({
 				model: openai.chat("gpt-4o-mini", {
 					structuredOutputs: true,
 				}),

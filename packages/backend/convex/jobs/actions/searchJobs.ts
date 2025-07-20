@@ -16,16 +16,24 @@ export const getAllJobListings = internalQuery({
 	},
 });
 
-// Internal query to search the database
-export const searchJobListings = internalQuery({
+// Internal query to search the database for jobs that the user has not already searched for
+export const searchJobListingsUnused = internalQuery({
 	args: {
 		searchQuery: v.string(),
+		userId: v.id("users"),
 	},
 	handler: async (ctx, args): Promise<Doc<"jobListings">[]> => {
-		// Query all jobs first to get total count
-		const allJobsInDb = await ctx.db.query("jobListings").collect();
+
+		// Query job search results for the user and all jobs in parallel
+		const [userJobSearchResults, allJobsInDb] = await Promise.all([
+			ctx.db.query("jobSearchJobResults").withIndex("by_user", (q) => q.eq("userId", args.userId)).collect(),
+			ctx.db.query("jobListings").collect(),
+		]);
+
+		const filteredJobs = allJobsInDb.filter((job) => !userJobSearchResults.some((result) => result.jobListingId === job._id));
+
 		console.log(
-			`DB search: ${allJobsInDb.length} total jobs, query="${args.searchQuery.slice(0, 30)}..."`,
+			`DB search: ${filteredJobs.length} total jobs, query="${args.searchQuery.slice(0, 30)}..."`,
 		);
 
 		// Search in job descriptions
@@ -68,14 +76,14 @@ export const searchJobListings = internalQuery({
 				`Text matching with ${searchTerms.length} terms: ${searchTerms.slice(0, 3).join(", ")}...`,
 			);
 
-			const filteredJobs = allJobsInDb.filter((job) => {
+			const textMatchingJobs = filteredJobs.filter((job) => {
 				const jobText =
 					`${job.name} ${job.description} ${job.sourceName || ""} ${job.location || ""}`.toLowerCase();
 				return searchTerms.some((term) => jobText.includes(term));
 			});
 
-			console.log(`Text matching: ${filteredJobs.length} jobs matched`);
-			return filteredJobs;
+			console.log(`Text matching: ${textMatchingJobs.length} jobs matched`);
+			return textMatchingJobs;
 		}
 
 		return uniqueResults;
@@ -162,8 +170,8 @@ export const aiSearchJobs = internalAction({
 		const searchPromises = searchStrategies.map(async (searchTerm) => {
 			console.log(`Parallel search: "${searchTerm.slice(0, 20)}..."`);
 			return await ctx.runQuery(
-				internal.jobs.actions.searchJobs.searchJobListings,
-				{ searchQuery: searchTerm.trim() },
+				internal.jobs.actions.searchJobs.searchJobListingsUnused,
+				{ searchQuery: searchTerm.trim(), userId: args.userId },
 			);
 		});
 
@@ -188,14 +196,6 @@ export const aiSearchJobs = internalAction({
 		console.log(
 			`Search complete: ${uniqueResults.length} unique jobs from ${allResults.length} total results`,
 		);
-
-		// Update workflow status to indicate job search completed, processing started
-		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
-			workflowId: args.workflowTrackingId,
-			stage: "processing_jobs",
-			percentage: 52,
-			userId: args.userId,
-		});
 
 		// OPTIMIZATION 4: Cache survey results and run parallel with job processing
 		const [surveyResults] = await Promise.all([

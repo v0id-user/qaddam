@@ -1,4 +1,3 @@
-import { jobSchemas } from "../schemas";
 import { Doc } from "../_generated/dataModel";
 import type { MinimalLinkedInJob, MinimalIndeedJob } from "../types/job_types";
 
