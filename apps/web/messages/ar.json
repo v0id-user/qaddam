@@ -300,7 +300,8 @@
         "view_match_analysis": "انقر لعرض تحليل التطابق التفصيلي"
       },
       "skills": {
-        "more_skills": "+{count} أكثر"
+        "more_skills": "+{count} أكثر",
+        "matching_skills": "المهارات المطابقة"
       },
       "card_analysis": {
         "why_matches": "لماذا تطابق هذه الوظيفة:",

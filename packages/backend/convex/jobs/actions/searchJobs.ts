@@ -5,10 +5,9 @@ import type { JobResult } from "../../types/jobs";
 import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { validateBatchJobAnalysis } from "../../lib/validators";
 import { batch_job_analysis_schema } from "../../lib/schemas/batch_job_analysis";
-import type { BatchJobAnalysis } from "../../types/job_types";
 import type { JobType } from "../../types/jobs";
+
 // Internal query to get all jobs for testing/debugging
 export const getAllJobListings = internalQuery({
 	args: {},
@@ -222,6 +221,24 @@ export const aiSearchJobs = internalAction({
 			{ userId: args.userId },
 		);
 
+		// Extract survey data for AI analysis
+		const surveyData = surveyResults[0];
+		const userSurveyInfo = surveyData
+			? `
+USER SURVEY DATA:
+- Profession: ${surveyData.profession}
+- Experience Level: ${surveyData.experience} years
+- Career Level: ${surveyData.careerLevel}
+- Preferred Job Titles: ${surveyData.jobTitles.join(", ")}
+- Preferred Industries: ${surveyData.industries.join(", ")}
+- Work Type Preference: ${surveyData.workType}
+- Preferred Locations: ${surveyData.locations.join(", ")}
+- Skills: ${surveyData.skills.join(", ")}
+- Languages: ${surveyData.languages.map((l) => `${l.language} (${l.proficiency})`).join(", ")}
+- Company Types: ${surveyData.companyTypes.join(", ")}
+`
+			: "No survey data available";
+
 		// Convert database results to JobResult format
 		const jobResults: JobResult[] = [];
 		console.log("Processing jobs for comprehensive AI analysis...");
@@ -293,24 +310,26 @@ export const aiSearchJobs = internalAction({
 			);
 
 			// OPTIMIZED BATCH AI ANALYSIS - 12 jobs in single AI call
-			const batchAnalysis = await (generateObject as any)({
+			const batchAnalysis = await generateObject({
 				model: openai.chat("gpt-4o-mini", {
 					structuredOutputs: true,
 				}),
 				messages: [
 					{
 						role: "system",
-						content: `Analyze ${chunk.length} jobs for candidate fit. Extract: experience match (score 0-1), location compatibility (score 0-1), benefits, requirements, salary/company/job type. Be concise and consistent.`,
+						content: `Analyze ${chunk.length} jobs for candidate fit using both CV profile and user survey preferences. Extract: experience match (score 0-1), location compatibility (score 0-1), benefits, requirements, salary/company/job type. Consider survey preferences for work type, company types, and career level alignment. Be concise and consistent.`,
 					},
 					{
 						role: "user",
 						content: `
-CANDIDATE: ${args.cvProfile.experience_level} (${args.cvProfile.years_of_experience}y) | Skills: ${args.cvProfile.skills.slice(0, 8).join(",")} | Locations: ${args.cvProfile.preferred_locations.join(",")}
+${userSurveyInfo}
+
+CANDIDATE CV: ${args.cvProfile.experience_level} (${args.cvProfile.years_of_experience}y) | Skills: ${args.cvProfile.skills.slice(0, 8).join(",")} | Locations: ${args.cvProfile.preferred_locations.join(",")}
 
 JOBS:
 ${batchJobData.map((job, idx) => `${idx + 1}. ${job.title} @${job.location} | ${job.desc.slice(0, 200)}... | ✓${job.matched} | ✗${job.missing}`).join("\n")}
 
-Return analysis for each job in order.
+Return analysis for each job in order, considering both CV skills and survey preferences.
 						`,
 					},
 				],
@@ -327,81 +346,106 @@ Return analysis for each job in order.
 			);
 
 			// Process batch results
-			const batchData = validateBatchJobAnalysis(
-				batchAnalysis.object as unknown,
-			);
-
-			const batchResults = batchData.jobAnalyses
-				.map(
-					(analysis: BatchJobAnalysis["jobAnalyses"][0], batchIdx: number) => {
-						const originalJob = chunk[batchIdx];
-						if (!originalJob) {
-							console.warn(`Missing job data for batch index ${batchIdx}`);
-							return null;
-						}
-
-						const { job, index, matchedSkills, missingSkills } = originalJob;
-
-						// Check location match
-						let locationMatch = "no_location_provided";
-						if (args.cvProfile.preferred_locations.length > 0) {
-							const jobLocation = (job.location || "").toLowerCase();
-							const matchingLocation = args.cvProfile.preferred_locations.some(
-								(location) => jobLocation.includes(location.toLowerCase()),
-							);
-							locationMatch = matchingLocation
-								? "location_match"
-								: "location_mismatch";
-						}
-
-						console.log(
-							`  Job ${index + 1}: "${job.name.slice(0, 30)}..." - ${matchedSkills.length} skills matched, Experience: ${analysis.experienceMatch.match_level} (${analysis.experienceMatch.match_score}), Location: ${analysis.locationMatch.match_score}`,
-						);
-
-						return {
-							jobListingId: job._id,
-							// Benefits - convert to simple string array
-							benefits: analysis.benefits.map((benefit) =>
-								benefit.details
-									? `${benefit.description} (${benefit.details})`
-									: benefit.description,
-							),
-							// Requirements - convert to simple string array
-							requirements: analysis.requirements.map((req) =>
-								req.details
-									? `${req.description} (${req.details})`
-									: req.description,
-							),
-							matchedSkills,
-							missingSkills,
-							// Experience matching
-							experienceMatch: analysis.experienceMatch.match_level,
-							experienceMatchScore: analysis.experienceMatch.match_score,
-							experienceMatchReasons: analysis.experienceMatch.match_reasons,
-							// Location matching
-							locationMatchScore: analysis.locationMatch.match_score,
-							locationMatchReasons: analysis.locationMatch.match_reasons,
-							locationMatch,
-							workTypeMatch: ["remote", "hybrid", "onsite"].includes(
-								(analysis.locationMatch.work_type_match || "").toLowerCase(),
-							),
-							// Data extraction (for use in combineResults)
-							extractedData: {
-								salary: analysis.dataExtraction.salary,
-								company: analysis.dataExtraction.company,
-								jobType: {
-									type:
-										(analysis.dataExtraction.job_type.type as JobType) || null,
-									is_remote: false,
-									work_arrangement: null,
-								},
-							},
+			const batchData = batchAnalysis.object as {
+				jobAnalyses: Array<{
+					jobId: string;
+					experienceMatch: {
+						match_level: "perfect" | "good" | "partial" | "poor" | "mismatch";
+						match_score: number;
+						match_reasons: string[];
+						experience_gaps: string[];
+						recommendation: string;
+					};
+					locationMatch: {
+						match_score: number;
+						match_reasons: string[];
+						work_type_match: string;
+					};
+					benefits: string[];
+					requirements: string[];
+					dataExtraction: {
+						salary: {
+							is_salary_mentioned: boolean;
+							min: number | null;
+							max: number | null;
+							currency: string;
 						};
-					},
-				)
-				.filter(
-					(result): result is Exclude<typeof result, null> => result !== null,
+						company: {
+							is_company_mentioned: boolean;
+							name: string | null;
+						};
+						job_type: {
+							type: string;
+						};
+					};
+				}>;
+			};
+
+			const batchResults: JobResult[] = [];
+
+			for (
+				let batchIdx = 0;
+				batchIdx < batchData.jobAnalyses.length;
+				batchIdx++
+			) {
+				const analysis = batchData.jobAnalyses[batchIdx];
+				const originalJob = chunk[batchIdx];
+				if (!originalJob) {
+					console.warn(`Missing job data for batch index ${batchIdx}`);
+					continue;
+				}
+
+				const { job, index, matchedSkills, missingSkills } = originalJob;
+
+				// Check location match
+				let locationMatch = "no_location_provided";
+				if (args.cvProfile.preferred_locations.length > 0) {
+					const jobLocation = (job.location || "").toLowerCase();
+					const matchingLocation = args.cvProfile.preferred_locations.some(
+						(location) => jobLocation.includes(location.toLowerCase()),
+					);
+					locationMatch = matchingLocation
+						? "location_match"
+						: "location_mismatch";
+				}
+
+				console.log(
+					`  Job ${index + 1}: "${job.name.slice(0, 30)}..." - ${matchedSkills.length} skills matched, Experience: ${analysis.experienceMatch.match_level} (${analysis.experienceMatch.match_score}), Location: ${analysis.locationMatch.match_score}`,
 				);
+
+				const jobResult: JobResult = {
+					jobListingId: job._id,
+					// Benefits - now directly as string array
+					benefits: analysis.benefits,
+					// Requirements - now directly as string array
+					requirements: analysis.requirements,
+					matchedSkills,
+					missingSkills,
+					// Experience matching
+					experienceMatch: analysis.experienceMatch.match_level,
+					experienceMatchScore: analysis.experienceMatch.match_score,
+					experienceMatchReasons: analysis.experienceMatch.match_reasons,
+					// Location matching
+					locationMatchScore: analysis.locationMatch.match_score,
+					locationMatchReasons: analysis.locationMatch.match_reasons,
+					locationMatch,
+					workTypeMatch: ["remote", "hybrid", "onsite"].includes(
+						(analysis.locationMatch.work_type_match || "").toLowerCase(),
+					),
+					// Data extraction (for use in combineResults)
+					extractedData: {
+						salary: analysis.dataExtraction.salary,
+						company: analysis.dataExtraction.company,
+						jobType: {
+							type: (analysis.dataExtraction.job_type.type as JobType) || null,
+							is_remote: false,
+							work_arrangement: null,
+						},
+					},
+				};
+
+				batchResults.push(jobResult);
+			}
 
 			jobResults.push(...batchResults);
 			console.log(

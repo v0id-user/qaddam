@@ -21,7 +21,7 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
     jobListingId: job.jobListingId,
   });
 
-  const getJobTypeDisplay = (job: JobResult) => {
+  const getJobTypeDisplay = () => {
     const jobType = job.extractedData?.jobType?.type || 'full_time';
     return {
       type: jobType,
@@ -106,9 +106,9 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       <div className="mb-5 space-y-3">
         <div className="flex items-center space-x-2 space-x-reverse">
           <span
-            className={`rounded-full px-3 py-1 text-xs font-medium ${getJobTypeDisplay(job).colorClass}`}
+            className={`rounded-full px-3 py-1 text-xs font-medium ${getJobTypeDisplay().colorClass}`}
           >
-            {getJobTypeDisplay(job).display}
+            {getJobTypeDisplay().display}
           </span>
           <div className="text-muted-foreground flex items-center space-x-1 space-x-reverse text-xs">
             <Clock className="h-3 w-3" />
@@ -124,6 +124,8 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
               : t('job_results.salary_not_specified')}
           </span>
         </div>
+
+
       </div>
 
       {/* Match Score */}
@@ -147,23 +149,30 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       </div>
 
       {/* Skills Preview */}
-      <div className="mb-5">
-        <div className="flex flex-wrap gap-1.5">
-          {job.matchedSkills.slice(0, 3).map((skill: string, index: number) => (
-            <span
-              key={index}
-              className="rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700"
-            >
-              {skill}
+      {job.matchedSkills && job.matchedSkills.length > 0 && (
+        <div className="mb-5">
+          <div className="mb-2">
+            <span className="text-muted-foreground text-xs font-medium">
+              {t('job_results.matching_skills')}
             </span>
-          ))}
-          {job.matchedSkills.length > 3 && (
-            <span className="bg-accent/10 text-muted-foreground rounded-full px-2 py-1 text-xs">
-              {t('job_results.skills.more_skills', { count: job.matchedSkills.length - 3 })}
-            </span>
-          )}
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {job.matchedSkills.slice(0, 4).map((skill: string, index: number) => (
+              <span
+                key={index}
+                className="rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700"
+              >
+                {skill}
+              </span>
+            ))}
+            {job.matchedSkills.length > 4 && (
+              <span className="bg-accent/10 text-muted-foreground rounded-full px-2 py-1 text-xs">
+                {t('job_results.skills.more_skills', { count: job.matchedSkills.length - 4 })}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* AI Analysis Preview */}
       {job.aiMatchReasons && job.aiMatchReasons.length > 0 && (
@@ -201,17 +210,19 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
         </div>
       )}
 
-      {/* Description */}
-      <div
-        className="text-muted-foreground prose prose-sm mb-5 line-clamp-3 max-w-none text-xs"
-        dangerouslySetInnerHTML={{
-          __html: jobListing.descriptionHtml
-            .replace(/<br>/g, '<br />')
-            .replace(/<ul>/g, '<ul class="list-disc pl-4 my-2">')
-            .replace(/<li>/g, '<li class="my-1">')
-            .replace(/<strong>/g, '<strong class="font-semibold block mt-4 mb-2">'),
-        }}
-      />
+      {/* Description - Only show if available */}
+      {jobListing.descriptionHtml && jobListing.descriptionHtml.trim() && (
+        <div
+          className="text-muted-foreground prose prose-sm mb-5 line-clamp-3 max-w-none text-xs"
+          dangerouslySetInnerHTML={{
+            __html: jobListing.descriptionHtml
+              .replace(/<br>/g, '<br />')
+              .replace(/<ul>/g, '<ul class="list-disc pl-4 my-2">')
+              .replace(/<li>/g, '<li class="my-1">')
+              .replace(/<strong>/g, '<strong class="font-semibold block mt-4 mb-2">'),
+          }}
+        />
+      )}
 
       {/* Actions */}
       <div className="flex gap-4">

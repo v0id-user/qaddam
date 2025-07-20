@@ -60,33 +60,46 @@ export const saveSurvey = mutation({
 			throw new Error("User not authenticated");
 		}
 
-		// Validation
-		if (!args.profession.trim()) {
-			throw new Error("Profession is required");
+		// DRY validation
+		const requiredStringFields: Array<{ value: string; name: string }> = [
+			{ value: args.profession.trim(), name: "Profession" },
+			{ value: args.experience, name: "Experience" },
+			{ value: args.careerLevel, name: "Career level" },
+			{ value: args.workType, name: "Work type" },
+		];
+
+		for (const field of requiredStringFields) {
+			if (!field.value) {
+				throw new Error(`${field.name} is required`);
+			}
 		}
 
-		if (!args.experience) {
-			throw new Error("Experience is required");
-		}
+		const requiredArrayFields: Array<{
+			value: unknown[];
+			name: string;
+			message: string;
+		}> = [
+			{
+				value: args.jobTitles,
+				name: "Job titles",
+				message: "At least one job title is required",
+			},
+			{
+				value: args.skills,
+				name: "Skills",
+				message: "At least one skill is required",
+			},
+			{
+				value: args.locations,
+				name: "Locations",
+				message: "At least one location is required",
+			},
+		];
 
-		if (!args.careerLevel) {
-			throw new Error("Career level is required");
-		}
-
-		if (args.jobTitles.length === 0) {
-			throw new Error("At least one job title is required");
-		}
-
-		if (args.skills.length === 0) {
-			throw new Error("At least one skill is required");
-		}
-
-		if (!args.workType) {
-			throw new Error("Work type is required");
-		}
-
-		if (args.locations.length === 0) {
-			throw new Error("At least one location is required");
+		for (const field of requiredArrayFields) {
+			if (field.value.length === 0) {
+				throw new Error(field.message);
+			}
 		}
 
 		// Set default industries to Technology if empty (since we're tech-focused)

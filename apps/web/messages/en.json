@@ -300,7 +300,8 @@
         "view_match_analysis": "Click to view detailed match analysis"
       },
       "skills": {
-        "more_skills": "+{count} more"
+        "more_skills": "+{count} more",
+        "matching_skills": "Matching Skills"
       },
       "card_analysis": {
         "why_matches": "Why this job matches:",

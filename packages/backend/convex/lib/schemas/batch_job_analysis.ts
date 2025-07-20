@@ -16,18 +16,8 @@ export const batch_job_analysis_schema = z.object({
 				match_reasons: z.array(z.string()).min(1),
 				work_type_match: z.string(),
 			}),
-			benefits: z.array(
-				z.object({
-					description: z.string(),
-					details: z.string().optional(),
-				}),
-			),
-			requirements: z.array(
-				z.object({
-					description: z.string(),
-					details: z.string().optional(),
-				}),
-			),
+			benefits: z.array(z.string()),
+			requirements: z.array(z.string()),
 			dataExtraction: z.object({
 				salary: z.object({
 					is_salary_mentioned: z.boolean(),
