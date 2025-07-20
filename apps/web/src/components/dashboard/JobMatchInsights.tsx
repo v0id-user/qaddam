@@ -11,6 +11,8 @@ import {
   getAIRecommendationKey,
   getMatchScoreColor,
 } from '@/lib/enum-translations';
+import LinkedIn from '@/components/logos/linkedin';
+import Indeed from '@/components/logos/indeed';
 
 interface JobMatchInsightsProps {
   job: JobResult;
@@ -68,6 +70,17 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
                 <h3 className="text-foreground text-lg font-semibold">{jobListing.name}</h3>
                 <span className="text-muted-foreground">@</span>
                 <span className="text-muted-foreground">{jobListing.sourceName}</span>
+                {jobListing.source && (
+                  <div className="flex items-center">
+                    {jobListing.source === 'linkedIn' ? (
+                      <LinkedIn className="h-4 w-4" />
+                    ) : jobListing.source === 'indeed' ? (
+                      <Indeed className="h-4 w-4" />
+                    ) : (
+                      <span className="text-muted-foreground text-xs">{jobListing.source}</span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
             <button

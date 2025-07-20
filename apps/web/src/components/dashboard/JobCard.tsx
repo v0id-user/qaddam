@@ -8,6 +8,8 @@ import type { JobResult } from '@qaddam/backend/convex/types/jobs';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import { useQuery } from 'convex/react';
 import { getJobTypeKey, getJobTypeColor, getMatchScoreColor } from '@/lib/enum-translations';
+import LinkedIn from '@/components/logos/linkedin';
+import Indeed from '@/components/logos/indeed';
 
 interface JobCardProps {
   job: JobResult;
@@ -81,7 +83,20 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
           <h3 className="text-foreground group-hover:text-primary mb-1 text-lg font-semibold transition-colors">
             {jobListing.name}
           </h3>
-          <p className="text-muted-foreground mb-2 text-sm font-medium">{jobListing.sourceName}</p>
+          <div className="mb-2 flex items-center space-x-2 space-x-reverse">
+            <p className="text-muted-foreground text-sm font-medium">{jobListing.sourceName}</p>
+            {jobListing.source && (
+              <div className="flex items-center">
+                {jobListing.source === 'linkedIn' ? (
+                  <LinkedIn className="h-4 w-4" />
+                ) : jobListing.source === 'indeed' ? (
+                  <Indeed className="h-4 w-4" />
+                ) : (
+                  <span className="text-muted-foreground text-xs">{jobListing.source}</span>
+                )}
+              </div>
+            )}
+          </div>
           <div className="text-muted-foreground flex items-center space-x-2 space-x-reverse text-sm">
             <MapPin className="h-4 w-4" />
             <span>{jobListing.location}</span>
