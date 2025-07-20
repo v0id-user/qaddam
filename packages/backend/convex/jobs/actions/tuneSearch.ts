@@ -125,25 +125,25 @@ Make sure each array has at least one relevant keyword.
 				schema: keyword_extraction_schema,
 			});
 
-				console.log("AI Keyword Extraction - Token usage:", {
+			console.log("AI Keyword Extraction - Token usage:", {
 				promptTokens: response.usage?.promptTokens || 0,
 				completionTokens: response.usage?.completionTokens || 0,
 				totalTokens: response.usage?.totalTokens || 0,
 			});
 
-			const result = validateKeywordExtraction(response.object as unknown);
+			const fullResult = validateKeywordExtraction(response.object as unknown);
 			console.log("Keyword extraction completed:", {
-				primary: result.primary_keywords.length,
-				secondary: result.secondary_keywords.length,
-				search: result.search_terms.length,
-				jobTitles: result.job_title_keywords.length,
-				technical: result.technical_skills.length,
+				primary: fullResult.primary_keywords.length,
+				secondary: fullResult.secondary_keywords.length,
+				search: fullResult.search_terms.length,
+				jobTitles: fullResult.job_title_keywords.length,
+				technical: fullResult.technical_skills.length,
 			});
 
 			console.log("Sample keywords:", {
-				primary: result.primary_keywords.slice(0, 3).join(", ") + "...",
-				secondary: result.secondary_keywords.slice(0, 3).join(", ") + "...",
-				search: result.search_terms.slice(0, 3).join(", ") + "...",
+				primary: fullResult.primary_keywords.slice(0, 3).join(", ") + "...",
+				secondary: fullResult.secondary_keywords.slice(0, 3).join(", ") + "...",
+				search: fullResult.search_terms.slice(0, 3).join(", ") + "...",
 			});
 
 			// Update workflow status to indicate keyword extraction completed
@@ -153,6 +153,15 @@ Make sure each array has at least one relevant keyword.
 				percentage: 40,
 				userId: args.userId,
 			});
+
+			// Extract only the required fields for the return type
+			const result = {
+				primary_keywords: fullResult.primary_keywords,
+				secondary_keywords: fullResult.secondary_keywords,
+				search_terms: fullResult.search_terms,
+				job_title_keywords: fullResult.job_title_keywords,
+				technical_skills: fullResult.technical_skills,
+			};
 
 			// Validate that all arrays are non-empty
 			if (

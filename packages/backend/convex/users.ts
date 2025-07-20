@@ -17,7 +17,10 @@ export const getMe = query({
 		const isPro = productKey === "premiumMonthly";
 
 		const user = await ctx.db.get(userId);
-		const userConfig = await ctx.db.query("userConfig").withIndex("by_userId", (q) => q.eq("userId", userId)).first();
+		const userConfig = await ctx.db
+			.query("userConfig")
+			.withIndex("by_userId", (q) => q.eq("userId", userId))
+			.first();
 
 		return {
 			...user,

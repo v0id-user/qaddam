@@ -6,7 +6,7 @@ export const job_ranking_schema = z.object({
 			id: z.string(),
 			match_reasons: z.array(z.string()),
 			concerns: z.array(z.string()),
-		})
+		}),
 	),
 	insights: z.object({
 		total_relevant: z.number(),
@@ -17,4 +17,4 @@ export const job_ranking_schema = z.object({
 	}),
 });
 
-export type JobRanking = z.infer<typeof job_ranking_schema>; 
+export type JobRanking = z.infer<typeof job_ranking_schema>;

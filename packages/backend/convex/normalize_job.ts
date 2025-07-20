@@ -3,20 +3,20 @@ import { v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 
 type JobListingInsert = {
-  name: string;
-  descriptionHtml: string;
-  description: string;
-  location?: string;
-  salary?: number;
-  currency?: string;
-  source?: string;
-  sourceId?: string;
-  datePosted?: number;
-  sourceUrl?: string;
-  sourceName?: string;
-  sourceLogo?: string;
-  sourceDescription?: string;
-  sourceLocation?: string;
+	name: string;
+	descriptionHtml: string;
+	description: string;
+	location?: string;
+	salary?: number;
+	currency?: string;
+	source?: string;
+	sourceId?: string;
+	datePosted?: number;
+	sourceUrl?: string;
+	sourceName?: string;
+	sourceLogo?: string;
+	sourceDescription?: string;
+	sourceLocation?: string;
 };
 
 // LinkedIn job interface based on existing types
@@ -239,7 +239,10 @@ export const add_new_jobs_listing = internalMutation({
 							const jobId = await ctx.db.insert("jobListings", normalizedJob);
 							insertedIds.push(jobId);
 						} catch (error) {
-							console.log("Failed to insert LinkedIn job", { error, jobId: (rawJob as any)?.id });
+							console.log("Failed to insert LinkedIn job", {
+								error,
+								jobId: (rawJob as any)?.id,
+							});
 							skippedJobs++;
 						}
 					} else {
@@ -259,7 +262,10 @@ export const add_new_jobs_listing = internalMutation({
 							const jobId = await ctx.db.insert("jobListings", normalizedJob);
 							insertedIds.push(jobId);
 						} catch (error) {
-							console.log("Failed to insert Indeed job", { error, jobUrl: (rawJob as any)?.url });
+							console.log("Failed to insert Indeed job", {
+								error,
+								jobUrl: (rawJob as any)?.url,
+							});
 							skippedJobs++;
 						}
 					} else {

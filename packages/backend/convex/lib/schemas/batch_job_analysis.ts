@@ -20,13 +20,13 @@ export const batch_job_analysis_schema = z.object({
 				z.object({
 					description: z.string(),
 					details: z.string().optional(),
-				})
+				}),
 			),
 			requirements: z.array(
 				z.object({
 					description: z.string(),
 					details: z.string().optional(),
-				})
+				}),
 			),
 			dataExtraction: z.object({
 				salary: z.object({
@@ -43,8 +43,8 @@ export const batch_job_analysis_schema = z.object({
 					type: z.string(),
 				}),
 			}),
-		})
+		}),
 	),
 });
 
-export type BatchJobAnalysis = z.infer<typeof batch_job_analysis_schema>; 
+export type BatchJobAnalysis = z.infer<typeof batch_job_analysis_schema>;
