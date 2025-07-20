@@ -1,5 +1,5 @@
 import { internalAction } from "../../_generated/server";
-import { api, internal } from "../../_generated/api";
+import { internal } from "../../_generated/api";
 import { v } from "convex/values";
 import type { JobResult } from "../../types/jobs";
 import { generateObject } from "ai";
@@ -44,15 +44,15 @@ export const aiSearchJobs = internalAction({
 			yearsOfExperience: args.cvProfile.years_of_experience,
 		});
 
-		const me = await ctx.runQuery(api.users.getMe);
-
-		// Update workflow status to indicate job search started
-		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
-			workflowId: args.workflowTrackingId,
-			stage: "searching_jobs",
-			percentage: 42,
-			userId: args.userId,
-		});
+		const [user] = await Promise.all([
+			ctx.runQuery(internal.users.getUserById, { userId: args.userId }),
+			ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
+				workflowId: args.workflowTrackingId,
+				stage: "searching_jobs",
+				percentage: 42,
+				userId: args.userId,
+			}),
+		]);
 
 		const { searchParams } = args;
 
@@ -103,7 +103,7 @@ export const aiSearchJobs = internalAction({
 					index === self.findIndex((j) => j._id === job._id),
 			)
 			.sort(() => Math.random() - 0.5) // Shuffle randomly
-			.slice(0, me?.isPro ? 20 : 7);
+			.slice(0, user?.isPro ? 20 : 7);
 
 		console.log(
 			`Search complete: ${uniqueResults.length} unique jobs (limited to 20) from ${allResults.length} total results`,
@@ -135,18 +135,52 @@ export const aiSearchJobs = internalAction({
 			// Pre-lowercase job text once
 			const jobText = `${job.name} ${job.description}`.toLowerCase();
 
-			// Optimize skill matching with early exit
+			// Improved skill matching with variations
 			const matchedSkills: string[] = [];
 			const missingSkills: string[] = [];
 
 			for (const skill of searchParams.technical_skills) {
 				const skillLower = skill.toLowerCase();
+
+				// Check for exact match
 				if (jobText.includes(skillLower)) {
+					matchedSkills.push(skill);
+					continue;
+				}
+
+				// Check for common variations
+				const skillVariations = [
+					skillLower,
+					skillLower.replace(/\.js$/, ""), // React.js -> React
+					skillLower.replace(/\.js$/, ".js"), // React -> React.js
+					skillLower.replace(/\s+/g, ""), // "Machine Learning" -> "MachineLearning"
+					skillLower.replace(/\s+/g, "-"), // "Machine Learning" -> "Machine-Learning"
+					skillLower.replace(/\s+/g, "_"), // "Machine Learning" -> "Machine_Learning"
+				];
+
+				const isMatched = skillVariations.some(
+					(variation) =>
+						jobText.includes(variation) ||
+						jobText.includes(variation + " ") ||
+						jobText.includes(" " + variation),
+				);
+
+				if (isMatched) {
 					matchedSkills.push(skill);
 				} else {
 					missingSkills.push(skill);
 				}
 			}
+
+			// Add this after skill matching to debug issues
+			console.log("Skill matching debug:", {
+				jobTitle: job.name,
+				totalSkills: searchParams.technical_skills.length,
+				matchedSkills: matchedSkills.length,
+				missingSkills: missingSkills.length,
+				matchedSkillsList: matchedSkills,
+				missingSkillsList: missingSkills,
+			});
 
 			return {
 				job,
@@ -188,7 +222,7 @@ export const aiSearchJobs = internalAction({
 				}),
 			);
 
-			// OPTIMIZATION 9: Streamlined AI prompt for faster processing
+			// Update the AI prompt to include full CV skills for comparison
 			const batchAnalysis = await generateObject({
 				model: openai.chat("gpt-4o-mini", {
 					structuredOutputs: true,
@@ -196,16 +230,41 @@ export const aiSearchJobs = internalAction({
 				messages: [
 					{
 						role: "system",
-						content: `Analyze ${chunk.length} jobs for candidate fit. Extract: experience match (0-1 score), location match (0-1 score), top 3 benefits, top 3 requirements, salary/company/job type. Be concise.`,
+						content: `Analyze job-candidate fit with precise scoring. 
+
+EXPERIENCE MATCH SCORING (0-1):
+- 0.9-1.0: Perfect match - candidate has exact experience level and years
+- 0.7-0.8: Strong match - candidate has relevant experience with minor gaps
+- 0.5-0.6: Moderate match - candidate has some relevant experience
+- 0.3-0.4: Weak match - candidate lacks key experience
+- 0.0-0.2: Poor match - significant experience gaps
+
+LOCATION MATCH SCORING (0-1):
+- 1.0: Exact location match
+- 0.8: Same city/region
+- 0.6: Same country
+- 0.3: Remote option available
+- 0.0: No location match
+
+SKILL MATCHING: Compare job requirements with candidate's full skill set. Consider:
+- Exact matches
+- Related skills (e.g., "JavaScript" matches "TypeScript" as related)
+- Skill variations and abbreviations
+- Transferable skills
+
+Provide detailed match reasons and specific experience gaps.`,
 					},
 					{
 						role: "user",
-						content: `${userSurveyInfo}
+						content: `CANDIDATE PROFILE:
+Experience: ${args.cvProfile.experience_level} (${args.cvProfile.years_of_experience} years)
+ALL CV Skills: ${args.cvProfile.skills.join(", ")}
+Preferred Locations: ${args.cvProfile.preferred_locations.join(", ")}
 
-CV: ${args.cvProfile.experience_level} (${args.cvProfile.years_of_experience}y) | Skills: ${args.cvProfile.skills.slice(0, 6).join(",")} | Locations: ${args.cvProfile.preferred_locations.slice(0, 3).join(",")}
+JOBS TO ANALYZE:
+${batchJobData.map((job, idx) => `${idx + 1}. ${job.title} @${job.location} | ${job.desc} | Pre-matched Skills: ${job.matched} | Pre-missing Skills: ${job.missing}`).join("\n")}
 
-JOBS:
-${batchJobData.map((job, idx) => `${idx + 1}. ${job.title} @${job.location} | ${job.desc} | ✓${job.matched} | ✗${job.missing}`).join("\n")}`,
+IMPORTANT: Re-evaluate skill matches using the full CV skills list. A skill might be marked as "missing" but actually present in the candidate's CV under a different name or variation.`,
 					},
 				],
 				schema: batch_job_analysis_schema,
