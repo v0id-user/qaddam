@@ -224,7 +224,7 @@ export const aiSearchJobs = internalAction({
 
 			// Update the AI prompt to include full CV skills for comparison
 			const batchAnalysis = await generateObject({
-				model: openai.chat("gpt-4o-mini", {
+				model: openai.chat(user?.isPro ? "gpt-4o" : "gpt-4o-mini", {
 					structuredOutputs: true,
 				}),
 				messages: [
@@ -257,6 +257,9 @@ Provide detailed match reasons and specific experience gaps.`,
 					{
 						role: "user",
 						content: `CANDIDATE PROFILE:
+${userSurveyInfo}
+
+CV DETAILS:
 Experience: ${args.cvProfile.experience_level} (${args.cvProfile.years_of_experience} years)
 ALL CV Skills: ${args.cvProfile.skills.join(", ")}
 Preferred Locations: ${args.cvProfile.preferred_locations.join(", ")}
@@ -264,7 +267,10 @@ Preferred Locations: ${args.cvProfile.preferred_locations.join(", ")}
 JOBS TO ANALYZE:
 ${batchJobData.map((job, idx) => `${idx + 1}. ${job.title} @${job.location} | ${job.desc} | Pre-matched Skills: ${job.matched} | Pre-missing Skills: ${job.missing}`).join("\n")}
 
-IMPORTANT: Re-evaluate skill matches using the full CV skills list. A skill might be marked as "missing" but actually present in the candidate's CV under a different name or variation.`,
+IMPORTANT: 
+1. Re-evaluate skill matches using the full CV skills list. A skill might be marked as "missing" but actually present in the candidate's CV under a different name or variation.
+2. Consider the user's survey preferences (career level, industries, work type, company types) when scoring job matches.
+3. Use both CV data and survey preferences for comprehensive matching.`,
 					},
 				],
 				schema: batch_job_analysis_schema,
