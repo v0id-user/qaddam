@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { query, mutation } from "./_generated/server";
+import { query, mutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
+import { Doc } from "./_generated/dataModel";
 // Get user's survey data
 export const getUserSurvey = query({
 	args: {
@@ -230,5 +231,18 @@ export const getSurveyStats = query({
 		});
 
 		return stats;
+	},
+});
+
+// Internal query to get survey results
+export const getSurveyResults = internalQuery({
+	args: {
+		userId: v.id("users"),
+	},
+	handler: async (ctx, args): Promise<Doc<"userSurveys">[]> => {
+		return await ctx.db
+			.query("userSurveys")
+			.withIndex("by_user", (q) => q.eq("userId", args.userId))
+			.take(1);
 	},
 });

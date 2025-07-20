@@ -1,109 +1,11 @@
-import { internalAction, internalQuery } from "../../_generated/server";
-import { internal } from "../../_generated/api";
+import { internalAction } from "../../_generated/server";
+import { api, internal } from "../../_generated/api";
 import { v } from "convex/values";
 import type { JobResult } from "../../types/jobs";
-import type { Doc } from "../../_generated/dataModel";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { batch_job_analysis_schema } from "../../lib/schemas/batch_job_analysis";
 import type { JobType } from "../../types/jobs";
-
-// Internal query to get all jobs for testing/debugging
-export const getAllJobListings = internalQuery({
-	args: {},
-	handler: async (ctx): Promise<Doc<"jobListings">[]> => {
-		return await ctx.db.query("jobListings").take(100);
-	},
-});
-
-// Internal query to search the database for jobs that the user has not already searched for
-export const searchJobListingsUnused = internalQuery({
-	args: {
-		searchQuery: v.string(),
-		userId: v.id("users"),
-	},
-	handler: async (ctx, args): Promise<Doc<"jobListings">[]> => {
-
-		// Query job search results for the user and all jobs in parallel
-		const [userJobSearchResults, allJobsInDb] = await Promise.all([
-			ctx.db.query("jobSearchJobResults").withIndex("by_user", (q) => q.eq("userId", args.userId)).collect(),
-			ctx.db.query("jobListings").collect(),
-		]);
-
-		const filteredJobs = allJobsInDb.filter((job) => !userJobSearchResults.some((result) => result.jobListingId === job._id));
-
-		console.log(
-			`DB search: ${filteredJobs.length} total jobs, query="${args.searchQuery.slice(0, 30)}..."`,
-		);
-
-		// Search in job descriptions
-		const descriptionResults = await ctx.db
-			.query("jobListings")
-			.withSearchIndex("search_description", (q) =>
-				q.search("description", args.searchQuery),
-			)
-			.take(50);
-
-		console.log(`Description search: ${descriptionResults.length} results`);
-
-		// Search in job names/titles
-		const nameResults = await ctx.db
-			.query("jobListings")
-			.withSearchIndex("search_name", (q) => q.search("name", args.searchQuery))
-			.take(50);
-
-		console.log(`Name search: ${nameResults.length} results`);
-
-		// Combine and deduplicate results
-		const allResults = [...descriptionResults, ...nameResults];
-		const uniqueResults = allResults.filter(
-			(job, index, self) => index === self.findIndex((j) => j._id === job._id),
-		);
-
-		console.log(`Combined: ${uniqueResults.length} unique results`);
-
-		// If no results from search indexes, try simple text matching
-		if (uniqueResults.length === 0) {
-			console.log("No search results, trying text matching...");
-
-			// Filter jobs that contain any of the search terms (case insensitive)
-			const searchTerms = args.searchQuery
-				.toLowerCase()
-				.split(" ")
-				.filter((term) => term.length > 2);
-
-			console.log(
-				`Text matching with ${searchTerms.length} terms: ${searchTerms.slice(0, 3).join(", ")}...`,
-			);
-
-			const textMatchingJobs = filteredJobs.filter((job) => {
-				const jobText =
-					`${job.name} ${job.description} ${job.sourceName || ""} ${job.location || ""}`.toLowerCase();
-				return searchTerms.some((term) => jobText.includes(term));
-			});
-
-			console.log(`Text matching: ${textMatchingJobs.length} jobs matched`);
-			return textMatchingJobs;
-		}
-
-		return uniqueResults;
-	},
-});
-
-// Internal query to get survey results
-export const getSurveyResults = internalQuery({
-	args: {
-		userId: v.id("users"),
-	},
-	handler: async (ctx, args): Promise<Doc<"userSurveys">[]> => {
-		return await ctx.db
-			.query("userSurveys")
-			.withIndex("by_user", (q) => q.eq("userId", args.userId))
-			.take(1);
-	},
-});
-
-// Comprehensive job analysis schema imported from external file
 
 // Step 3: Search with the AI keywords
 export const aiSearchJobs = internalAction({
@@ -142,6 +44,8 @@ export const aiSearchJobs = internalAction({
 			yearsOfExperience: args.cvProfile.years_of_experience,
 		});
 
+		const me = await ctx.runQuery(api.users.getMe);
+
 		// Update workflow status to indicate job search started
 		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
 			workflowId: args.workflowTrackingId,
@@ -158,19 +62,21 @@ export const aiSearchJobs = internalAction({
 			...searchParams.technical_skills.slice(0, 2),
 			// Strategy 2: Primary job title (reduced from 2 to 1)
 			...searchParams.job_title_keywords.slice(0, 1),
-		].filter(term => term && term.trim().length > 2);
+		].filter((term) => term && term.trim().length > 2);
 
 		console.log("Optimized search strategies:", {
 			terms: searchStrategies.length,
 			strategies: searchStrategies.slice(0, 3).join(", ") + "...",
 		});
 
-		// OPTIMIZATION 2: Run all database searches in parallel instead of sequentially
-		console.log(`Running ${searchStrategies.length} parallel database searches...`);
+		// OPTIMIZATION 2: Run all database searches in parallel with 20 job limit per search
+		console.log(
+			`Running ${searchStrategies.length} parallel database searches (20 jobs each)...`,
+		);
 		const searchPromises = searchStrategies.map(async (searchTerm) => {
 			console.log(`Parallel search: "${searchTerm.slice(0, 20)}..."`);
 			return await ctx.runQuery(
-				internal.jobs.actions.searchJobs.searchJobListingsUnused,
+				internal.listings.query.searchJobListingsUnused,
 				{ searchQuery: searchTerm.trim(), userId: args.userId },
 			);
 		});
@@ -178,7 +84,9 @@ export const aiSearchJobs = internalAction({
 		const searchResults = await Promise.all(searchPromises);
 		const allResults = searchResults.flat();
 
-		console.log(`Parallel search completed: ${allResults.length} total results`);
+		console.log(
+			`Parallel search completed: ${allResults.length} total results`,
+		);
 
 		// OPTIMIZATION 3: Single workflow update after all searches complete
 		await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -188,24 +96,28 @@ export const aiSearchJobs = internalAction({
 			userId: args.userId,
 		});
 
-		// Remove duplicates
-		const uniqueResults = allResults.filter(
-			(job, index, self) => index === self.findIndex((j) => j._id === job._id),
-		);
+		// Remove duplicates, shuffle, and limit to 20 jobs immediately
+		const uniqueResults = allResults
+			.filter(
+				(job, index, self) =>
+					index === self.findIndex((j) => j._id === job._id),
+			)
+			.sort(() => Math.random() - 0.5) // Shuffle randomly
+			.slice(0, me?.isPro ? 20 : 7);
 
 		console.log(
-			`Search complete: ${uniqueResults.length} unique jobs from ${allResults.length} total results`,
+			`Search complete: ${uniqueResults.length} unique jobs (limited to 20) from ${allResults.length} total results`,
 		);
 
 		// OPTIMIZATION 4: Cache survey results and run parallel with job processing
 		const [surveyResults] = await Promise.all([
-			ctx.runQuery(internal.jobs.actions.searchJobs.getSurveyResults, { userId: args.userId }),
+			ctx.runQuery(internal.surveys.getSurveyResults, { userId: args.userId }),
 			ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
 				workflowId: args.workflowTrackingId,
 				stage: "processing_jobs",
 				percentage: 55,
 				userId: args.userId,
-			})
+			}),
 		]);
 
 		// Extract survey data for AI analysis (optimized string building)
@@ -218,15 +130,15 @@ export const aiSearchJobs = internalAction({
 		const jobResults: JobResult[] = [];
 		console.log("Processing jobs for comprehensive AI analysis...");
 
-		// OPTIMIZATION 5: Efficient job preprocessing with early filtering
-		const jobsToProcess = uniqueResults.slice(0, 20).map((job, index) => {
+		// OPTIMIZATION 5: Efficient job preprocessing (already limited to 20)
+		const jobsToProcess = uniqueResults.map((job, index) => {
 			// Pre-lowercase job text once
 			const jobText = `${job.name} ${job.description}`.toLowerCase();
-			
+
 			// Optimize skill matching with early exit
 			const matchedSkills: string[] = [];
 			const missingSkills: string[] = [];
-			
+
 			for (const skill of searchParams.technical_skills) {
 				const skillLower = skill.toLowerCase();
 				if (jobText.includes(skillLower)) {
@@ -347,7 +259,11 @@ ${batchJobData.map((job, idx) => `${idx + 1}. ${job.title} @${job.location} | ${
 			const batchResults: JobResult[] = [];
 
 			// OPTIMIZATION 10: Efficient batch result processing
-			for (let batchIdx = 0; batchIdx < batchData.jobAnalyses.length; batchIdx++) {
+			for (
+				let batchIdx = 0;
+				batchIdx < batchData.jobAnalyses.length;
+				batchIdx++
+			) {
 				const analysis = batchData.jobAnalyses[batchIdx];
 				const originalJob = chunk[batchIdx];
 				if (!originalJob) continue;
@@ -358,9 +274,11 @@ ${batchJobData.map((job, idx) => `${idx + 1}. ${job.title} @${job.location} | ${
 				let locationMatch = "no_location_provided";
 				if (args.cvProfile.preferred_locations.length > 0) {
 					const jobLocation = (job.location || "").toLowerCase();
-					locationMatch = args.cvProfile.preferred_locations.some(
-						(location) => jobLocation.includes(location.toLowerCase())
-					) ? "location_match" : "location_mismatch";
+					locationMatch = args.cvProfile.preferred_locations.some((location) =>
+						jobLocation.includes(location.toLowerCase()),
+					)
+						? "location_match"
+						: "location_mismatch";
 				}
 
 				const jobResult: JobResult = {
@@ -400,9 +318,11 @@ ${batchJobData.map((job, idx) => `${idx + 1}. ${job.title} @${job.location} | ${
 			jobResults.push(...batchResults);
 
 			// OPTIMIZATION 12: Reduce progress updates frequency - only update every 2nd batch or at end
-			const shouldUpdateProgress = chunkIndex % 2 === 0 || chunkIndex === chunks.length - 1;
+			const shouldUpdateProgress =
+				chunkIndex % 2 === 0 || chunkIndex === chunks.length - 1;
 			if (shouldUpdateProgress) {
-				const batchCompleteProgress = 55 + Math.round(((chunkIndex + 1) / chunks.length) * 20);
+				const batchCompleteProgress =
+					55 + Math.round(((chunkIndex + 1) / chunks.length) * 20);
 				if (batchCompleteProgress > lastProgressUpdate) {
 					lastProgressUpdate = batchCompleteProgress;
 					await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
@@ -414,7 +334,9 @@ ${batchJobData.map((job, idx) => `${idx + 1}. ${job.title} @${job.location} | ${
 				}
 			}
 
-			console.log(`Batch ${chunkIndex + 1}/${chunks.length} completed (${jobResults.length} total processed)`);
+			console.log(
+				`Batch ${chunkIndex + 1}/${chunks.length} completed (${jobResults.length} total processed)`,
+			);
 		}
 
 		// Update workflow status to indicate all batches completed
@@ -425,13 +347,21 @@ ${batchJobData.map((job, idx) => `${idx + 1}. ${job.title} @${job.location} | ${
 			userId: args.userId,
 		});
 
-		// OPTIMIZATION 13: Return top results with performance metrics
-		const finalResults = jobResults.slice(0, 20);
-		const avgScore = finalResults.length > 0 
-			? (finalResults.reduce((sum, job) => sum + job.experienceMatchScore, 0) / finalResults.length).toFixed(2)
-			: "0.00";
-		
-		console.log(`✅ Optimized search completed: ${finalResults.length} jobs, avg score: ${avgScore}`);
+		// OPTIMIZATION 13: Return all processed results (already limited to 20)
+		const finalResults = jobResults;
+		const avgScore =
+			finalResults.length > 0
+				? (
+						finalResults.reduce(
+							(sum, job) => sum + job.experienceMatchScore,
+							0,
+						) / finalResults.length
+					).toFixed(2)
+				: "0.00";
+
+		console.log(
+			`✅ Optimized search completed: ${finalResults.length} jobs, avg score: ${avgScore}`,
+		);
 
 		return {
 			jobs: finalResults,
