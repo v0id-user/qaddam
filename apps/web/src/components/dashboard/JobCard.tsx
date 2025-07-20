@@ -124,8 +124,6 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
               : t('job_results.salary_not_specified')}
           </span>
         </div>
-
-
       </div>
 
       {/* Match Score */}

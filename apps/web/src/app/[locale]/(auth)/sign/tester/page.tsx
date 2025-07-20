@@ -188,8 +188,8 @@ const TesterSignPage = () => {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4">
       {/* Tester Announcement Banner */}
-      <div className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-r from-yellow-50 to-amber-50 border-b border-yellow-200 px-4 py-3">
-        <div className="mx-auto max-w-4xl flex items-center justify-center text-center">
+      <div className="absolute top-0 right-0 left-0 z-20 border-b border-yellow-200 bg-gradient-to-r from-yellow-50 to-amber-50 px-4 py-3">
+        <div className="mx-auto flex max-w-4xl items-center justify-center text-center">
           <div className="flex items-center gap-2 text-yellow-800">
             <p className="text-sm font-medium">
               {t('tester_announcement')}{' '}
@@ -197,7 +197,7 @@ const TesterSignPage = () => {
                 href="https://x.com/v0id_user"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-semibold text-yellow-900 underline hover:text-yellow-950 transition-colors"
+                className="font-semibold text-yellow-900 underline transition-colors hover:text-yellow-950"
               >
                 @v0id_user
               </a>{' '}
@@ -274,4 +274,4 @@ const TesterSignPage = () => {
   );
 };
 
-    export default TesterSignPage;
+export default TesterSignPage;
