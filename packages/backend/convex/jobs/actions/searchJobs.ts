@@ -232,27 +232,76 @@ export const aiSearchJobs = internalAction({
 						role: "system",
 						content: `Analyze job-candidate fit with precise scoring. 
 
+CRITICAL: Base your analysis ONLY on the provided CV data and survey information. Do NOT make assumptions about experience levels not mentioned in the data.
+
+ADVANCED EXPERIENCE ANALYSIS:
+Carefully distinguish between different types of experience:
+
+1. PROFESSIONAL WORK EXPERIENCE (Highest Value):
+   - Company names mentioned (Google, Microsoft, etc.)
+   - Job titles with company context
+   - Employment dates and responsibilities
+   - Internships at established companies
+
+2. FREELANCE/CONTRACT EXPERIENCE (High Value):
+   - Client work mentioned
+   - Project-based work with deliverables
+   - Freelance platforms (Upwork, Fiverr)
+   - Contract roles
+
+3. PERSONAL PROJECTS/SELF-LEARNING (Moderate Value):
+   - GitHub projects, personal websites
+   - Self-taught skills, online courses
+   - No client/company context
+   - Portfolio projects
+
+4. ACADEMIC/EDUCATIONAL EXPERIENCE (Context-Dependent):
+   - University projects, thesis work
+   - Research experience
+   - Academic publications
+
 EXPERIENCE MATCH SCORING (0-1):
-- 0.9-1.0: Perfect match - candidate has exact experience level and years
-- 0.7-0.8: Strong match - candidate has relevant experience with minor gaps
-- 0.5-0.6: Moderate match - candidate has some relevant experience
-- 0.3-0.4: Weak match - candidate lacks key experience
-- 0.0-0.2: Poor match - significant experience gaps
+- 0.9-1.0: Perfect match - candidate's PROFESSIONAL experience exactly matches job requirements
+- 0.7-0.8: Strong match - candidate has relevant PROFESSIONAL/FREELANCE experience with minor gaps
+- 0.5-0.6: Moderate match - candidate has some PROFESSIONAL experience OR strong personal projects + skills
+- 0.3-0.4: Weak match - candidate has mostly personal projects/self-learning with some relevant skills
+- 0.1-0.2: Poor match - significant gaps in experience type and requirements
+- 0.0: Complete mismatch - no relevant experience of any type
+
+SPECIFIC EXPERIENCE CONSIDERATIONS:
+- Entry-level/Intern jobs: Score 0.6-0.8 for candidates with personal projects + relevant skills (even 0 professional experience)
+- Junior roles (1-3y): Require some professional/freelance experience OR strong personal projects + education
+- Mid-level roles (3-5y): Require clear professional experience with company names/client work
+- Senior roles (5+y): Require extensive professional experience with leadership/project management indicators
+- If CV mentions company names, treat as professional experience
+- If CV only mentions personal projects/GitHub, treat as self-learning experience
+- Consider career changers: Strong personal projects + education can offset lack of professional experience in new field
 
 LOCATION MATCH SCORING (0-1):
-- 1.0: Exact location match
-- 0.8: Same city/region
-- 0.6: Same country
-- 0.3: Remote option available
-- 0.0: No location match
+- 1.0: Exact location match or candidate explicitly mentions this location
+- 0.8: Same city/region or candidate shows willingness to relocate
+- 0.6: Same country or candidate has remote work experience
+- 0.4: Different country but remote-friendly role
+- 0.2: Different country, on-site role, no relocation mentioned
+- 0.0: Complete location mismatch with no remote option
 
-SKILL MATCHING: Compare job requirements with candidate's full skill set. Consider:
-- Exact matches
-- Related skills (e.g., "JavaScript" matches "TypeScript" as related)
-- Skill variations and abbreviations
-- Transferable skills
+SKILL MATCHING ADVANCED CRITERIA:
+Compare job requirements with candidate's full skill set:
+- EXACT MATCHES: Direct skill mentions in CV (highest weight)
+- RELATED SKILLS: Connected technologies (React + JavaScript, AWS + Cloud)
+- SKILL VARIATIONS: Different names for same technology (JS/JavaScript, ML/Machine Learning)
+- TRANSFERABLE SKILLS: Skills that indicate learning ability (multiple languages, frameworks)
+- DEPTH INDICATORS: Years mentioned, project complexity, professional usage
+- BREADTH INDICATORS: Diverse skill set showing adaptability
 
-Provide detailed match reasons and specific experience gaps.`,
+HOLISTIC EVALUATION:
+Consider ALL factors together:
+- A candidate with 2 years professional experience + perfect skill match = 0.8-0.9
+- A candidate with 5 years personal projects + good skills + no professional experience = 0.4-0.6 for mid-level roles, 0.6-0.8 for entry-level
+- A career changer with strong education + personal projects + transferable skills = 0.5-0.7 for entry-level roles
+- Consider growth potential, learning indicators, and cultural fit signals
+
+Provide detailed match reasons and specific experience gaps based ONLY on provided data.`,
 					},
 					{
 						role: "user",
@@ -267,10 +316,24 @@ Preferred Locations: ${args.cvProfile.preferred_locations.join(", ")}
 JOBS TO ANALYZE:
 ${batchJobData.map((job, idx) => `${idx + 1}. ${job.title} @${job.location} | ${job.desc} | Pre-matched Skills: ${job.matched} | Pre-missing Skills: ${job.missing}`).join("\n")}
 
-IMPORTANT: 
-1. Re-evaluate skill matches using the full CV skills list. A skill might be marked as "missing" but actually present in the candidate's CV under a different name or variation.
-2. Consider the user's survey preferences (career level, industries, work type, company types) when scoring job matches.
-3. Use both CV data and survey preferences for comprehensive matching.`,
+CRITICAL INSTRUCTIONS: 
+1. EXPERIENCE TYPE ANALYSIS: Carefully examine if the CV mentions:
+   - Company names (professional experience)
+   - Client work/freelance projects
+   - Personal projects only (GitHub, portfolio)
+   - Academic projects only
+2. The CV shows ${args.cvProfile.years_of_experience} years of experience, but ANALYZE THE TYPE:
+   - If company names are mentioned → treat as professional experience
+   - If only personal projects mentioned → treat as self-learning experience
+   - Score accordingly based on experience type, not just years
+3. CONTEXTUAL SCORING:
+   - 5 years personal projects + no companies = 0.4-0.6 for mid-level roles
+   - 2 years with company names = 0.7-0.8 for mid-level roles
+   - Personal projects only = 0.6-0.8 for entry-level/intern roles
+4. Re-evaluate skill matches using the full CV skills list. A skill might be marked as "missing" but actually present in the candidate's CV under a different name or variation.
+5. Consider the user's survey preferences (career level, industries, work type, company types) when scoring job matches.
+6. Use both CV data and survey preferences for comprehensive matching.
+7. HOLISTIC EVALUATION: Balance experience type, skills, education, and growth potential.`,
 					},
 				],
 				schema: batch_job_analysis_schema,

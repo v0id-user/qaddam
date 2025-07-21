@@ -267,15 +267,15 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
           <div className="grid gap-4 md:grid-cols-2">
             {/* AI Match Reasons */}
             {job.aiMatchReasons && job.aiMatchReasons.length > 0 && (
-              <div className="rounded-xl border border-green-200 bg-green-50/70 p-4">
-                <h4 className="mb-3 flex items-center text-lg font-semibold text-green-800">
-                  <CheckCircle className="mr-2 h-4 w-4" />
+              <div className="rounded-xl border border-blue-200 bg-blue-50/70 p-4">
+                <h4 className="mb-3 flex items-center text-lg font-semibold text-blue-800">
+                  <CheckCircle className="mr-2 h-4 w-4 text-blue-600" />
                   {t('job_results.match_insights.ai_match_analysis')}
                 </h4>
                 <div className="space-y-2">
                   {job.aiMatchReasons.map((reason, index) => (
-                    <div key={index} className="flex items-start text-xs text-green-700">
-                      <span className="mr-2 text-green-500">•</span>
+                    <div key={index} className="flex items-start text-xs text-blue-700">
+                      <span className="mr-2 text-blue-500">•</span>
                       {reason}
                     </div>
                   ))}
@@ -285,15 +285,15 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
 
             {/* AI Concerns */}
             {job.aiConcerns && job.aiConcerns.length > 0 && (
-              <div className="rounded-xl border border-yellow-200 bg-yellow-50/70 p-4">
-                <h4 className="mb-3 flex items-center text-lg font-semibold text-yellow-800">
-                  <AlertCircle className="mr-2 h-4 w-4" />
+              <div className="rounded-xl border border-orange-200 bg-orange-50/70 p-4">
+                <h4 className="mb-3 flex items-center text-lg font-semibold text-orange-800">
+                  <AlertCircle className="mr-2 h-4 w-4 text-orange-600" />
                   {t('job_results.match_insights.areas_to_consider')}
                 </h4>
                 <div className="space-y-2">
                   {job.aiConcerns.map((concern, index) => (
-                    <div key={index} className="flex items-start text-xs text-yellow-700">
-                      <span className="mr-2 text-yellow-500">•</span>
+                    <div key={index} className="flex items-start text-xs text-orange-700">
+                      <span className="mr-2 text-orange-500">•</span>
                       {concern}
                     </div>
                   ))}

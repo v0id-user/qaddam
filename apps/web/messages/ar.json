@@ -304,7 +304,7 @@
         "matching_skills": "المهارات المطابقة"
       },
       "card_analysis": {
-        "why_matches": "لماذا تطابق هذه الوظيفة:",
+        "why_matches": "تحليل المطابقة بالذكاء الاصطناعي",
         "areas_to_consider": "نقاط للنظر فيها:",
         "more_reasons": "+{count} أسباب أكثر",
         "more": "+{count} أكثر"

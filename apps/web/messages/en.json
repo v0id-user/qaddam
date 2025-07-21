@@ -304,7 +304,7 @@
         "matching_skills": "Matching Skills"
       },
       "card_analysis": {
-        "why_matches": "Why this job matches:",
+        "why_matches": "AI Match Analysis",
         "areas_to_consider": "Areas to consider:",
         "more_reasons": "+{count} more reasons",
         "more": "+{count} more"

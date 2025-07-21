@@ -190,13 +190,13 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       {/* AI Analysis Preview */}
       {job.aiMatchReasons && job.aiMatchReasons.length > 0 && (
         <div className="mb-5">
-          <div className="mb-2 text-xs font-medium text-green-700">
+          <div className="mb-2 text-xs font-medium text-blue-700">
             {t('job_results.card_analysis.why_matches')}
           </div>
-          <div className="rounded-lg bg-green-50/70 p-3 text-xs text-green-600">
+          <div className="rounded-lg bg-blue-50/70 p-3 text-xs text-blue-700 border border-blue-200/50">
             {job.aiMatchReasons[0]}
             {job.aiMatchReasons.length > 1 && (
-              <span className="ml-2 text-green-500">
+              <span className="ml-2 text-blue-500">
                 {t('job_results.card_analysis.more_reasons', {
                   count: job.aiMatchReasons.length - 1,
                 })}
@@ -209,13 +209,13 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
       {/* AI Concerns Preview */}
       {job.aiConcerns && job.aiConcerns.length > 0 && (
         <div className="mb-5">
-          <div className="mb-2 text-xs font-medium text-yellow-700">
+          <div className="mb-2 text-xs font-medium text-orange-700">
             {t('job_results.card_analysis.areas_to_consider')}
           </div>
-          <div className="rounded-lg bg-yellow-50/70 p-3 text-xs text-yellow-600">
+          <div className="rounded-lg bg-orange-50/70 p-3 text-xs text-orange-700 border border-orange-200/50">
             {job.aiConcerns[0]}
             {job.aiConcerns.length > 1 && (
-              <span className="ml-2 text-yellow-500">
+              <span className="ml-2 text-orange-500">
                 {t('job_results.card_analysis.more', { count: job.aiConcerns.length - 1 })}
               </span>
             )}
