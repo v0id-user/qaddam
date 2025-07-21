@@ -191,7 +191,7 @@ export const aiSearchJobs = internalAction({
 		});
 
 		// OPTIMIZATION 6: Reduce AI batch size for faster response time
-		const BATCH_SIZE = 8; // Reduced from 12 to 8 for faster processing
+		const BATCH_SIZE = user?.isPro ? 12 : 8;
 		const chunks = [];
 		for (let i = 0; i < jobsToProcess.length; i += BATCH_SIZE) {
 			chunks.push(jobsToProcess.slice(i, i + BATCH_SIZE));
@@ -210,15 +210,15 @@ export const aiSearchJobs = internalAction({
 				`Processing batch ${chunkIndex + 1}/${chunks.length} (${chunk.length} jobs)...`,
 			);
 
-			// OPTIMIZATION 8: Prepare compact batch data for AI analysis
+			// Prepare full batch data for AI analysis (no reduction)
 			const batchJobData = chunk.map(
 				({ job, matchedSkills, missingSkills }) => ({
 					id: job._id,
-					title: job.name.slice(0, 50), // Reduced from 60 to 50 chars
-					desc: job.description.slice(0, 200), // Reduced from 300 to 200 chars
+					title: job.name,
+					desc: job.description,
 					location: job.location || "Remote",
-					matched: matchedSkills.slice(0, 4).join(","), // Reduced from 5 to 4 skills
-					missing: missingSkills.slice(0, 2).join(","), // Reduced from 3 to 2 missing skills
+					matched: matchedSkills.join(","),
+					missing: missingSkills.join(","),
 				}),
 			);
 
