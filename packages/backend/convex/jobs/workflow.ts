@@ -102,10 +102,24 @@ export const startJobSearchWorkflow = action({
 			cv_storage_id: args.cv_storage_id,
 		});
 
-		// const { ok, retryAfter } = await rateLimiter.limit(ctx, "freeTrialSignUp");
-		// if (!ok) {
-		// 	throw new Error(`Rate limit exceeded, retry after ${retryAfter} seconds`);
-		// }
+		if (!me?.isPro) {
+			const { ok, retryAfter } = await rateLimiter.limit(
+				ctx,
+				"freeTrialSignUp",
+			);
+			if (!ok) {
+				throw new Error(
+					`Rate limit exceeded, retry after ${retryAfter} seconds`,
+				);
+			}
+		} else {
+			const { ok, retryAfter } = await rateLimiter.limit(ctx, "proLimit");
+			if (!ok) {
+				throw new Error(
+					`Rate limit exceeded, retry after ${retryAfter} seconds`,
+				);
+			}
+		}
 
 		// Create a tracking id for the workflow
 		const workflowTrackingId = await ctx.runMutation(
@@ -126,7 +140,7 @@ export const startJobSearchWorkflow = action({
 		);
 
 		// Fire a scheduler to add new jobs listing based on user survey only if user is pro
-		if (me?.isPro || me?.role === "tester") {
+		if (me?.isPro) {
 			// await ctx.scheduler.runAfter(
 			// 	5000,
 			// 	internal.listings.action.addNewJobsListingAction,
