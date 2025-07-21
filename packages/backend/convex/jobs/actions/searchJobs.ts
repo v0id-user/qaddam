@@ -289,33 +289,40 @@ export const aiSearchJobs = internalAction({
 						role: "system",
 						content: `Analyze job-candidate fit with precise scoring. 
 
-CRITICAL: Base your analysis ONLY on the provided CV data and survey information. Do NOT make assumptions about experience levels not mentioned in the data.
+CRITICAL: Base your analysis ONLY on the provided CV data and survey information. READ THE ACTUAL RESUME CONTENT CAREFULLY.
 
 ADVANCED EXPERIENCE ANALYSIS:
-Carefully distinguish between different types of experience:
+You must carefully read and analyze the actual resume/CV content to determine experience type:
 
 1. PROFESSIONAL WORK EXPERIENCE (Highest Value):
-   - Company names mentioned (Google, Microsoft, etc.)
-   - Job titles with company context
-   - Employment dates and responsibilities
-   - Internships at established companies
+   - ACTUAL company names mentioned (Google, Microsoft, Acme Corp, etc.)
+   - ACTUAL job titles with company context (Software Engineer at XYZ, Developer at ABC)
+   - Employment dates with company context
+   - Internships at established companies with company names
 
 2. FREELANCE/CONTRACT EXPERIENCE (High Value):
-   - Client work mentioned
-   - Project-based work with deliverables
-   - Freelance platforms (Upwork, Fiverr)
-   - Contract roles
+   - ACTUAL client work mentioned with client names
+   - Project-based work with real deliverables and clients
+   - Freelance platforms mentioned (Upwork, Fiverr)
+   - Contract roles with company/client names
 
-3. PERSONAL PROJECTS/SELF-LEARNING (Moderate Value):
-   - GitHub projects, personal websites
-   - Self-taught skills, online courses
-   - No client/company context
-   - Portfolio projects
+3. PERSONAL PROJECTS/SELF-LEARNING (Entry-Level Value):
+   - GitHub projects with github.com links
+   - Personal websites and portfolio projects
+   - NO company or client names mentioned
+   - Self-taught skills demonstrated through personal projects
+   - Projects with dates but no employment context
 
 4. ACADEMIC/EDUCATIONAL EXPERIENCE (Context-Dependent):
    - University projects, thesis work
    - Research experience
    - Academic publications
+
+RESUME CONTENT VERIFICATION:
+- If you see "github.com/username/project" → this is a PERSONAL PROJECT
+- If you see company names in work history → this is PROFESSIONAL EXPERIENCE  
+- If you see only project descriptions without company context → these are PERSONAL PROJECTS
+- Years spent on personal projects ≠ years of professional experience
 
 EXPERIENCE MATCH SCORING (0-1):
 - 0.9-1.0: Perfect match - candidate's PROFESSIONAL experience exactly matches job requirements
@@ -398,31 +405,52 @@ JOBS TO ANALYZE:
 ${batchJobData.map((job, idx) => `${idx + 1}. ${job.title} @${job.location} | ${job.desc} | Pre-matched Skills: ${job.matched} | Pre-missing Skills: ${job.missing}`).join("\n")}
 
 CRITICAL INSTRUCTIONS: 
-1. EXPERIENCE TYPE ANALYSIS: Carefully examine if the CV mentions:
-   - Company names (professional experience)
-   - Client work/freelance projects
-   - Personal projects only (GitHub, portfolio)
-   - Academic projects only
-2. The CV shows ${args.cvProfile.years_of_experience} years of experience, but ANALYZE THE TYPE:
-   - If company names are mentioned → treat as professional experience
-   - If only personal projects mentioned → treat as self-learning experience
-   - Score accordingly based on experience type, not just years
-3. CONSISTENT SCORING LOGIC:
-   - Location mismatch (0.4) + Missing 80% skills + Personal projects only = MAX 0.3 score
-   - Strong skills match + Good location + Professional experience = 0.7-0.9 score
+1. EXPERIENCE TYPE ANALYSIS - READ THE ACTUAL RESUME CONTENT:
+   - Look for COMPANY NAMES in employment history (Google, Microsoft, etc.)
+   - Look for JOB TITLES with companies (Software Engineer at XYZ Corp)
+   - Look for CLIENT WORK or freelance contracts
+   - If you only see GITHUB PROJECTS with dates → these are PERSONAL PROJECTS, not professional experience
+   - Personal project dates (2024-2025) with GitHub links = 0-1 years self-learning, NOT professional experience
+
+2. The CV shows ${args.cvProfile.years_of_experience} years but VERIFY THE ACTUAL CONTENT:
+   - If resume only shows personal projects with GitHub links → treat as 0-1 years SELF-LEARNING experience
+   - If resume shows company names and job titles → treat as professional experience
+   - DO NOT assume years without verifying the content type
+   - Personal projects ≠ Professional experience, even if spanning multiple years
+
+3. SKILL ANALYSIS - READ WHAT'S ACTUALLY LISTED:
+   - If the CV/resume mentions a skill in project descriptions → candidate HAS that skill
+   - If a skill appears in multiple projects → candidate has STRONG experience with it
+   - DO NOT contradict yourself: If you say candidate has strong Python skills, don't list Python as "Areas to Consider"
+   - BE CONSISTENT: Skills mentioned in projects = skills the candidate possesses
+
+4. CONSISTENT SCORING LOGIC:
+   - Personal projects only + Location mismatch + Missing advanced skills = MAX 0.4 score
+   - Personal projects + Perfect skill match + Good location = 0.5-0.7 score
+   - Professional experience + Good skills + Good location = 0.7-0.9 score
    - Be CONSISTENT across all scoring dimensions
-4. DETAILED ANALYSIS REQUIRED:
-   - Always provide specific experience_gaps in the experience analysis
-   - Always provide detailed match_reasons for both experience and location
-   - Never leave fields empty or say "Not Specified"
+
 5. LOGICAL SKILL INFERENCE: Use common sense when evaluating skills:
    - If CV mentions React/Next.js → candidate KNOWS HTML5, CSS3, JavaScript, REST APIs
    - If CV mentions Vue/Angular → candidate KNOWS web fundamentals
    - If CV mentions Node.js → candidate KNOWS JavaScript, REST APIs, HTTP
    - Do NOT mark basic skills as "missing" when candidate has advanced skills that require them
    - Focus on genuinely missing advanced skills, not foundational ones
-6. Consider the user's survey preferences (career level, industries, work type, company types) when scoring job matches.
-7. HOLISTIC EVALUATION: Balance ALL factors - don't over-score if multiple dimensions are weak.`,
+
+6. DETAILED ANALYSIS REQUIRED:
+   - Always provide specific experience_gaps in the experience analysis
+   - Always provide detailed match_reasons for both experience and location
+   - Never leave fields empty or say "Not Specified"
+   - Be factual and accurate about what the resume actually contains
+
+7. AVOID CONTRADICTIONS:
+   - If you say candidate has "strong TypeScript skills" don't list TypeScript as missing
+   - If you identify personal projects, don't claim "professional experience"
+   - If location doesn't match, don't give "Highly Recommended" unless skills are exceptional
+
+8. Consider the user's survey preferences (career level, industries, work type, company types) when scoring job matches.
+
+9. HOLISTIC EVALUATION: Balance ALL factors - don't over-score if multiple dimensions are weak.`,
 					},
 				],
 				schema: batch_job_analysis_schema,

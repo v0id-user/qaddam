@@ -343,7 +343,8 @@
       "messages": {
         "workflow_starting": "🚀 Starting job search workflow...",
         "workflow_completed": "🎉 Job search completed!"
-      }
+      },
+      "ai_disclaimer": "AI analysis may contain errors. Please verify all information independently."
     },
     "survey": {
       "title": "Job Search Profile",

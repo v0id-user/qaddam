@@ -24,7 +24,8 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
   });
 
   const getJobTypeDisplay = () => {
-    const jobType = job.extractedData?.jobType?.type || 'full_time';
+    // Default to full_time since extractedData is not available yet
+    const jobType = 'full_time';
     return {
       type: jobType,
       display: t(getJobTypeKey(jobType)),
@@ -236,6 +237,13 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
           }}
         />
       )}
+
+      {/* AI Disclaimer */}
+      <div className="mb-4 text-center">
+        <p className="text-muted-foreground text-xs italic">
+          {t('job_results.ai_disclaimer')}
+        </p>
+      </div>
 
       {/* Actions */}
       <div className="flex gap-4">

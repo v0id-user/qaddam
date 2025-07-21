@@ -360,6 +360,13 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
               }}
             />
           </div>
+
+          {/* AI Disclaimer */}
+          <div className="text-center">
+            <p className="text-muted-foreground text-xs italic">
+              {t('job_results.ai_disclaimer')}
+            </p>
+          </div>
         </div>
 
         {/* Footer Actions */}

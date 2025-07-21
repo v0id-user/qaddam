@@ -73,16 +73,18 @@ export const aiTuneJobSearch = internalAction({
   </goals>
 
   <rules>
-    <rule>Extract only keywords that are explicitly mentioned or clearly implied in the CV</rule>
+    <rule>Extract ALL keywords that are explicitly mentioned in the CV skills list</rule>
+    <rule>Include every single technical skill, framework, language, database, and tool from the CV</rule>
     <rule>Prioritize technical skills and technologies over soft skills</rule>
     <rule>Use standard industry terminology and job market vocabulary</rule>
     <rule>Include both specific technologies and broader categories (e.g., "React" and "Frontend")</rule>
     <rule>Consider synonyms and alternative terms for the same skills</rule>
     <rule>Group related keywords logically for database querying</rule>
     <rule>Maintain language consistency with the CV input</rule>
-    <rule>Avoid hallucinating skills not present in the CV</rule>
+    <rule>DO NOT filter out any skills from the CV - include them ALL</rule>
     <rule>Always provide at least one keyword in each category</rule>
     <rule>Ensure all arrays are non-empty</rule>
+    <rule>Be comprehensive - every skill in the CV should appear in technical_skills</rule>
   </rules>
 </agent>
                         `,
@@ -102,14 +104,18 @@ Years of Experience: ${args.cvProfile.years_of_experience}
 Preferred Locations: ${args.cvProfile.preferred_locations.join(", ")}
 
 Extract specific keywords that would be found in job titles and job descriptions. Focus on:
-1. Core technical skills from the skills list
+1. ALL technical skills from the skills list - include every single one (WebAssembly, Cloudflare Workers, PostgreSQL, FastAPI, etc.)
 2. Job titles and role names that would appear in job postings
 3. Industry terms commonly used in job descriptions
 4. Experience level indicators based on years of experience
 5. Domain expertise that appears in job requirements
 
+CRITICAL: Include EVERY skill from the CV skills list in the technical_skills array. Do not filter out or omit any technologies.
+
+Skills to specifically include: ${args.cvProfile.skills.join(", ")}
+
 Provide keywords that are likely to appear in actual job postings and descriptions.
-Important: Extract only concrete, searchable terms - avoid soft skills or abstract concepts.
+Important: Include ALL technical skills from the CV - don't leave any out.
 Make sure each array has at least one relevant keyword.
 						`,
 					},

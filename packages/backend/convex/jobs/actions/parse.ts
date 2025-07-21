@@ -28,14 +28,6 @@ export const aiParseCV = internalAction({
 				workflowTrackingId: args.workflowTrackingId,
 			});
 
-			// Update workflow status to indicate CV parsing started
-			await ctx.runMutation(internal.workflow_status.updateWorkflowStage, {
-				workflowId: args.workflowTrackingId,
-				stage: "parsing_cv",
-				percentage: 5,
-				userId: args.userId,
-			});
-
 			console.log("Calling AI model for CV analysis...");
 
 			// Update workflow status to indicate AI processing started
@@ -68,7 +60,11 @@ export const aiParseCV = internalAction({
   </goals>
 
   <rules>
-    <rule>Extract concrete skills, technologies, and experience levels from CV text</rule>
+    <rule>Extract ALL skills, technologies, frameworks, languages, databases, and tools mentioned in CV text</rule>
+    <rule>Include programming languages, databases, cloud services, frameworks, libraries</rule>
+    <rule>Extract skills from project descriptions, tech stacks, and mentioned technologies</rule>
+    <rule>Include both specific technologies (React.js, PostgreSQL) and general categories (Frontend, Backend)</rule>
+    <rule>Look for skills in project tech stacks like "Tech: Python / PostgreSQL / FastAPI"</rule>
     <rule>Infer suitable job titles and industries based on background</rule>
     <rule>Determine experience level: entry-level, mid-level, senior, executive</rule>
     <rule>Identify location preferences if mentioned</rule>
@@ -76,14 +72,24 @@ export const aiParseCV = internalAction({
     <rule>Output structured JSON data that can be consumed by search algorithms</rule>
     <rule>Always provide at least one item in each array field</rule>
     <rule>Ensure all required fields are populated with meaningful data</rule>
+    <rule>Be comprehensive - don't miss any mentioned technologies or skills</rule>
   </rules>
 </agent>
 						`,
 					},
 					{
 						role: "user",
-						content:
-							"Please analyze this CV and extract the structured profile information. Make sure to provide at least one item in each array field.",
+						content: `Please analyze this CV and extract the structured profile information. 
+
+CRITICAL INSTRUCTIONS:
+1. Extract ALL technologies, programming languages, frameworks, databases, cloud services mentioned anywhere in the CV
+2. Look carefully at project descriptions and tech stacks (e.g., "Tech: Rust / TypeScript / WebAssembly / Cloudflare Workers")
+3. Include both specific technologies (PostgreSQL, FastAPI, WebAssembly) and general categories
+4. Don't miss any skills mentioned in project descriptions or technology lists
+5. Be comprehensive and thorough in skill extraction
+6. Make sure to provide at least one item in each array field
+
+Extract every single technology, tool, framework, language, and skill mentioned in the document.`,
 						experimental_attachments: [
 							{
 								name: "cv.pdf",

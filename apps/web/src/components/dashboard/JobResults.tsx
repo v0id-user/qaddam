@@ -21,7 +21,7 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
   const [selectedJob, setSelectedJob] = useState<JobResult | null>(null);
   const [isInsightsOpen, setIsInsightsOpen] = useState(false);
 
-  const jobResults = useQuery(api.job_data.getJobResultsWithAnalysis, {
+  const jobResultsData = useQuery(api.job_data.getJobResultsWithAnalysis, {
     workflowId,
   });
 
@@ -40,7 +40,7 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
   };
 
   // Show loading state if data is still loading
-  if (jobResults === undefined) {
+  if (jobResultsData === undefined) {
     return (
       <div className="from-accent/20 via-background to-secondary/10 min-h-screen rounded-xl bg-gradient-to-br px-6 py-16">
         <div className="mx-auto max-w-6xl text-center">
@@ -51,7 +51,7 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
   }
 
   // Show no results if query returned null
-  if (jobResults === null) {
+  if (jobResultsData === null) {
     return (
       <div className="from-accent/20 via-background to-secondary/10 min-h-screen rounded-xl bg-gradient-to-br px-6 py-16">
         <div className="mx-auto max-w-6xl text-center">
@@ -69,25 +69,8 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
     );
   }
 
-  const { searchResults, jobResults: jobs } = jobResults;
+  const { searchResults, jobResults } = jobResultsData;
   const totalFound = searchResults?.totalFound || 0;
-  const jobsData: JobResult[] = (jobs ?? []).map<JobResult>(job => ({
-    jobListingId: job.jobListingId,
-    benefits: job.benefits ?? [],
-    matchedSkills: job.matchedSkills ?? [],
-    missingSkills: job.missingSkills ?? [],
-    experienceMatch: job.experienceMatch ?? 'not_specified',
-    experienceMatchScore: job.experienceMatchScore ?? 0,
-    experienceMatchReasons: job.experienceMatchReasons ?? [],
-    locationMatch: job.locationMatch ?? 'not_specified',
-    locationMatchScore: job.locationMatchScore ?? 0,
-    locationMatchReasons: job.locationMatchReasons ?? [],
-    workTypeMatch: job.workTypeMatch ?? false,
-    requirements: job.requirements ?? [],
-    aiMatchReasons: job.aiMatchReasons ?? [],
-    aiConcerns: job.aiConcerns ?? [],
-    aiRecommendation: (job.aiRecommendation as JobResult['aiRecommendation']) ?? 'consider',
-  }));
 
   return (
     <div className="from-accent/20 via-background to-secondary/10 min-h-screen rounded-xl bg-gradient-to-br px-6 py-16">
@@ -117,9 +100,16 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
           </div>
         </div>
 
+        {/* AI Disclaimer */}
+        <div className="mb-8 text-center">
+          <p className="text-muted-foreground text-sm italic">
+            {t('job_results.ai_disclaimer')}
+          </p>
+        </div>
+
         {/* Job Cards Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {jobsData?.map(job => (
+          {jobResults?.map(job => (
             <JobCard key={job.jobListingId} job={job} onClick={() => handleJobClick(job)} />
           ))}
         </div>
