@@ -15,6 +15,7 @@ export const searchJobListingsUnused = internalQuery({
 	args: {
 		searchQuery: v.string(),
 		userId: v.id("users"),
+		limit: v.number(),
 	},
 	handler: async (ctx, args): Promise<Doc<"jobListings">[]> => {
 		// Query job search results for the user and all jobs in parallel
@@ -41,7 +42,7 @@ export const searchJobListingsUnused = internalQuery({
 			.withSearchIndex("search_description", (q) =>
 				q.search("description", args.searchQuery),
 			)
-			.take(50);
+			.take(args.limit);
 
 		console.log(`Description search: ${descriptionResults.length} results`);
 
@@ -49,7 +50,7 @@ export const searchJobListingsUnused = internalQuery({
 		const nameResults = await ctx.db
 			.query("jobListings")
 			.withSearchIndex("search_name", (q) => q.search("name", args.searchQuery))
-			.take(50);
+			.take(args.limit);
 
 		console.log(`Name search: ${nameResults.length} results`);
 
