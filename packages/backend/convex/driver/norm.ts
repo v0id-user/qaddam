@@ -1,4 +1,4 @@
-import { Doc } from "../_generated/dataModel";
+import type { Doc } from "../_generated/dataModel";
 import type { MinimalLinkedInJob, MinimalIndeedJob } from "../types/job_types";
 
 type JobListing = Doc<"jobListings">;

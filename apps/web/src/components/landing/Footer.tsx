@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-
+import Link from 'next/link';
 const Footer = async () => {
   const t = await getTranslations('landing');
 
@@ -18,24 +18,39 @@ const Footer = async () => {
             <h4 className="text-lg font-semibold">{t('footer.quick_links.title')}</h4>
             <ul className="space-y-2 opacity-70">
               <li>
-                <a href="#" className="transition-opacity hover:opacity-100">
+                <Link
+                  href="https://github.com/v0id-user/qaddam"
+                  className="transition-opacity hover:opacity-100"
+                >
                   {t('footer.quick_links.how_it_works')}
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="transition-opacity hover:opacity-100">
+                <Link
+                  href="https://github.com/v0id-user/qaddam"
+                  className="transition-opacity hover:opacity-100"
+                  target="_blank"
+                >
                   {t('footer.quick_links.pricing')}
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="transition-opacity hover:opacity-100">
+                <Link
+                  href="https://github.com/v0id-user/qaddam"
+                  className="transition-opacity hover:opacity-100"
+                  target="_blank"
+                >
                   {t('footer.quick_links.help')}
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="transition-opacity hover:opacity-100">
+                <Link
+                  href="https://github.com/v0id-user/qaddam"
+                  className="transition-opacity hover:opacity-100"
+                  target="_blank"
+                >
                   {t('footer.quick_links.contact')}
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -45,14 +60,14 @@ const Footer = async () => {
             <h4 className="text-lg font-semibold">{t('footer.legal.title')}</h4>
             <ul className="space-y-2 opacity-70">
               <li>
-                <a href="/privacy" className="transition-opacity hover:opacity-100">
+                <Link href="/privacy" className="transition-opacity hover:opacity-100">
                   {t('footer.legal.privacy')}
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/terms" className="transition-opacity hover:opacity-100">
+                <Link href="/terms" className="transition-opacity hover:opacity-100">
                   {t('footer.legal.terms')}
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

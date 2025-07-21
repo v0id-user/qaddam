@@ -185,7 +185,7 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
       logger.error('Workflow error:', { error: currentStage });
       // Handle error state - could show error message or retry option
     }
-  }, [workflowStatus, workflowId, onComplete, logger]);
+  }, [workflowStatus, workflowTrackingId, workflowId, onComplete, logger]);
 
   // Fake ETA timer logic
   useEffect(() => {
@@ -217,7 +217,7 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
       toast.error(t('workflow.error.title'));
       setShowReportDialog(true);
     }
-  }, [workflowStatus]);
+  }, [workflowStatus, t]);
 
   const getStatusIcon = (status: StepStatus) => {
     switch (status) {

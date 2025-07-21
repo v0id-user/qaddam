@@ -7,7 +7,6 @@ import type { JobResult } from '@qaddam/backend/convex/types/jobs';
 import { useQuery } from 'convex/react';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import {
-  getExperienceMatchKey,
   getAIRecommendationKey,
   getMatchScoreColor,
 } from '@/lib/enum-translations';

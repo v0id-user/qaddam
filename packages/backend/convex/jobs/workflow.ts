@@ -102,6 +102,7 @@ export const startJobSearchWorkflow = action({
 			cv_storage_id: args.cv_storage_id,
 		});
 
+		// Rate limit for free and pro users
 		if (!me?.isPro) {
 			const { ok, retryAfter } = await rateLimiter.limit(
 				ctx,
