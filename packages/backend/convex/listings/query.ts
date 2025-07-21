@@ -24,7 +24,9 @@ export const searchJobListingsUnused = internalQuery({
 			.withIndex("by_user", (q) => q.eq("userId", args.userId))
 			.collect();
 
-		const userJobIds = new Set(userJobSearchResults.map((result) => result.jobListingId));
+		const userJobIds = new Set(
+			userJobSearchResults.map((result) => result.jobListingId),
+		);
 
 		console.log(
 			`DB search: query="${args.searchQuery.slice(0, 30)}..." (limit: ${args.limit})`,
@@ -52,10 +54,13 @@ export const searchJobListingsUnused = internalQuery({
 		const allResults = [...descriptionResults, ...nameResults];
 		const uniqueResults = allResults.filter(
 			(job, index, self) =>
-				index === self.findIndex((j) => j._id === job._id) && !userJobIds.has(job._id),
+				index === self.findIndex((j) => j._id === job._id) &&
+				!userJobIds.has(job._id),
 		);
 
-		console.log(`Combined: ${uniqueResults.length} unique results after filtering user jobs`);
+		console.log(
+			`Combined: ${uniqueResults.length} unique results after filtering user jobs`,
+		);
 
 		// If no results from search indexes, try a fallback: fetch a small sample and filter in memory
 		if (uniqueResults.length === 0) {
@@ -76,10 +81,15 @@ export const searchJobListingsUnused = internalQuery({
 			const textMatchingJobs = sampleJobs.filter((job) => {
 				const jobText =
 					`${job.name} ${job.description} ${job.sourceName || ""} ${job.location || ""}`.toLowerCase();
-				return searchTerms.some((term) => jobText.includes(term)) && !userJobIds.has(job._id);
+				return (
+					searchTerms.some((term) => jobText.includes(term)) &&
+					!userJobIds.has(job._id)
+				);
 			});
 
-			console.log(`Text matching: ${textMatchingJobs.length} jobs matched (from sample)`);
+			console.log(
+				`Text matching: ${textMatchingJobs.length} jobs matched (from sample)`,
+			);
 			return textMatchingJobs.slice(0, args.limit);
 		}
 

@@ -102,9 +102,7 @@ const JobResults = ({ workflowId, onBackToUpload }: JobResultsProps) => {
 
         {/* AI Disclaimer */}
         <div className="mb-8 text-center">
-          <p className="text-muted-foreground text-sm italic">
-            {t('job_results.ai_disclaimer')}
-          </p>
+          <p className="text-muted-foreground text-sm italic">{t('job_results.ai_disclaimer')}</p>
         </div>
 
         {/* Job Cards Grid */}

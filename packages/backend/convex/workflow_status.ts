@@ -1,10 +1,12 @@
 import { internalMutation, query } from "./_generated/server";
 import { api } from "./_generated/api";
 import { v } from "convex/values";
+import { workflow } from "./jobs/workflow";
 
 export const getWorkflowStatus = query({
 	args: {
 		workflowTrackingId: v.string(),
+		workflowId: v.any(),
 	},
 	handler: async (ctx, args) => {
 		const workflowStatus = await ctx.db
@@ -18,7 +20,11 @@ export const getWorkflowStatus = query({
 		if (workflowStatus[0].userId !== user?._id) {
 			throw new Error("Unauthorized access to workflow status");
 		}
-		return workflowStatus[0];
+		const status = await workflow.status(ctx, args.workflowId);
+		return {
+			...workflowStatus[0],
+			status: status,
+		};
 	},
 });
 

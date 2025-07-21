@@ -5,41 +5,41 @@
   },
   "landing": {
     "hero": {
-      "title": "Submit your resume.",
-      "subtitle": "Get the best opportunities.",
-      "description": "Qaddam.cv uses artificial intelligence to match your resume with the best job opportunities and automatically improve your resume.",
-      "cta_unauthenticated": "Get Started",
+      "title": "Paste your resume, hack your job search.",
+      "subtitle": "A tool for devs, not a black box.",
+      "description": "No hype. Just a simple, open source job search assistant for engineers.",
+      "cta_unauthenticated": "Try it Free",
       "cta_authenticated": "Go to dashboard",
       "scroll_cta": "How does it work?"
     },
     "features": {
-      "title": "Qaddam Features",
-      "description": "Everything you need to find your ideal job",
-      "cta": "Learn more",
+      "title": "Why I Built This",
+      "description": "An AI-native tool to make job search easier and help you discover new opportunities.",
+      "cta": "See the code",
       "items": {
         "resume_analysis": {
-          "title": "Resume Analysis",
-          "description": "AI reads your experience and skills"
+          "title": "Parse Your Resume",
+          "description": "AI analyzes your CV to extract your skills and experience."
         },
         "job_matching": {
-          "title": "Job Matching Percentage",
-          "description": "Get a percentage match for each job"
+          "title": "Job Matching for Engineers",
+          "description": "Shows how well you match each job using AI-powered analysis."
         },
         "resume_optimization": {
-          "title": "Resume Optimization",
-          "description": "AI-powered resume improvement suggestions"
+          "title": "AI-Native Search, Not Resume Editing",
+          "description": "We don't offer resume rewrite suggestions. Instead, Pro users get a searchable, always-updated job list—no need to check LinkedIn or Indeed manually."
         },
         "job_search": {
-          "title": "Opportunities from Top Sites",
-          "description": "Jobs from LinkedIn, Google, and other sites"
+          "title": "Aggregated Job List",
+          "description": "Pro version gives you a scanable, filterable list of jobs from multiple sources, updated and filtered regularly to ensure new opportunities."
         },
         "language_support": {
-          "title": "Arabic and English Support",
-          "description": "Bilingual experience"
+          "title": "English & Arabic",
+          "description": "Bilingual, for the region."
         },
         "job_tracking": {
-          "title": "Save Jobs and Track",
-          "description": "Save jobs to apply to later"
+          "title": "Track What Matters",
+          "description": "Save jobs you actually care about."
         }
       }
     },
@@ -50,41 +50,43 @@
       "preview": "Dashboard preview coming soon"
     },
     "pricing": {
-      "title": "Choose Your Plan",
-      "description": "Start for free, upgrade when you're ready",
-      "popular": "Most Popular",
-      "upgrade_title": "Upgrade to Pro",
-      "upgrade_subtitle": "Unlock premium features and take your job search to the next level",
+      "title": "Plans for Builders",
+      "description": "AI-native job search. Pro version gives you a searchable, always-fresh job list—no more checking multiple sites.",
+      "popular": "Most Used",
+      "upgrade_title": "Upgrade to Pro (Managed)",
+      "upgrade_subtitle": "A focused, AI-powered job search tool for engineers.",
       "processing": "Processing...",
-      "upgrade_error": "Failed to start upgrade process. Please try again.",
-      "already_pro": "You are already Pro!",
-      "already_pro_message": "You already have a Pro subscription. Enjoy all premium features!",
+      "upgrade_error": "Couldn’t start upgrade. Please try again.",
+      "already_pro": "You’re already Pro!",
+      "already_pro_message": "You already have a Pro subscription. Enjoy!",
+      "pro_search_limit_tooltip": "The paid version guarantees 35 searches, with a hard limit of 5 per day.",
       "plans": {
         "free": {
-          "name": "Free Plan",
+          "name": "Free (Self-Host)",
           "price": "Free",
+          "note": "No credit card required. Fully open source.",
           "features": [
-            "Upload one resume",
-            "3 job matches",
-            "Basic rewrite suggestions",
-            "Email support"
+            "AI-powered CV parsing and keyword extraction",
+            "Host it yourself, full control",
+            "Built for devs, by a dev",
+            "Community support on GitHub"
           ],
-          "button": "Start Free"
+          "button": "Use for Free"
         },
         "pro": {
-          "name": "Pro Plan",
+          "name": "Pro (Managed)",
           "price": "4",
           "currency": "USD",
           "price_detail": "monthly",
+          "note": "Covers infra. For those who want it managed.",
           "features": [
-            "Unlimited resume uploads",
-            "Unlimited job matches",
-            "Advanced AI rewriting",
-            "Priority support",
-            "Job tracking dashboard",
-            "ATS optimization"
+            "AI-native: every step uses AI (parsing, search, ranking)",
+            "Searchable, filterable job list (no more LinkedIn/Indeed hopping)",
+            "Job list updated and filtered regularly for new opportunities",
+            "Minimal, focused assistant",
+            "Made by a dev, for devs"
           ],
-          "button": "Start Free Trial"
+          "button": "Start Managed Trial"
         }
       }
     },
@@ -132,13 +134,13 @@
     "and": "and",
     "copyright": "© 2025 Qaddam. All rights reserved.",
     "taglines": {
-      "intelligence_precision": "🧠 Intelligence + Precision",
-      "apply_right": "Apply right. We handle the rest.",
-      "smart_resume": "Smart resume. Smart results.",
-      "ai_smart": "AI smart. Real jobs.",
-      "forget_random": "Forget random applying. This is your path.",
-      "no_search": "No need to search. We recommend the best.",
-      "profile_ready": "Your profile's ready. The opportunities are waiting."
+      "intelligence_precision": "Built for hackers, not marketers.",
+      "apply_right": "Apply smart. You’re in control.",
+      "smart_resume": "Your data, your rules.",
+      "ai_smart": "No magic. Just code.",
+      "forget_random": "No more random applying. Take charge.",
+      "no_search": "No endless search. Just results.",
+      "profile_ready": "Ready when you are."
     },
     "make_an_account_to_continue": "Make an account to continue.",
     "sign_up_to_access_pro_features": "Sign up to access Pro features.",
@@ -227,7 +229,22 @@
       },
       "error": {
         "title": "Workflow Error",
-        "subtitle": "An error occurred during workflow processing"
+        "subtitle": "An error occurred during workflow processing.",
+        "failed": "The workflow has failed. Please try again or report the issue.",
+        "canceled": "The workflow was canceled.",
+        "report": "Report this issue",
+        "stage_label": "Stage:"
+      },
+      "eta": {
+        "label": "ETA",
+        "tooltip": "Estimated time to complete this workflow is 3 minutes.",
+        "timer": "Time elapsed: {minutes}:{seconds}",
+        "report_prompt": "Workflow is taking too much time. Want to report?",
+        "report_button": "Report Issue",
+        "report_dialog_title": "Report Workflow Delay",
+        "report_dialog_description": "If your workflow is stuck or taking too long, you can report it to the developer. Workflow ID: {workflowId}",
+        "report_dialog_confirm": "Send Report",
+        "report_dialog_cancel": "Cancel"
       }
     },
     "job_results": {

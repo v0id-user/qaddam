@@ -2,11 +2,24 @@
 
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
-import { FileText, Search, Target, Combine, CheckCircle, Clock, Circle } from 'lucide-react';
+import { FileText, Search, Target, Combine, CheckCircle, Clock, Circle, Info } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import type { Step, StepStatus } from './types';
 import { useLogger } from '@/lib/axiom/client';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { toast } from 'react-hot-toast';
+
 interface WorkflowStepsProps {
   workflowId: string;
   workflowTrackingId: string;
@@ -82,10 +95,13 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
       percentage: 0,
     },
   ]);
+  const [etaSeconds, setEtaSeconds] = useState(0);
+  const [showReportDialog, setShowReportDialog] = useState(false);
 
   // Get workflow progress from the new workflow status system
   const workflowStatus = useQuery(api.workflow_status.getWorkflowStatus, {
     workflowTrackingId: workflowTrackingId,
+    workflowId: workflowId,
   });
 
   // Calculate step status and percentage based on current workflow stage
@@ -156,7 +172,12 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
 
     // Check if workflow is completed
     if (currentStage === 'completed' && currentPercentage === 100) {
-      logger.info('Workflow completed workflowId: ' + workflowId);
+      logger.info(
+        'Workflow completed workflowId: ' +
+          workflowId +
+          ' workflowTrackingId: ' +
+          workflowTrackingId
+      );
       setTimeout(() => {
         onComplete();
       }, 1000);
@@ -165,6 +186,38 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
       // Handle error state - could show error message or retry option
     }
   }, [workflowStatus, workflowId, onComplete, logger]);
+
+  // Fake ETA timer logic
+  useEffect(() => {
+    if (workflowStatus?.stage === 'completed' || workflowStatus?.stage?.includes('error')) return;
+    if (etaSeconds >= 180) return;
+    const interval = setInterval(() => {
+      setEtaSeconds(prev => {
+        if (prev < 180) return prev + 1;
+        clearInterval(interval);
+        return prev;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [workflowStatus, etaSeconds]);
+
+  // Show report dialog if timer exceeds 3 minutes and workflow not finished
+  useEffect(() => {
+    if (
+      etaSeconds >= 180 &&
+      workflowStatus?.stage !== 'completed' &&
+      !workflowStatus?.stage?.includes('error')
+    ) {
+      setShowReportDialog(true);
+    }
+  }, [etaSeconds, workflowStatus]);
+
+  useEffect(() => {
+    if (workflowStatus?.status?.type === 'failed' || workflowStatus?.status?.type === 'canceled') {
+      toast.error(t('workflow.error.title'));
+      setShowReportDialog(true);
+    }
+  }, [workflowStatus]);
 
   const getStatusIcon = (status: StepStatus) => {
     switch (status) {
@@ -215,6 +268,24 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
               Current Stage: {workflowStatus.stage} ({workflowStatus.percentage}%)
             </p>
           )}
+          {/* ETA Timer */}
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <span className="text-primary font-medium">{t('workflow.eta.label')}</span>
+            <span className="text-muted-foreground text-sm">
+              {t('workflow.eta.timer', {
+                minutes: String(Math.floor(etaSeconds / 60)).padStart(2, '0'),
+                seconds: String(etaSeconds % 60).padStart(2, '0'),
+              })}
+            </span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="ml-1 cursor-pointer">
+                  <Info className="text-muted-foreground h-4 w-4" />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>{t('workflow.eta.tooltip')}</TooltipContent>
+            </Tooltip>
+          </div>
         </div>
 
         {/* Progress Bar */}
@@ -326,7 +397,9 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
         </div>
 
         {/* Error State */}
-        {workflowStatus?.stage.includes('error') && (
+        {(workflowStatus?.status?.type === 'failed' ||
+          workflowStatus?.status?.type === 'canceled' ||
+          workflowStatus?.stage?.includes('error')) && (
           <div className="mt-6 rounded-xl border-2 border-red-200 bg-red-50/50 p-5">
             <div className="flex items-center space-x-3">
               <div className="rounded-full bg-red-100 p-2">
@@ -334,11 +407,38 @@ const WorkflowSteps = ({ workflowId, workflowTrackingId, onComplete }: WorkflowS
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-red-800">{t('workflow.error.title')}</h3>
-                <p className="text-sm text-red-700">Stage: {workflowStatus.stage}</p>
+                <p className="text-sm text-red-700">
+                  {t('workflow.error.stage_label')} {workflowStatus.stage}
+                </p>
               </div>
             </div>
           </div>
         )}
+        {/* Report Dialog */}
+        <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t('workflow.eta.report_dialog_title')}</DialogTitle>
+              <DialogDescription>
+                {t('workflow.eta.report_dialog_description', { workflowId })}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  // TODO: Fill this handler to send report
+                  setShowReportDialog(false);
+                }}
+              >
+                {t('workflow.eta.report_dialog_confirm')}
+              </Button>
+              <DialogClose asChild>
+                <Button variant="outline">{t('workflow.eta.report_dialog_cancel')}</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

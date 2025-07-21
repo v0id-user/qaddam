@@ -77,7 +77,11 @@ export const aiSearchJobs = internalAction({
 			console.log(`Parallel search: "${searchTerm.slice(0, 20)}..."`);
 			return await ctx.runQuery(
 				internal.listings.query.searchJobListingsUnused,
-				{ searchQuery: searchTerm.trim(), userId: args.userId, limit: user?.isPro ? 20 : 7 },
+				{
+					searchQuery: searchTerm.trim(),
+					userId: args.userId,
+					limit: user?.isPro ? 20 : 7,
+				},
 			);
 		});
 

@@ -45,18 +45,13 @@ const Footer = async () => {
             <h4 className="text-lg font-semibold">{t('footer.legal.title')}</h4>
             <ul className="space-y-2 opacity-70">
               <li>
-                <a href="#" className="transition-opacity hover:opacity-100">
+                <a href="/privacy" className="transition-opacity hover:opacity-100">
                   {t('footer.legal.privacy')}
                 </a>
               </li>
               <li>
-                <a href="#" className="transition-opacity hover:opacity-100">
+                <a href="/terms" className="transition-opacity hover:opacity-100">
                   {t('footer.legal.terms')}
-                </a>
-              </li>
-              <li>
-                <a href="#" className="transition-opacity hover:opacity-100">
-                  {t('footer.legal.cookies')}
                 </a>
               </li>
             </ul>

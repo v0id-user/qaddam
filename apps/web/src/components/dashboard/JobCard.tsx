@@ -128,12 +128,14 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
           </span>
           <div className="text-muted-foreground flex items-center space-x-1 space-x-reverse text-xs">
             <Clock className="h-3 w-3" />
+            <span className="inline-block w-1" />
             <span>{formatDate(jobListing.datePosted)}</span>
           </div>
         </div>
 
         <div className="flex items-center space-x-2 space-x-reverse">
           <Briefcase className="text-muted-foreground h-4 w-4" />
+          <span className="inline-block w-1" />
           <span className="text-foreground text-sm font-medium">
             {jobListing.salary
               ? `${jobListing.salary} ${jobListing.currency || ''}`
@@ -194,7 +196,7 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
           <div className="mb-2 text-xs font-medium text-blue-700">
             {t('job_results.card_analysis.why_matches')}
           </div>
-          <div className="rounded-lg bg-blue-50/70 p-3 text-xs text-blue-700 border border-blue-200/50">
+          <div className="rounded-lg border border-blue-200/50 bg-blue-50/70 p-3 text-xs text-blue-700">
             {job.aiMatchReasons[0]}
             {job.aiMatchReasons.length > 1 && (
               <span className="ml-2 text-blue-500">
@@ -213,7 +215,7 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
           <div className="mb-2 text-xs font-medium text-orange-700">
             {t('job_results.card_analysis.areas_to_consider')}
           </div>
-          <div className="rounded-lg bg-orange-50/70 p-3 text-xs text-orange-700 border border-orange-200/50">
+          <div className="rounded-lg border border-orange-200/50 bg-orange-50/70 p-3 text-xs text-orange-700">
             {job.aiConcerns[0]}
             {job.aiConcerns.length > 1 && (
               <span className="ml-2 text-orange-500">
@@ -240,9 +242,7 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
 
       {/* AI Disclaimer */}
       <div className="mb-4 text-center">
-        <p className="text-muted-foreground text-xs italic">
-          {t('job_results.ai_disclaimer')}
-        </p>
+        <p className="text-muted-foreground text-xs italic">{t('job_results.ai_disclaimer')}</p>
       </div>
 
       {/* Actions */}

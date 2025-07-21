@@ -169,9 +169,6 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
                   {t('job_results.match_insights.experience_match')}
                 </h4>
               </div>
-              <p className="text-muted-foreground mb-3 text-sm">
-                {t(getExperienceMatchKey(job.experienceMatch))}
-              </p>
               {job.experienceMatchReasons && job.experienceMatchReasons.length > 0 && (
                 <div className="space-y-2">
                   <h5 className="text-foreground text-sm font-medium">
@@ -312,6 +309,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
                 job.requirements.map((requirement, index) => (
                   <div key={index} className="flex items-start space-x-3 space-x-reverse">
                     <div className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-green-500" />
+                    <span className="mx-1" /> {/* Add a space between the dot and the text */}
                     <span className="text-muted-foreground text-sm">{requirement}</span>
                   </div>
                 ))
@@ -363,9 +361,7 @@ const JobMatchInsights = ({ job, onClose }: JobMatchInsightsProps) => {
 
           {/* AI Disclaimer */}
           <div className="text-center">
-            <p className="text-muted-foreground text-xs italic">
-              {t('job_results.ai_disclaimer')}
-            </p>
+            <p className="text-muted-foreground text-xs italic">{t('job_results.ai_disclaimer')}</p>
           </div>
         </div>
 

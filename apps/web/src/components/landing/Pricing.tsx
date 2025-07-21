@@ -1,5 +1,7 @@
 import { getTranslations, getLocale } from 'next-intl/server';
 import { Check } from 'lucide-react';
+import { Info } from 'lucide-react';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import { fetchQuery } from 'convex/nextjs';
 import { convexAuthNextjsToken } from '@convex-dev/auth/nextjs/server';
@@ -52,6 +54,7 @@ const Pricing = async () => {
       buttonText: t('pricing.plans.free.button'),
       buttonClasses: 'bg-foreground text-background border-none',
       planType: 'free',
+      note: t('pricing.plans.free.note'),
     },
     {
       name: t('pricing.plans.pro.name'),
@@ -70,6 +73,7 @@ const Pricing = async () => {
       buttonText: t('pricing.plans.pro.button'),
       buttonClasses: 'bg-primary text-primary-foreground border-none',
       planType: 'pro',
+      note: t('pricing.plans.pro.note'),
     },
   ];
 
@@ -100,30 +104,40 @@ const Pricing = async () => {
               )}
 
               <div className="mb-8 text-center">
-                <h3 className="text-foreground mb-2 text-2xl font-bold">{plan.name}</h3>
+                <h3 className="text-foreground mb-2 flex items-center justify-center gap-2 text-2xl font-bold">
+                  {plan.name}
+                  {plan.planType === 'pro' && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="ml-1 cursor-pointer align-middle">
+                          <Info className="h-4 w-4 text-blue-500" />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent sideOffset={4} className="max-w-xs text-xs text-balance">
+                        {t('pricing.pro_search_limit_tooltip')}
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </h3>
                 <div className="flex items-center justify-center space-x-2 space-x-reverse">
                   {locale === 'ar' ? (
-                    // Arabic: price first (right), then currency (left)
                     <>
                       <span className="text-foreground text-4xl font-bold">{plan.price}</span>
                       {plan.currency && renderCurrencySymbol(plan.currency)}
                     </>
                   ) : (
-                    // English: currency first (left), then price (right)
                     <>
                       {plan.currency && renderCurrencySymbol(plan.currency)}
                       <span className="text-foreground text-4xl font-bold">{plan.price}</span>
                     </>
                   )}
-                  {
-                    plan.price !== 'Free' &&
-                      plan.price !== 'مجاناً' &&
-                      '/' /* Split between price and currency */
-                  }
-                  {plan.priceDetail && (
-                    <span className="text-muted-foreground">{plan.priceDetail}</span>
-                  )}
+                  {/* Show note under price if available */}
                 </div>
+                {plan.note && (
+                  <div className="text-muted-foreground mt-1 text-center text-xs opacity-80">
+                    {plan.note}
+                  </div>
+                )}
               </div>
 
               <ul className="mb-8 space-y-4">

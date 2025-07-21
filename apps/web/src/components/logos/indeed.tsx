@@ -1,12 +1,7 @@
-import * as React from "react";
+import * as React from 'react';
 
 const Indeed = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    viewBox="0 0 1486.1 400"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
+  <svg viewBox="0 0 1486.1 400" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
     <g>
       <g>
         <path
