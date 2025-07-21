@@ -135,9 +135,12 @@ export const aiSearchJobs = internalAction({
 			// Pre-lowercase job text once
 			const jobText = `${job.name} ${job.description}`.toLowerCase();
 
-			// Improved skill matching with variations
+			// Improved skill matching with variations and logical inference
 			const matchedSkills: string[] = [];
 			const missingSkills: string[] = [];
+
+			// Get all CV skills for logical inference
+			const cvSkillsLower = args.cvProfile.skills.map((s) => s.toLowerCase());
 
 			for (const skill of searchParams.technical_skills) {
 				const skillLower = skill.toLowerCase();
@@ -167,6 +170,60 @@ export const aiSearchJobs = internalAction({
 
 				if (isMatched) {
 					matchedSkills.push(skill);
+					continue;
+				}
+
+				// LOGICAL INFERENCE: Check if CV has advanced skills that imply this basic skill
+				let isImplied = false;
+
+				// Web fundamentals inference
+				if (
+					[
+						"html",
+						"html5",
+						"css",
+						"css3",
+						"javascript",
+						"rest",
+						"api",
+						"restful",
+					].includes(skillLower)
+				) {
+					const hasWebFrameworks = cvSkillsLower.some((cvSkill) =>
+						[
+							"react",
+							"nextjs",
+							"next.js",
+							"vue",
+							"angular",
+							"svelte",
+							"nuxt",
+						].includes(cvSkill.replace(/[.\s]/g, "")),
+					);
+					if (hasWebFrameworks) {
+						isImplied = true;
+					}
+				}
+
+				// JavaScript inference
+				if (["javascript", "js"].includes(skillLower)) {
+					const hasJSFrameworks = cvSkillsLower.some((cvSkill) =>
+						[
+							"react",
+							"vue",
+							"angular",
+							"node",
+							"typescript",
+							"nextjs",
+						].includes(cvSkill.replace(/[.\s]/g, "")),
+					);
+					if (hasJSFrameworks) {
+						isImplied = true;
+					}
+				}
+
+				if (isImplied) {
+					matchedSkills.push(skill);
 				} else {
 					missingSkills.push(skill);
 				}
@@ -191,7 +248,7 @@ export const aiSearchJobs = internalAction({
 		});
 
 		// OPTIMIZATION 6: Reduce AI batch size for faster response time
-		const BATCH_SIZE = user?.isPro ? 12 : 8;
+		const BATCH_SIZE = user?.isPro ? 10 : 7;
 		const chunks = [];
 		for (let i = 0; i < jobsToProcess.length; i += BATCH_SIZE) {
 			chunks.push(jobsToProcess.slice(i, i + BATCH_SIZE));
@@ -268,6 +325,12 @@ EXPERIENCE MATCH SCORING (0-1):
 - 0.1-0.2: Poor match - significant gaps in experience type and requirements
 - 0.0: Complete mismatch - no relevant experience of any type
 
+SCORING CONSISTENCY RULES:
+- If location score is 0.4 and missing 6+ critical skills → overall score should be 0.2-0.4 maximum
+- If experience is "personal projects only" for mid/senior role → cap at 0.5 maximum
+- If 80% of required skills are missing → cap at 0.3 maximum
+- Be HARSH on scoring - better to under-score than over-score
+
 SPECIFIC EXPERIENCE CONSIDERATIONS:
 - Entry-level/Intern jobs: Score 0.6-0.8 for candidates with personal projects + relevant skills (even 0 professional experience)
 - Junior roles (1-3y): Require some professional/freelance experience OR strong personal projects + education
@@ -286,13 +349,31 @@ LOCATION MATCH SCORING (0-1):
 - 0.0: Complete location mismatch with no remote option
 
 SKILL MATCHING ADVANCED CRITERIA:
-Compare job requirements with candidate's full skill set:
+Compare job requirements with candidate's full skill set using LOGICAL INFERENCE:
+
+CRITICAL SKILL INFERENCE RULES:
+- React/Next.js → AUTOMATICALLY includes HTML5, CSS3, JavaScript, RESTful APIs, DOM manipulation
+- Vue.js/Angular → AUTOMATICALLY includes HTML5, CSS3, JavaScript, RESTful APIs, SPA concepts
+- Node.js/Express → AUTOMATICALLY includes JavaScript, RESTful APIs, HTTP protocols, JSON
+- Full-stack frameworks → AUTOMATICALLY includes both frontend and backend fundamentals
+- Mobile development (React Native/Flutter) → AUTOMATICALLY includes API integration, state management
+- Any web framework → AUTOMATICALLY includes web fundamentals (HTML, CSS, HTTP, REST)
+
+SKILL MATCHING CRITERIA:
 - EXACT MATCHES: Direct skill mentions in CV (highest weight)
-- RELATED SKILLS: Connected technologies (React + JavaScript, AWS + Cloud)
+- LOGICAL INFERENCE: If CV shows React → candidate knows HTML5, CSS3, REST APIs (don't mark as missing!)
+- RELATED SKILLS: Connected technologies (React ecosystem, AWS services)
 - SKILL VARIATIONS: Different names for same technology (JS/JavaScript, ML/Machine Learning)
-- TRANSFERABLE SKILLS: Skills that indicate learning ability (multiple languages, frameworks)
+- TRANSFERABLE SKILLS: Skills that indicate learning ability
 - DEPTH INDICATORS: Years mentioned, project complexity, professional usage
-- BREADTH INDICATORS: Diverse skill set showing adaptability
+
+CRITICAL: Do NOT mark fundamental web skills as "missing" if candidate has advanced frameworks that require them!
+
+EXAMPLE:
+Job requires: "HTML5, CSS3, JavaScript, REST APIs"
+CV shows: "React, Next.js, TypeScript"
+CORRECT: All job requirements are MET (React implies HTML5/CSS3/JS/REST)
+WRONG: Marking HTML5, CSS3, REST APIs as "missing skills"
 
 HOLISTIC EVALUATION:
 Consider ALL factors together:
@@ -326,14 +407,22 @@ CRITICAL INSTRUCTIONS:
    - If company names are mentioned → treat as professional experience
    - If only personal projects mentioned → treat as self-learning experience
    - Score accordingly based on experience type, not just years
-3. CONTEXTUAL SCORING:
-   - 5 years personal projects + no companies = 0.4-0.6 for mid-level roles
-   - 2 years with company names = 0.7-0.8 for mid-level roles
-   - Personal projects only = 0.6-0.8 for entry-level/intern roles
-4. Re-evaluate skill matches using the full CV skills list. A skill might be marked as "missing" but actually present in the candidate's CV under a different name or variation.
-5. Consider the user's survey preferences (career level, industries, work type, company types) when scoring job matches.
-6. Use both CV data and survey preferences for comprehensive matching.
-7. HOLISTIC EVALUATION: Balance experience type, skills, education, and growth potential.`,
+3. CONSISTENT SCORING LOGIC:
+   - Location mismatch (0.4) + Missing 80% skills + Personal projects only = MAX 0.3 score
+   - Strong skills match + Good location + Professional experience = 0.7-0.9 score
+   - Be CONSISTENT across all scoring dimensions
+4. DETAILED ANALYSIS REQUIRED:
+   - Always provide specific experience_gaps in the experience analysis
+   - Always provide detailed match_reasons for both experience and location
+   - Never leave fields empty or say "Not Specified"
+5. LOGICAL SKILL INFERENCE: Use common sense when evaluating skills:
+   - If CV mentions React/Next.js → candidate KNOWS HTML5, CSS3, JavaScript, REST APIs
+   - If CV mentions Vue/Angular → candidate KNOWS web fundamentals
+   - If CV mentions Node.js → candidate KNOWS JavaScript, REST APIs, HTTP
+   - Do NOT mark basic skills as "missing" when candidate has advanced skills that require them
+   - Focus on genuinely missing advanced skills, not foundational ones
+6. Consider the user's survey preferences (career level, industries, work type, company types) when scoring job matches.
+7. HOLISTIC EVALUATION: Balance ALL factors - don't over-score if multiple dimensions are weak.`,
 					},
 				],
 				schema: batch_job_analysis_schema,
@@ -409,6 +498,16 @@ CRITICAL INSTRUCTIONS:
 						: "location_mismatch";
 				}
 
+				// Log analysis for debugging
+				console.log(`Job ${job.name} analysis:`, {
+					experienceScore: analysis.experienceMatch.match_score,
+					experienceLevel: analysis.experienceMatch.match_level,
+					locationScore: analysis.locationMatch.match_score,
+					matchedSkills: matchedSkills.length,
+					missingSkills: missingSkills.length,
+					experienceGaps: analysis.experienceMatch.experience_gaps.length,
+				});
+
 				const jobResult: JobResult = {
 					jobListingId: job._id,
 					// Benefits - now directly as string array
@@ -421,6 +520,8 @@ CRITICAL INSTRUCTIONS:
 					experienceMatch: analysis.experienceMatch.match_level,
 					experienceMatchScore: analysis.experienceMatch.match_score,
 					experienceMatchReasons: analysis.experienceMatch.match_reasons,
+					// Add experience gaps to the result
+					experienceGaps: analysis.experienceMatch.experience_gaps,
 					// Location matching
 					locationMatchScore: analysis.locationMatch.match_score,
 					locationMatchReasons: analysis.locationMatch.match_reasons,

@@ -12,6 +12,7 @@ export type JobResult = {
 	experienceMatch: string;
 	experienceMatchScore: number;
 	experienceMatchReasons: string[];
+	experienceGaps: string[];
 	locationMatch: string;
 	locationMatchScore: number;
 	locationMatchReasons: string[];
