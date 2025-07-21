@@ -452,6 +452,15 @@ CRITICAL INSTRUCTIONS:
 
 9. HOLISTIC EVALUATION: Balance ALL factors - don't over-score if multiple dimensions are weak.`,
 					},
+					{
+						role: "user",
+						content: `OUTPUT FORMAT REQUIREMENTS:
+For each job analysis, you must include:
+- matched_skills: array of specific skills/technologies from the job requirements that the candidate already possesses based on their CV (max 15 items)
+- missing_skills: array of the most relevant specific skills/technologies the candidate should consider learning to better match this particular job (max 15 items, focus on job-specific requirements only)
+
+CRITICAL: Only include skills that are actually mentioned in the job description or are directly relevant to the specific role. Do not include generic skills or technologies not related to this particular job posting.`,
+					},
 				],
 				schema: batch_job_analysis_schema,
 			});
@@ -498,6 +507,8 @@ CRITICAL INSTRUCTIONS:
 							type: string;
 						};
 					};
+					matched_skills: string[];
+					missing_skills: string[];
 				}>;
 			};
 
@@ -531,10 +542,14 @@ CRITICAL INSTRUCTIONS:
 					experienceScore: analysis.experienceMatch.match_score,
 					experienceLevel: analysis.experienceMatch.match_level,
 					locationScore: analysis.locationMatch.match_score,
-					matchedSkills: matchedSkills.length,
-					missingSkills: missingSkills.length,
+					aiMatchedSkills: (analysis.matched_skills || []).length,
+					aiMissingSkills: (analysis.missing_skills || []).length,
 					experienceGaps: analysis.experienceMatch.experience_gaps.length,
 				});
+
+				// Use AI-provided matched/missing skills when available
+				const aiMatchedSkills = analysis.matched_skills || matchedSkills;
+				const aiMissingSkills = analysis.missing_skills || missingSkills;
 
 				const jobResult: JobResult = {
 					jobListingId: job._id,
@@ -542,8 +557,9 @@ CRITICAL INSTRUCTIONS:
 					benefits: analysis.benefits,
 					// Requirements - now directly as string array
 					requirements: analysis.requirements,
-					matchedSkills,
-					missingSkills,
+					// Use AI-derived matched/missing skills for accuracy
+					matchedSkills: aiMatchedSkills,
+					missingSkills: aiMissingSkills,
 					// Experience matching
 					experienceMatch: analysis.experienceMatch.match_level,
 					experienceMatchScore: analysis.experienceMatch.match_score,

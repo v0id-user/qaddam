@@ -128,18 +128,20 @@ export const getJobResultsWithAnalysis = query({
 			benefits: result.benefits ?? [],
 			matchedSkills: result.matchedSkills ?? [],
 			missingSkills: result.missingSkills ?? [],
-			experienceMatch: result.experienceMatch ?? 'not_specified',
+			experienceMatch: result.experienceMatch ?? "not_specified",
 			experienceMatchScore: result.experienceMatchScore ?? 0,
 			experienceMatchReasons: result.experienceMatchReasons ?? [],
 			experienceGaps: [], // Not in database schema yet, provide default
-			locationMatch: result.locationMatch ?? 'not_specified',
+			locationMatch: result.locationMatch ?? "not_specified",
 			locationMatchScore: result.locationMatchScore ?? 0,
 			locationMatchReasons: result.locationMatchReasons ?? [],
 			workTypeMatch: result.workTypeMatch ?? false,
 			requirements: result.requirements ?? [],
 			aiMatchReasons: result.aiMatchReasons ?? [],
 			aiConcerns: result.aiConcerns ?? [],
-			aiRecommendation: (result.aiRecommendation as JobResult['aiRecommendation']) ?? 'consider',
+			aiRecommendation:
+				(result.aiRecommendation as JobResult["aiRecommendation"]) ??
+				"consider",
 			// extractedData not in database schema yet, omitted for now
 		}));
 
