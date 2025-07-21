@@ -18,22 +18,16 @@ export const searchJobListingsUnused = internalQuery({
 		limit: v.number(),
 	},
 	handler: async (ctx, args): Promise<Doc<"jobListings">[]> => {
-		// Query job search results for the user and all jobs in parallel
-		const [userJobSearchResults, allJobsInDb] = await Promise.all([
-			ctx.db
-				.query("jobSearchJobResults")
-				.withIndex("by_user", (q) => q.eq("userId", args.userId))
-				.collect(),
-			ctx.db.query("jobListings").collect(),
-		]);
+		// Query job search results for the user only (this is fine)
+		const userJobSearchResults = await ctx.db
+			.query("jobSearchJobResults")
+			.withIndex("by_user", (q) => q.eq("userId", args.userId))
+			.collect();
 
-		const filteredJobs = allJobsInDb.filter(
-			(job) =>
-				!userJobSearchResults.some((result) => result.jobListingId === job._id),
-		);
+		const userJobIds = new Set(userJobSearchResults.map((result) => result.jobListingId));
 
 		console.log(
-			`DB search: ${filteredJobs.length} total jobs, query="${args.searchQuery.slice(0, 30)}..."`,
+			`DB search: query="${args.searchQuery.slice(0, 30)}..." (limit: ${args.limit})`,
 		);
 
 		// Search in job descriptions
@@ -42,7 +36,7 @@ export const searchJobListingsUnused = internalQuery({
 			.withSearchIndex("search_description", (q) =>
 				q.search("description", args.searchQuery),
 			)
-			.take(args.limit);
+			.take(args.limit * 2); // Take more to allow for filtering
 
 		console.log(`Description search: ${descriptionResults.length} results`);
 
@@ -50,23 +44,26 @@ export const searchJobListingsUnused = internalQuery({
 		const nameResults = await ctx.db
 			.query("jobListings")
 			.withSearchIndex("search_name", (q) => q.search("name", args.searchQuery))
-			.take(args.limit);
+			.take(args.limit * 2);
 
 		console.log(`Name search: ${nameResults.length} results`);
 
-		// Combine and deduplicate results
+		// Combine and deduplicate results, and filter out jobs already seen by user
 		const allResults = [...descriptionResults, ...nameResults];
 		const uniqueResults = allResults.filter(
-			(job, index, self) => index === self.findIndex((j) => j._id === job._id),
+			(job, index, self) =>
+				index === self.findIndex((j) => j._id === job._id) && !userJobIds.has(job._id),
 		);
 
-		console.log(`Combined: ${uniqueResults.length} unique results`);
+		console.log(`Combined: ${uniqueResults.length} unique results after filtering user jobs`);
 
-		// If no results from search indexes, try simple text matching
+		// If no results from search indexes, try a fallback: fetch a small sample and filter in memory
 		if (uniqueResults.length === 0) {
-			console.log("No search results, trying text matching...");
+			console.log("No search results, trying fallback text matching...");
 
-			// Filter jobs that contain any of the search terms (case insensitive)
+			// Fetch a small sample of jobs (e.g., 50) to avoid full table scan
+			const sampleJobs = await ctx.db.query("jobListings").take(50);
+
 			const searchTerms = args.searchQuery
 				.toLowerCase()
 				.split(" ")
@@ -76,16 +73,16 @@ export const searchJobListingsUnused = internalQuery({
 				`Text matching with ${searchTerms.length} terms: ${searchTerms.slice(0, 3).join(", ")}...`,
 			);
 
-			const textMatchingJobs = filteredJobs.filter((job) => {
+			const textMatchingJobs = sampleJobs.filter((job) => {
 				const jobText =
 					`${job.name} ${job.description} ${job.sourceName || ""} ${job.location || ""}`.toLowerCase();
-				return searchTerms.some((term) => jobText.includes(term));
+				return searchTerms.some((term) => jobText.includes(term)) && !userJobIds.has(job._id);
 			});
 
-			console.log(`Text matching: ${textMatchingJobs.length} jobs matched`);
-			return textMatchingJobs;
+			console.log(`Text matching: ${textMatchingJobs.length} jobs matched (from sample)`);
+			return textMatchingJobs.slice(0, args.limit);
 		}
 
-		return uniqueResults;
+		return uniqueResults.slice(0, args.limit);
 	},
 });
