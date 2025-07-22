@@ -390,4 +390,3 @@ export const getUserActivitySummary = query({
 		return activities;
 	},
 });
-
