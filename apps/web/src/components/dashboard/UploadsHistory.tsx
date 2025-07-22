@@ -2,7 +2,17 @@
 
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { FileText, Calendar, Eye, Trash2, BarChart3, Clock, CheckCircle, XCircle, Plus } from 'lucide-react';
+import {
+  FileText,
+  Calendar,
+  Eye,
+  Trash2,
+  BarChart3,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Plus,
+} from 'lucide-react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import type { Id } from '@qaddam/backend/convex/_generated/dataModel';
@@ -15,7 +25,7 @@ interface UploadsHistoryProps {
 
 const UploadsHistory = ({ onViewResults }: UploadsHistoryProps) => {
   const t = useTranslations('dashboard');
-  
+
   // Queries
   const cvUploads = useQuery(api.user_data.getUserCVUploads);
   const jobSearchResults = useQuery(api.user_data.getUserJobSearchResultsWithStats);
@@ -23,16 +33,19 @@ const UploadsHistory = ({ onViewResults }: UploadsHistoryProps) => {
   const deleteCV = useMutation(api.upload.deleteCV);
 
   // Create a map of CV uploads to their job search results
-  const uploadsWithResults = cvUploads?.map(cv => {
-    const relatedResults = jobSearchResults?.filter(result => result.cvStorageId === cv.storageId) || [];
-    return {
-      ...cv,
-      searchResults: relatedResults,
-      hasResults: relatedResults.length > 0,
-      totalJobsFound: relatedResults.reduce((sum, result) => sum + result.totalFound, 0),
-      latestSearchDate: relatedResults.length > 0 ? Math.max(...relatedResults.map(r => r.createdAt)) : null,
-    };
-  }) || [];
+  const uploadsWithResults =
+    cvUploads?.map(cv => {
+      const relatedResults =
+        jobSearchResults?.filter(result => result.cvStorageId === cv.storageId) || [];
+      return {
+        ...cv,
+        searchResults: relatedResults,
+        hasResults: relatedResults.length > 0,
+        totalJobsFound: relatedResults.reduce((sum, result) => sum + result.totalFound, 0),
+        latestSearchDate:
+          relatedResults.length > 0 ? Math.max(...relatedResults.map(r => r.createdAt)) : null,
+      };
+    }) || [];
 
   const handleViewCV = async (cvId: string) => {
     try {
@@ -50,7 +63,7 @@ const UploadsHistory = ({ onViewResults }: UploadsHistoryProps) => {
     if (!confirm(t('uploads_history.delete_confirm', { fileName }))) {
       return;
     }
-    
+
     try {
       await deleteCV({ cvId: cvId as Id<'cvUploads'> });
       toast.success(t('cv_upload.success.cv_deleted'));
@@ -68,7 +81,8 @@ const UploadsHistory = ({ onViewResults }: UploadsHistoryProps) => {
 
     if (diffDays === 1) return t('uploads_history.date_format.yesterday');
     if (diffDays < 7) return t('uploads_history.date_format.days_ago', { days: diffDays });
-    if (diffDays < 30) return t('uploads_history.date_format.weeks_ago', { weeks: Math.floor(diffDays / 7) });
+    if (diffDays < 30)
+      return t('uploads_history.date_format.weeks_ago', { weeks: Math.floor(diffDays / 7) });
     return date.toLocaleDateString();
   };
 
@@ -77,8 +91,8 @@ const UploadsHistory = ({ onViewResults }: UploadsHistoryProps) => {
   };
 
   const getStatusColor = (isActive: boolean) => {
-    return isActive 
-      ? 'bg-green-50 text-green-700 border-green-200' 
+    return isActive
+      ? 'bg-green-50 text-green-700 border-green-200'
       : 'bg-gray-50 text-gray-500 border-gray-200';
   };
 
@@ -91,10 +105,12 @@ const UploadsHistory = ({ onViewResults }: UploadsHistoryProps) => {
       <div className="min-h-screen px-6 py-16">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <div className="bg-accent/50 mx-auto rounded-full p-4 w-16 h-16 flex items-center justify-center">
+            <div className="bg-accent/50 mx-auto flex h-16 w-16 items-center justify-center rounded-full p-4">
               <div className="border-primary h-8 w-8 animate-spin rounded-full border-t-2 border-b-2"></div>
             </div>
-            <p className="text-foreground text-lg font-medium mt-4">{t('uploads_history.loading.title')}</p>
+            <p className="text-foreground mt-4 text-lg font-medium">
+              {t('uploads_history.loading.title')}
+            </p>
           </div>
         </div>
       </div>
@@ -127,14 +143,14 @@ const UploadsHistory = ({ onViewResults }: UploadsHistoryProps) => {
         {/* Uploads List */}
         {uploadsWithResults.length === 0 ? (
           /* Empty State */
-          <div className="text-center py-16">
-            <div className="bg-accent/30 mx-auto rounded-full p-6 w-24 h-24 flex items-center justify-center mb-6">
+          <div className="py-16 text-center">
+            <div className="bg-accent/30 mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full p-6">
               <FileText className="text-muted-foreground h-12 w-12" />
             </div>
-            <h3 className="text-foreground text-xl font-semibold mb-2">
+            <h3 className="text-foreground mb-2 text-xl font-semibold">
               {t('uploads_history.empty_state.title')}
             </h3>
-            <p className="text-muted-foreground text-lg mb-6">
+            <p className="text-muted-foreground mb-6 text-lg">
               {t('uploads_history.empty_state.description')}
             </p>
             <Link href="/dashboard">
@@ -147,19 +163,19 @@ const UploadsHistory = ({ onViewResults }: UploadsHistoryProps) => {
         ) : (
           /* Uploads Grid */
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {uploadsWithResults.map((upload) => (
+            {uploadsWithResults.map(upload => (
               <div
                 key={upload._id}
                 className="border-border bg-card rounded-xl border p-6 shadow-sm transition-all duration-200 hover:shadow-md"
               >
                 {/* Header */}
-                <div className="flex items-start justify-between mb-4">
+                <div className="mb-4 flex items-start justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="bg-accent/50 rounded-full p-2">
                       <FileText className="text-primary h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="text-foreground text-lg font-semibold truncate max-w-36">
+                      <h3 className="text-foreground max-w-36 truncate text-lg font-semibold">
                         {upload.originalFileName}
                       </h3>
                       <p className="text-muted-foreground text-sm">
@@ -167,32 +183,42 @@ const UploadsHistory = ({ onViewResults }: UploadsHistoryProps) => {
                       </p>
                     </div>
                   </div>
-                  
+
                   {/* Status Badge */}
-                  <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium border ${getStatusColor(upload.isActive)}`}>
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-medium ${getStatusColor(upload.isActive)}`}
+                  >
                     {getStatusIcon(upload.isActive)}
-                    {upload.isActive ? t('uploads_history.status.active') : t('uploads_history.status.inactive')}
+                    {upload.isActive
+                      ? t('uploads_history.status.active')
+                      : t('uploads_history.status.inactive')}
                   </span>
                 </div>
 
                 {/* Upload Details */}
-                <div className="space-y-3 mb-5">
-                  <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <div className="mb-5 space-y-3">
+                  <div className="text-muted-foreground flex items-center space-x-2 text-sm">
                     <Calendar className="h-4 w-4" />
-                    <span>{t('uploads_history.uploaded')}: {formatDate(upload.uploadedAt)}</span>
+                    <span>
+                      {t('uploads_history.uploaded')}: {formatDate(upload.uploadedAt)}
+                    </span>
                   </div>
-                  
+
                   {upload.hasResults && (
-                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                    <div className="text-muted-foreground flex items-center space-x-2 text-sm">
                       <BarChart3 className="h-4 w-4" />
-                      <span>{t('uploads_history.jobs_found')}: {upload.totalJobsFound}</span>
+                      <span>
+                        {t('uploads_history.jobs_found')}: {upload.totalJobsFound}
+                      </span>
                     </div>
                   )}
-                  
+
                   {upload.latestSearchDate && (
-                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                    <div className="text-muted-foreground flex items-center space-x-2 text-sm">
                       <Clock className="h-4 w-4" />
-                      <span>{t('uploads_history.last_search')}: {formatDate(upload.latestSearchDate)}</span>
+                      <span>
+                        {t('uploads_history.last_search')}: {formatDate(upload.latestSearchDate)}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -200,26 +226,28 @@ const UploadsHistory = ({ onViewResults }: UploadsHistoryProps) => {
                 {/* Search Results Summary */}
                 {upload.searchResults.length > 0 && (
                   <div className="mb-5">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                      <div className="flex items-center space-x-2 mb-2">
+                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
+                      <div className="mb-2 flex items-center space-x-2">
                         <BarChart3 className="h-4 w-4 text-blue-600" />
-                        <span className="text-blue-900 text-sm font-medium">
+                        <span className="text-sm font-medium text-blue-900">
                           {t('uploads_history.search_summary.title')}
                         </span>
                       </div>
                       <div className="space-y-1">
                         {upload.searchResults.slice(0, 2).map((result, index) => (
                           <div key={result._id} className="text-xs text-blue-700">
-                            {t('uploads_history.search_summary.item', { 
+                            {t('uploads_history.search_summary.item', {
                               date: formatDate(result.createdAt),
                               count: result.totalFound,
-                              relevant: result.totalRelevant 
+                              relevant: result.totalRelevant,
                             })}
                           </div>
                         ))}
                         {upload.searchResults.length > 2 && (
                           <div className="text-xs text-blue-600">
-                            {t('uploads_history.search_summary.more', { count: upload.searchResults.length - 2 })}
+                            {t('uploads_history.search_summary.more', {
+                              count: upload.searchResults.length - 2,
+                            })}
                           </div>
                         )}
                       </div>
@@ -238,18 +266,18 @@ const UploadsHistory = ({ onViewResults }: UploadsHistoryProps) => {
                     <Eye className="mr-1 h-3 w-3" />
                     {t('uploads_history.actions.view')}
                   </Button>
-                  
+
                   {upload.hasResults && (
                     <Button
                       onClick={() => onViewResults?.(upload.searchResults[0].workflowId)}
                       size="sm"
-                      className="flex-1 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 flex-1 text-xs"
                     >
                       <BarChart3 className="mr-1 h-3 w-3" />
                       {t('uploads_history.actions.view_results')}
                     </Button>
                   )}
-                  
+
                   <Button
                     onClick={() => handleDeleteCV(upload._id, upload.originalFileName)}
                     size="sm"
@@ -268,4 +296,4 @@ const UploadsHistory = ({ onViewResults }: UploadsHistoryProps) => {
   );
 };
 
-export default UploadsHistory; 
+export default UploadsHistory;

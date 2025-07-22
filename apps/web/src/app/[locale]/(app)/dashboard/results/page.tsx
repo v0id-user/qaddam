@@ -36,7 +36,7 @@ function ResultsContent() {
   }
 
   return (
-    <JobResults 
+    <JobResults
       workflowId={workflowId as WorkflowId}
       onBackToUpload={() => window.history.back()}
     />
@@ -45,17 +45,19 @@ function ResultsContent() {
 
 export default function ResultsPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen px-6 py-16">
-        <div className="mx-auto max-w-6xl text-center">
-          <div className="bg-accent/50 mx-auto rounded-full p-4 w-16 h-16 flex items-center justify-center">
-            <div className="border-primary h-8 w-8 animate-spin rounded-full border-t-2 border-b-2"></div>
+    <Suspense
+      fallback={
+        <div className="min-h-screen px-6 py-16">
+          <div className="mx-auto max-w-6xl text-center">
+            <div className="bg-accent/50 mx-auto flex h-16 w-16 items-center justify-center rounded-full p-4">
+              <div className="border-primary h-8 w-8 animate-spin rounded-full border-t-2 border-b-2"></div>
+            </div>
+            <p className="text-foreground mt-4 text-lg font-medium">Loading results...</p>
           </div>
-          <p className="text-foreground text-lg font-medium mt-4">Loading results...</p>
         </div>
-      </div>
-    }>
+      }
+    >
       <ResultsContent />
     </Suspense>
   );
-} 
+}

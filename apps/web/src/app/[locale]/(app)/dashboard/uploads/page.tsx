@@ -11,9 +11,5 @@ export default function UploadsPage() {
     router.push(`/dashboard/results?workflowId=${workflowId}`);
   };
 
-  return (
-    <UploadsHistory 
-      onViewResults={handleViewResults}
-    />
-  );
-} 
+  return <UploadsHistory onViewResults={handleViewResults} />;
+}

@@ -16,7 +16,14 @@ import type { WorkflowId } from '@qaddam/backend/convex/jobs/workflow';
 import { useQueryState } from 'nuqs';
 import { useRouter } from 'next/navigation';
 import { useLogger } from '@/lib/axiom/client';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 export default function DashboardPage() {
   const logger = useLogger();
@@ -440,13 +447,13 @@ export default function DashboardPage() {
             <DialogDescription>{t('pricing.upgrade_modal.subtitle')}</DialogDescription>
           </DialogHeader>
           <div className="mt-4">
-            <div className="font-semibold mb-2">{t('pricing.upgrade_modal.features_title')}</div>
-            <ul className="mb-4 list-disc list-inside text-sm">
+            <div className="mb-2 font-semibold">{t('pricing.upgrade_modal.features_title')}</div>
+            <ul className="mb-4 list-inside list-disc text-sm">
               <li>{t('pricing.upgrade_modal.features.0')}</li>
               <li>{t('pricing.upgrade_modal.features.1')}</li>
               <li>{t('pricing.upgrade_modal.features.2')}</li>
             </ul>
-            <div className="text-xs text-muted-foreground mb-2">
+            <div className="text-muted-foreground mb-2 text-xs">
               {t('pricing.upgrade_modal.note')}
             </div>
           </div>

@@ -6,10 +6,7 @@ import { Button } from '@/components/ui/button';
 import type { JobResult } from '@qaddam/backend/convex/types/jobs';
 import { useQuery } from 'convex/react';
 import { api } from '@qaddam/backend/convex/_generated/api';
-import {
-  getAIRecommendationKey,
-  getMatchScoreColor,
-} from '@/lib/enum-translations';
+import { getAIRecommendationKey, getMatchScoreColor } from '@/lib/enum-translations';
 import LinkedIn from '@/components/logos/linkedin';
 import Indeed from '@/components/logos/indeed';
 
