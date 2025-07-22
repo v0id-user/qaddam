@@ -522,6 +522,60 @@
         "subtitle": "Your job search profile has been saved successfully",
         "continue": "Continue to Dashboard"
       }
+    },
+    "pricing": {
+      "title": "Plans for Builders",
+      "description": "AI-native job search. Pro version gives you a searchable, always-fresh job list—no more checking multiple sites.",
+      "popular": "Most Used",
+      "upgrade_title": "Upgrade to Pro (Managed)",
+      "upgrade_subtitle": "A focused, AI-powered job search tool for engineers.",
+      "processing": "Processing...",
+      "upgrade_error": "Couldn’t start upgrade. Please try again.",
+      "already_pro": "You’re already Pro!",
+      "already_pro_message": "You already have a Pro subscription. Enjoy!",
+      "pro_search_limit_tooltip": "The paid version guarantees 35 searches, with a hard limit of 5 per day.",
+      "upgrade_modal": {
+        "title": "Thanks for choosing the managed service",
+        "subtitle": "Your subscription is more symbolic and means personally than anything else",
+        "features_title": "Here is what you get:",
+        "features": {
+          "0": "35 monthly searches",
+          "1": "5 CV searches per day",
+          "2": "Access to an updated, targeted list of jobs you can search manually"
+        },
+        "note": "Please note that this service can get expensive quickly due to crawler costs. Use it mindfully.",
+        "button": "You're welcome"
+      },
+      "plans": {
+        "free": {
+          "name": "Free (Self-Host)",
+          "price": "Free",
+          "note": "No credit card required. Fully open source.",
+          "features": [
+            "AI-powered CV parsing and keyword extraction",
+            "Host it yourself, full control",
+            "Built for devs, by a dev",
+            "Community support on GitHub"
+          ],
+          "button": "Use for Free"
+        },
+        "pro": {
+          "name": "Pro (Managed)",
+          "price": "4",
+          "currency": "USD",
+          "price_detail": "monthly",
+          "note": "Covers infra. For those who want it managed.",
+          "features": [
+            "AI-native: every step uses AI (parsing, search, ranking)",
+            "Searchable, filterable job list (no more LinkedIn/Indeed hopping)",
+            "Job list updated and filtered regularly for new opportunities",
+            "Minimal, focused assistant",
+            "Made by a dev, for devs",
+            "Technical support when needed."
+          ],
+          "button": "Start Managed Trial"
+        }
+      }
     }
   },
   "privacy": {

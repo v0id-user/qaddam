@@ -134,7 +134,7 @@ const Pricing = async () => {
                   {/* Show note under price if available */}
                 </div>
                 {plan.note && (
-                  <div className="text-muted-foreground mt-1 text-center text-xs opacity-80">
+                  <div className="text-muted-foreground mt-4 text-center text-xs opacity-80">
                     {plan.note}
                   </div>
                 )}

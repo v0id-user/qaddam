@@ -14,8 +14,9 @@ import type { Id } from '@qaddam/backend/convex/_generated/dataModel';
 import { toast } from 'react-hot-toast';
 import type { WorkflowId } from '@qaddam/backend/convex/jobs/workflow';
 import { useQueryState } from 'nuqs';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useLogger } from '@/lib/axiom/client';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 export default function DashboardPage() {
   const logger = useLogger();
@@ -37,12 +38,26 @@ export default function DashboardPage() {
   const deleteCV = useMutation(api.upload.deleteCV);
   const me = useQuery(api.users.getMe);
   const [plan] = useQueryState('p');
+  const [upgradeSuccess] = useQueryState('upgrade');
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
     if (plan === 'pro') {
       router.push('/dashboard/upgrade');
     }
   }, [plan, router]);
+
+  useEffect(() => {
+    if (upgradeSuccess === 'success') {
+      setShowUpgradeModal(true);
+    }
+  }, [upgradeSuccess]);
+
+  const handleUpgradeModalClose = () => {
+    setShowUpgradeModal(false);
+    // Remove all params and redirect to /dashboard
+    router.replace('/dashboard');
+  };
 
   // Workflow functions
   const startWorkflow = useAction(api.jobs.workflow.startJobSearchWorkflow);
@@ -218,204 +233,228 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen px-6 py-16">
-      <div className="mx-auto max-w-5xl">
-        {/* Header */}
-        <div className="mb-16 text-center">
-          <h1 className="text-foreground mb-4 text-3xl font-bold md:text-4xl lg:text-5xl">
-            {currentStage === 'uploaded' ? t('cv_upload.cv_uploaded') : t('cv_upload.title')}
-          </h1>
-          <p className="text-muted-foreground text-lg leading-relaxed">
-            {currentStage === 'uploaded'
-              ? t('cv_upload.cv_uploaded_subtitle')
-              : t('cv_upload.subtitle')}
-          </p>
-        </div>
-
-        {/* Main Upload/CV Management Section */}
-        <div className="mb-12">
-          <div className="bg-card ring-accent/30 hover:ring-accent/50 rounded-2xl p-8 shadow-lg ring-1 transition-all duration-300 hover:shadow-xl">
-            <div className="text-center">
-              {currentStage === 'uploaded' && selectedFile ? (
-                /* CV Uploaded State */
-                <div className="space-y-6">
-                  {/* Uploaded File Display */}
-                  <div className="bg-card ring-primary/40 mx-auto flex w-full max-w-md items-center space-x-4 space-x-reverse rounded-xl p-6 shadow-lg ring-1">
-                    <div className="bg-primary/8 rounded-full p-3">
-                      <FileText className="text-primary h-8 w-8" />
-                    </div>
-                    <div className="flex-1 text-right">
-                      <p className="text-foreground mb-1 truncate text-lg font-semibold">
-                        {selectedFile.name}
-                      </p>
-                      <p className="text-muted-foreground text-sm">
-                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-                    <Button
-                      onClick={handleViewCV}
-                      variant="outline"
-                      size="lg"
-                      className="rounded-xl px-6 py-4 text-base font-medium shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                    >
-                      <Eye className="mr-2 h-4 w-4" />
-                      {t('cv_upload.view_cv')}
-                    </Button>
-
-                    <Button
-                      onClick={handleDeleteFile}
-                      variant="outline"
-                      size="lg"
-                      className="border-destructive/20 text-destructive hover:bg-destructive/10 rounded-xl px-6 py-4 text-base font-medium shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      {t('cv_upload.delete_cv')}
-                    </Button>
-
-                    <Button
-                      onClick={handleStartJobSearch}
-                      size="lg"
-                      className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-10 py-4 text-lg font-semibold shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
-                    >
-                      <Search className="mr-2 h-5 w-5" />
-                      {t('cv_upload.start_job_search')}
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                /* Upload State */
-                <>
-                  {/* File Input Area */}
-                  <div
-                    {...getRootProps()}
-                    className={`relative mb-6 cursor-pointer rounded-xl border-2 border-dashed p-10 transition-all duration-300 ${
-                      isDragActive
-                        ? isDragAccept
-                          ? 'border-primary bg-primary/8 shadow-lg'
-                          : 'border-destructive bg-destructive/8 shadow-lg'
-                        : selectedFile
-                          ? 'border-primary/50 bg-primary/3'
-                          : 'border-border bg-accent/10 hover:border-primary/30 hover:bg-accent/20'
-                    } ${isUploading ? 'pointer-events-none opacity-50' : ''}`}
-                  >
-                    <input {...getInputProps()} disabled={isUploading} />
-
-                    <div className="flex flex-col items-center space-y-4">
-                      {isUploading ? (
-                        <div className="space-y-3">
-                          <div className="bg-accent/50 rounded-full p-4">
-                            <div className="border-primary h-10 w-10 animate-spin rounded-full border-t-2 border-b-2"></div>
-                          </div>
-                          <div className="space-y-2">
-                            <p className="text-foreground text-lg font-medium">
-                              {t('cv_upload.uploading.title')}
-                            </p>
-                            <p className="text-muted-foreground text-sm">
-                              {t('cv_upload.uploading.subtitle')}
-                            </p>
-                          </div>
-                        </div>
-                      ) : selectedFile ? (
-                        <div className="bg-card ring-accent/30 flex w-full max-w-md items-center space-x-4 space-x-reverse rounded-xl p-6 shadow-lg ring-1">
-                          <div className="bg-accent/50 rounded-full p-3">
-                            <FileText className="text-primary h-8 w-8" />
-                          </div>
-                          <div className="flex-1 text-right">
-                            <p className="text-foreground mb-1 truncate text-lg font-semibold">
-                              {selectedFile.name}
-                            </p>
-                            <p className="text-muted-foreground text-sm">
-                              {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                            </p>
-                          </div>
-                          <button
-                            onClick={e => {
-                              e.stopPropagation();
-                              handleDeleteFile();
-                            }}
-                            className="bg-destructive/10 text-destructive hover:bg-destructive/20 rounded-full p-2 transition-colors"
-                            title={t('cv_upload.delete_file')}
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="bg-accent/50 rounded-full p-4">
-                            <Upload className="text-primary h-10 w-10" />
-                          </div>
-                          <div className="space-y-2">
-                            <p className="text-foreground text-lg font-medium">
-                              {t('cv_upload.file_input_placeholder')}
-                            </p>
-                            <p className="text-muted-foreground text-sm">
-                              {t('cv_upload.file_requirements')}
-                            </p>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
+    <>
+      <div className="min-h-screen px-6 py-16">
+        <div className="mx-auto max-w-5xl">
+          {/* Header */}
+          <div className="mb-16 text-center">
+            <h1 className="text-foreground mb-4 text-3xl font-bold md:text-4xl lg:text-5xl">
+              {currentStage === 'uploaded' ? t('cv_upload.cv_uploaded') : t('cv_upload.title')}
+            </h1>
+            <p className="text-muted-foreground text-lg leading-relaxed">
+              {currentStage === 'uploaded'
+                ? t('cv_upload.cv_uploaded_subtitle')
+                : t('cv_upload.subtitle')}
+            </p>
           </div>
-        </div>
 
-        {/* Benefits Section - Only show in upload state */}
-        {currentStage === 'upload' && (
-          <div className="grid gap-4 md:grid-cols-3">
-            {/* Smart Analysis */}
-            <div className="bg-card/50 border-accent/10 rounded-xl border p-5 shadow-sm backdrop-blur-sm transition-all duration-200 hover:shadow-md">
-              <div className="flex flex-col items-center space-y-3 text-center">
-                <div className="bg-accent/50 rounded-full p-3">
-                  <Brain className="text-primary h-5 w-5" />
-                </div>
-                <h4 className="text-foreground text-lg font-semibold">
-                  {t('cv_upload.benefits.smart_analysis.title')}
-                </h4>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {t('cv_upload.benefits.smart_analysis.subtitle')}
-                </p>
-              </div>
-            </div>
+          {/* Main Upload/CV Management Section */}
+          <div className="mb-12">
+            <div className="bg-card ring-accent/30 hover:ring-accent/50 rounded-2xl p-8 shadow-lg ring-1 transition-all duration-300 hover:shadow-xl">
+              <div className="text-center">
+                {currentStage === 'uploaded' && selectedFile ? (
+                  /* CV Uploaded State */
+                  <div className="space-y-6">
+                    {/* Uploaded File Display */}
+                    <div className="bg-card ring-primary/40 mx-auto flex w-full max-w-md items-center space-x-4 space-x-reverse rounded-xl p-6 shadow-lg ring-1">
+                      <div className="bg-primary/8 rounded-full p-3">
+                        <FileText className="text-primary h-8 w-8" />
+                      </div>
+                      <div className="flex-1 text-right">
+                        <p className="text-foreground mb-1 truncate text-lg font-semibold">
+                          {selectedFile.name}
+                        </p>
+                        <p className="text-muted-foreground text-sm">
+                          {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                    </div>
 
-            {/* Tailored Matches */}
-            <div className="bg-card/50 border-accent/10 rounded-xl border p-5 shadow-sm backdrop-blur-sm transition-all duration-200 hover:shadow-md">
-              <div className="flex flex-col items-center space-y-3 text-center">
-                <div className="bg-accent/50 rounded-full p-3">
-                  <Target className="text-primary h-5 w-5" />
-                </div>
-                <h4 className="text-foreground text-lg font-semibold">
-                  {t('cv_upload.benefits.tailored_matches.title')}
-                </h4>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {t('cv_upload.benefits.tailored_matches.subtitle')}
-                </p>
-              </div>
-            </div>
+                    {/* Action Buttons */}
+                    <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+                      <Button
+                        onClick={handleViewCV}
+                        variant="outline"
+                        size="lg"
+                        className="rounded-xl px-6 py-4 text-base font-medium shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                      >
+                        <Eye className="mr-2 h-4 w-4" />
+                        {t('cv_upload.view_cv')}
+                      </Button>
 
-            {/* Full Control */}
-            <div className="bg-card/50 border-accent/10 rounded-xl border p-5 shadow-sm backdrop-blur-sm transition-all duration-200 hover:shadow-md">
-              <div className="flex flex-col items-center space-y-3 text-center">
-                <div className="bg-accent/50 rounded-full p-3">
-                  <Settings className="text-primary h-5 w-5" />
-                </div>
-                <h4 className="text-foreground text-lg font-semibold">
-                  {t('cv_upload.benefits.full_control.title')}
-                </h4>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {t('cv_upload.benefits.full_control.subtitle')}
-                </p>
+                      <Button
+                        onClick={handleDeleteFile}
+                        variant="outline"
+                        size="lg"
+                        className="border-destructive/20 text-destructive hover:bg-destructive/10 rounded-xl px-6 py-4 text-base font-medium shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        {t('cv_upload.delete_cv')}
+                      </Button>
+
+                      <Button
+                        onClick={handleStartJobSearch}
+                        size="lg"
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-10 py-4 text-lg font-semibold shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                      >
+                        <Search className="mr-2 h-5 w-5" />
+                        {t('cv_upload.start_job_search')}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Upload State */
+                  <>
+                    {/* File Input Area */}
+                    <div
+                      {...getRootProps()}
+                      className={`relative mb-6 cursor-pointer rounded-xl border-2 border-dashed p-10 transition-all duration-300 ${
+                        isDragActive
+                          ? isDragAccept
+                            ? 'border-primary bg-primary/8 shadow-lg'
+                            : 'border-destructive bg-destructive/8 shadow-lg'
+                          : selectedFile
+                            ? 'border-primary/50 bg-primary/3'
+                            : 'border-border bg-accent/10 hover:border-primary/30 hover:bg-accent/20'
+                      } ${isUploading ? 'pointer-events-none opacity-50' : ''}`}
+                    >
+                      <input {...getInputProps()} disabled={isUploading} />
+
+                      <div className="flex flex-col items-center space-y-4">
+                        {isUploading ? (
+                          <div className="space-y-3">
+                            <div className="bg-accent/50 rounded-full p-4">
+                              <div className="border-primary h-10 w-10 animate-spin rounded-full border-t-2 border-b-2"></div>
+                            </div>
+                            <div className="space-y-2">
+                              <p className="text-foreground text-lg font-medium">
+                                {t('cv_upload.uploading.title')}
+                              </p>
+                              <p className="text-muted-foreground text-sm">
+                                {t('cv_upload.uploading.subtitle')}
+                              </p>
+                            </div>
+                          </div>
+                        ) : selectedFile ? (
+                          <div className="bg-card ring-accent/30 flex w-full max-w-md items-center space-x-4 space-x-reverse rounded-xl p-6 shadow-lg ring-1">
+                            <div className="bg-accent/50 rounded-full p-3">
+                              <FileText className="text-primary h-8 w-8" />
+                            </div>
+                            <div className="flex-1 text-right">
+                              <p className="text-foreground mb-1 truncate text-lg font-semibold">
+                                {selectedFile.name}
+                              </p>
+                              <p className="text-muted-foreground text-sm">
+                                {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                              </p>
+                            </div>
+                            <button
+                              onClick={e => {
+                                e.stopPropagation();
+                                handleDeleteFile();
+                              }}
+                              className="bg-destructive/10 text-destructive hover:bg-destructive/20 rounded-full p-2 transition-colors"
+                              title={t('cv_upload.delete_file')}
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="bg-accent/50 rounded-full p-4">
+                              <Upload className="text-primary h-10 w-10" />
+                            </div>
+                            <div className="space-y-2">
+                              <p className="text-foreground text-lg font-medium">
+                                {t('cv_upload.file_input_placeholder')}
+                              </p>
+                              <p className="text-muted-foreground text-sm">
+                                {t('cv_upload.file_requirements')}
+                              </p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
-        )}
+
+          {/* Benefits Section - Only show in upload state */}
+          {currentStage === 'upload' && (
+            <div className="grid gap-4 md:grid-cols-3">
+              {/* Smart Analysis */}
+              <div className="bg-card/50 border-accent/10 rounded-xl border p-5 shadow-sm backdrop-blur-sm transition-all duration-200 hover:shadow-md">
+                <div className="flex flex-col items-center space-y-3 text-center">
+                  <div className="bg-accent/50 rounded-full p-3">
+                    <Brain className="text-primary h-5 w-5" />
+                  </div>
+                  <h4 className="text-foreground text-lg font-semibold">
+                    {t('cv_upload.benefits.smart_analysis.title')}
+                  </h4>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    {t('cv_upload.benefits.smart_analysis.subtitle')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Tailored Matches */}
+              <div className="bg-card/50 border-accent/10 rounded-xl border p-5 shadow-sm backdrop-blur-sm transition-all duration-200 hover:shadow-md">
+                <div className="flex flex-col items-center space-y-3 text-center">
+                  <div className="bg-accent/50 rounded-full p-3">
+                    <Target className="text-primary h-5 w-5" />
+                  </div>
+                  <h4 className="text-foreground text-lg font-semibold">
+                    {t('cv_upload.benefits.tailored_matches.title')}
+                  </h4>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    {t('cv_upload.benefits.tailored_matches.subtitle')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Full Control */}
+              <div className="bg-card/50 border-accent/10 rounded-xl border p-5 shadow-sm backdrop-blur-sm transition-all duration-200 hover:shadow-md">
+                <div className="flex flex-col items-center space-y-3 text-center">
+                  <div className="bg-accent/50 rounded-full p-3">
+                    <Settings className="text-primary h-5 w-5" />
+                  </div>
+                  <h4 className="text-foreground text-lg font-semibold">
+                    {t('cv_upload.benefits.full_control.title')}
+                  </h4>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    {t('cv_upload.benefits.full_control.subtitle')}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+      <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('pricing.upgrade_modal.title')}</DialogTitle>
+            <DialogDescription>{t('pricing.upgrade_modal.subtitle')}</DialogDescription>
+          </DialogHeader>
+          <div className="mt-4">
+            <div className="font-semibold mb-2">{t('pricing.upgrade_modal.features_title')}</div>
+            <ul className="mb-4 list-disc list-inside text-sm">
+              <li>{t('pricing.upgrade_modal.features.0')}</li>
+              <li>{t('pricing.upgrade_modal.features.1')}</li>
+              <li>{t('pricing.upgrade_modal.features.2')}</li>
+            </ul>
+            <div className="text-xs text-muted-foreground mb-2">
+              {t('pricing.upgrade_modal.note')}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleUpgradeModalClose}>{t('pricing.upgrade_modal.button')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
