@@ -1,5 +1,11 @@
 'use client';
-import { LayoutDashboard, Briefcase, UserCircle, Settings } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Briefcase,
+  User,
+  Settings,
+  Upload,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import {
@@ -44,8 +50,9 @@ export function SideNavMain({ customMenuItems, showDefaultMenu = true }: SideNav
       groupTranslationKey: 'menu',
       items: [
         { href: '/dashboard', icon: LayoutDashboard, translationKey: 'dashboard' },
+        { href: '/dashboard/uploads', icon: Upload, translationKey: 'uploads' },
         { href: '/dashboard/jobs', icon: Briefcase, translationKey: 'jobs' },
-        { href: '/dashboard/profile', icon: UserCircle, translationKey: 'profile' },
+        { href: '/dashboard/profile', icon: User, translationKey: 'profile' },
       ],
     },
     {

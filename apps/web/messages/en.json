@@ -114,6 +114,7 @@
     "menu": "Menu",
     "more": "More",
     "dashboard": "Dashboard",
+    "uploads": "My Uploads",
     "jobs": "Jobs",
     "profile": "Profile",
     "settings": "Settings",
@@ -193,6 +194,46 @@
         "cv_deleted": "CV deleted successfully!"
       },
       "delete_file": "Delete file"
+    },
+    "uploads_history": {
+      "title": "My Uploads",
+      "subtitle": "View and manage your CV uploads and job search history",
+      "loading": {
+        "title": "Loading your uploads..."
+      },
+      "upload_new_button": "Upload New Resume",
+      "upload_new": {
+        "title": "Upload New Resume",
+        "subtitle": "Drag PDF file here or click to select"
+      },
+      "empty_state": {
+        "title": "No uploads yet",
+        "description": "Upload your first CV to start your job search journey",
+        "cta": "Go to Dashboard"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "uploaded": "Uploaded",
+      "jobs_found": "Jobs found",
+      "last_search": "Last search",
+      "search_summary": {
+        "title": "Search Results",
+        "item": "{date}: {count} jobs ({relevant} relevant)",
+        "more": "+{count} more searches"
+      },
+      "actions": {
+        "view": "View",
+        "view_results": "Results",
+        "delete": "Delete"
+      },
+      "delete_confirm": "Are you sure you want to delete {fileName}? This action cannot be undone.",
+      "date_format": {
+        "yesterday": "Yesterday",
+        "days_ago": "{days} days ago",
+        "weeks_ago": "{weeks} weeks ago"
+      }
     },
     "workflow": {
       "title": "Processing Your Resume",

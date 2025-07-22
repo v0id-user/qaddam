@@ -14,7 +14,7 @@ import type { Id } from '@qaddam/backend/convex/_generated/dataModel';
 import { toast } from 'react-hot-toast';
 import type { WorkflowId } from '@qaddam/backend/convex/jobs/workflow';
 import { useQueryState } from 'nuqs';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useLogger } from '@/lib/axiom/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 

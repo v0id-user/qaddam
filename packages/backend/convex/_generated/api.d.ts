@@ -56,6 +56,7 @@ import type * as types_job_types from "../types/job_types.js";
 import type * as types_jobs from "../types/jobs.js";
 import type * as types_workflow from "../types/workflow.js";
 import type * as upload from "../upload.js";
+import type * as user_data from "../user_data.js";
 import type * as users from "../users.js";
 import type * as usersConfig from "../usersConfig.js";
 import type * as workflow_status from "../workflow_status.js";
@@ -123,6 +124,7 @@ declare const fullApi: ApiFromModules<{
   "types/jobs": typeof types_jobs;
   "types/workflow": typeof types_workflow;
   upload: typeof upload;
+  user_data: typeof user_data;
   users: typeof users;
   usersConfig: typeof usersConfig;
   workflow_status: typeof workflow_status;
