@@ -7,6 +7,7 @@ import { useQueryState } from 'nuqs';
 import { useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { trackEvent } from '@/analytics/client';
+import { useRouter } from 'next/navigation';
 
 const GoogleIcon = () => (
   <svg
@@ -148,7 +149,7 @@ const TesterSignPage = () => {
   const t = useTranslations('auth');
   const { signIn } = useAuthActions();
   const [plan] = useQueryState('p');
-
+  const router = useRouter();
   // Prevent duplicate toasts by using a ref to track if we've already shown it for this plan
   const toastShownRef = useRef<string | null>(null);
 
@@ -184,7 +185,11 @@ const TesterSignPage = () => {
       toastShownRef.current = null;
     }
   }, [plan, t]);
-
+  
+  if(process.env.NEXT_PUBLIC_ENV !== 'development') {
+    router.push('/dashboard');
+  }
+  
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4">
       {/* Tester Announcement Banner */}
