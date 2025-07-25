@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import type { JobResult } from '@qaddam/backend/convex/types/jobs';
 import { api } from '@qaddam/backend/convex/_generated/api';
-import { useQuery } from 'convex/react';
+import { useQuery, useMutation } from 'convex/react';
 import { getJobTypeKey, getJobTypeColor, getMatchScoreColor } from '@/lib/enum-translations';
 import LinkedIn from '@/components/logos/linkedin';
 import Indeed from '@/components/logos/indeed';
@@ -14,14 +14,19 @@ import Indeed from '@/components/logos/indeed';
 interface JobCardProps {
   job: JobResult;
   onClick: () => void;
+  isSaved?: boolean;
+  onSaveToggle?: (jobId: string, currentlySaved: boolean) => void;
 }
 
-const JobCard = ({ job, onClick }: JobCardProps) => {
+const JobCard = ({ job, onClick, isSaved = false, onSaveToggle }: JobCardProps) => {
   const t = useTranslations('dashboard');
-  const [isSaved, setIsSaved] = useState(false);
   const jobListing = useQuery(api.job_data.getJobListing, {
     jobListingId: job.jobListingId,
   });
+
+  // Mutations for saving/unsaving jobs
+  const saveJobMutation = useMutation(api.profile.saveJob);
+  const unsaveJobMutation = useMutation(api.profile.unsaveJob);
 
   const getJobTypeDisplay = () => {
     // Default to full_time since extractedData is not available yet
@@ -48,9 +53,24 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
     return date.toLocaleDateString();
   };
 
-  const handleSaveJob = (e: React.MouseEvent) => {
+  const handleSaveJob = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsSaved(!isSaved);
+    
+    if (onSaveToggle) {
+      // Use parent's save toggle handler if provided
+      onSaveToggle(job.jobListingId, isSaved);
+    } else {
+      // Handle save/unsave directly if no parent handler
+      try {
+        if (isSaved) {
+          await unsaveJobMutation({ jobListingId: job.jobListingId as any });
+        } else {
+          await saveJobMutation({ jobListingId: job.jobListingId as any });
+        }
+      } catch (error) {
+        console.error('Error saving/unsaving job:', error);
+      }
+    }
   };
 
   if (!jobListing) {
@@ -112,7 +132,7 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
               ? 'bg-red-50 text-red-600 hover:bg-red-100'
               : 'bg-accent/10 text-muted-foreground hover:bg-accent/20'
           }`}
-          title={t('job_results.save_job')}
+          title={isSaved ? t('job_results.unsave_job') : t('job_results.save_job')}
         >
           <Heart className={`h-4 w-4 ${isSaved ? 'fill-current' : ''}`} />
         </button>

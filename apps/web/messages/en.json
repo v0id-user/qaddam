@@ -297,6 +297,7 @@
       "view_details": "View Details",
       "apply_now": "Apply Now",
       "save_job": "Save Job",
+      "unsave_job": "Remove from Saved",
       "upload_new_cv": "Upload New CV",
       "job_types": {
         "full_time": "Full Time",
@@ -395,15 +396,54 @@
         "subtitle": "Please wait while we fetch your job matches"
       },
       "errors": {
-        "no_results": "No job results found for this workflow.",
+        "no_results": "No jobs found matching your search criteria.",
+        "no_jobs_available": "No jobs available at the moment.",
         "cv_not_found": "CV or user not found",
-        "workflow_start_failed": "Failed to start job search workflow"
+        "workflow_start_failed": "Failed to start job search workflow",
+        "save_failed": "Failed to save job. Please try again."
       },
       "messages": {
         "workflow_starting": "🚀 Starting job search workflow...",
         "workflow_completed": "🎉 Job search completed!"
       },
-      "ai_disclaimer": "AI analysis may contain errors. Please verify all information independently."
+      "ai_disclaimer": "AI analysis may contain errors. Please verify all information independently.",
+      "browse_jobs": "Browse Jobs",
+      "browse_subtitle": "Discover opportunities from top companies and startups",
+      "search_placeholder": "Search by job title, skills, or keywords...",
+      "location_placeholder": "Location (city, state, remote...)",
+      "company_placeholder": "Company name...",
+      "popular_companies": "Popular Companies",
+      "show_more": "Show More",
+      "show_less": "Show Less",
+      "custom_company_placeholder": "Enter custom company name...",
+      "add_company": "Add",
+      "active_filters": "Active filters",
+      "showing_results": "Showing {count} of {total} jobs",
+      "loading_failed": "Failed to load jobs",
+      "retry": "Retry",
+      "clear_filters": "Clear All Filters",
+      "load_more": "Load More Jobs",
+      "job_saved": "Job saved to favorites!",
+      "job_unsaved": "Job removed from favorites"
+    },
+    "profile": {
+      "saved_jobs": {
+        "title": "Saved Jobs",
+        "subtitle": "Your favorite job opportunities",
+        "count": "{count} saved jobs",
+        "loading": "Loading your saved jobs...",
+        "select_all": "Select All",
+        "deselect_all": "Deselect All",
+        "selected": "{count} selected",
+        "remove_selected": "Remove Selected",
+        "bulk_removed": "{count} jobs removed from saved",
+        "saved_on": "Saved on {date}",
+        "empty": {
+          "title": "No Saved Jobs Yet",
+          "description": "Start browsing jobs and save the ones you're interested in. They'll appear here for easy access.",
+          "browse_jobs": "Browse Jobs"
+        }
+      }
     },
     "survey": {
       "title": "Job Search Profile",

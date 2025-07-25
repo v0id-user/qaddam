@@ -43,6 +43,7 @@ import type * as listings_action from "../listings/action.js";
 import type * as listings_mutation from "../listings/mutation.js";
 import type * as listings_query from "../listings/query.js";
 import type * as polar from "../polar.js";
+import type * as profile from "../profile.js";
 import type * as ratelimiter from "../ratelimiter.js";
 import type * as schemas_auth from "../schemas/auth.js";
 import type * as schemas_jobs from "../schemas/jobs.js";
@@ -111,6 +112,7 @@ declare const fullApi: ApiFromModules<{
   "listings/mutation": typeof listings_mutation;
   "listings/query": typeof listings_query;
   polar: typeof polar;
+  profile: typeof profile;
   ratelimiter: typeof ratelimiter;
   "schemas/auth": typeof schemas_auth;
   "schemas/jobs": typeof schemas_jobs;
