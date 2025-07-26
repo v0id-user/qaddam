@@ -4,7 +4,8 @@ import { action } from "./_generated/server";
 
 export const polar = new Polar(components.polar, {
 	products: {
-		premiumMonthly: process.env.POLAR_PRODUCT!,
+		// TODO: This is not good
+		premiumMonthly: "16fcf411-9973-4973-ad6d-c334eec1ef8a",//process.env.POLAR_PRODUCT!,
 	},
 	getUserInfo: async (ctx): Promise<{ userId: string; email: string }> => {
 		const user = await ctx.runQuery(api.users.getUser);
