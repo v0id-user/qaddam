@@ -130,7 +130,7 @@ export const startJobSearchWorkflow = action({
 		// Get the usage row for this user/month
 		const usage = await ctx.runQuery(internal.user_usage.getUsage, {
 			userId: me._id!,
-			startDate: me.subscriptionDate!,
+			startDate: me.subscriptionDate ?? me._creationTime!,
 		});
 
 		if (!usage) {
@@ -148,7 +148,7 @@ export const startJobSearchWorkflow = action({
 		// Increment job search count for this user/month
 		await ctx.runMutation(internal.user_usage.incrementJobSearchCount, {
 			userId: me._id!,
-			startDate: me.subscriptionDate!,
+			startDate: me.subscriptionDate ?? me._creationTime!,
 		});
 
 		// Create a tracking id for the workflow
