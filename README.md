@@ -88,3 +88,31 @@ qaddam/
 - `bun dev:web`: Start only the web application
 - `bun dev:setup`: Setup and configure your Convex project
 - `bun check-types`: Check TypeScript types across all apps
+
+# Self hosting
+
+You can self host the project by following the [Self hosting guide](./SelfHost.md).
+
+# How much does it cost to run this project?
+
+It's not much. Most of the cloud providers offer really good free tiers. But apify righfuly so can be little pricey.
+Check [COSTS.md](./COSTS.md) for more details.
+
+
+# Legal stuff
+
+## Can I use this commercially?
+
+Yes! — **you can use and sell this as a commercial product**, as long as you comply with the terms of the [GPLv3 License](./LICENSE.md):
+
+* You **must disclose your source code**
+* You **must retain the same license (GPLv3)**
+* You **must clearly state any modifications you make**
+
+However, **all visual assets** (logos, icons, screenshots, etc.) are **not part of the open-source license**. They are the property of the original author and **may not be reused, redistributed, or repurposed** in any form.
+
+See [ASSETS-LICENSE.md](./ASSETS-LICENSE.md) for details.
+
+Any violation of the license will result in DMCA.
+
+> **Note:** This isn’t gatekeeping — it’s about keeping open source healthy, even for small projects like mine.

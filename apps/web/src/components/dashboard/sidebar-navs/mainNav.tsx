@@ -49,10 +49,10 @@ export function SideNavMain({ customMenuItems, showDefaultMenu = true }: SideNav
         { href: '/dashboard/profile', icon: User, translationKey: 'profile' },
       ],
     },
-    {
-      groupTranslationKey: 'more',
-      items: [{ href: '/dashboard/settings', icon: Settings, translationKey: 'settings' }],
-    },
+    // {
+    //   groupTranslationKey: 'more',
+    //   items: [{ href: '/dashboard/settings', icon: Settings, translationKey: 'settings' }],
+    // },
   ];
 
   const menuItems = showDefaultMenu ? defaultMenuItems : [];
