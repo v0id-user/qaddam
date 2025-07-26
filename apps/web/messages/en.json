@@ -5,7 +5,7 @@
   },
   "landing": {
     "hero": {
-      "title": "Paste your resume, hack your job search.",
+      "title": "Paste your resume, help your job search.",
       "subtitle": "A tool for devs, not a black box.",
       "description": "No hype. Just a simple, open source job search assistant for engineers.",
       "cta_unauthenticated": "Try it Free",

@@ -1,6 +1,6 @@
 # Qaddam - AI-Powered Job Search & Resume Matching
 
-**Paste your resume, hack your job search.**
+~~**Paste your resume, hack your job search.**~~ Just a Utility to help search process.
 
 Qaddam is an AI-native job search platform designed specifically for developers and engineers. Built by a developer for developers, it eliminates the need to manually browse LinkedIn or Indeed by providing intelligent resume matching and automated job discovery.
 
