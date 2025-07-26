@@ -29,6 +29,7 @@ export const aiSearchJobs = internalAction({
 			preferred_locations: v.array(v.string()),
 		}), // Original profile from step 1
 		workflowTrackingId: v.string(),
+		usageCount: v.number(),
 	},
 	handler: async (
 		ctx,
@@ -284,8 +285,9 @@ export const aiSearchJobs = internalAction({
 			);
 
 			// Update the AI prompt to include full CV skills for comparison
+			// If the user is pro and has less than 10 searches, use gpt-4o, otherwise use gpt-4o-mini
 			const batchAnalysis = await generateObject({
-				model: openai.chat(user?.isPro ? "gpt-4o" : "gpt-4o-mini", {
+				model: openai.chat(user?.isPro && args.usageCount < 10 ? "gpt-4o" : "gpt-4o-mini", {
 					structuredOutputs: true,
 				}),
 				messages: [

@@ -21,6 +21,7 @@ export const jobSearchWorkflow = workflow.define({
 		cv_storage_id: v.id("_storage"),
 		userId: v.id("users"),
 		workflowTrackingId: v.string(),
+		usageCount: v.number(),
 	},
 	handler: async (
 		step,
@@ -57,6 +58,7 @@ export const jobSearchWorkflow = workflow.define({
 				cvProfile,
 				userId: args.userId,
 				workflowTrackingId: args.workflowTrackingId,
+				usageCount: args.usageCount,
 			},
 		);
 
@@ -166,6 +168,7 @@ export const startJobSearchWorkflow = action({
 				cv_storage_id: args.cv_storage_id,
 				userId: me._id!,
 				workflowTrackingId,
+				usageCount: usage.jobSearchCount,
 			},
 		);
 
