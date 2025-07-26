@@ -1,5 +1,5 @@
 'use client';
-import { LayoutDashboard, Briefcase, User, Settings, Upload } from 'lucide-react';
+import { LayoutDashboard, Briefcase, User, Upload } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import {

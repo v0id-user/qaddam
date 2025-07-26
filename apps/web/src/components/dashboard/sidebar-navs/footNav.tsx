@@ -18,9 +18,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   MoreVerticalIcon,
-  UserCircleIcon,
   CreditCardIcon,
-  BellIcon,
   LogOutIcon,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -91,19 +89,9 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
       groupTranslationKey: 'account_section',
       items: [
         {
-          icon: UserCircleIcon,
-          translationKey: 'account',
-          onClick: () => logger.info('Navigate to account settings user: ' + user.email),
-        },
-        {
           icon: CreditCardIcon,
           translationKey: 'billing',
           onClick: () => logger.info('Navigate to billing user: ' + user.email),
-        },
-        {
-          icon: BellIcon,
-          translationKey: 'notifications',
-          onClick: () => logger.info('Navigate to notifications user: ' + user.email),
         },
       ],
     },
