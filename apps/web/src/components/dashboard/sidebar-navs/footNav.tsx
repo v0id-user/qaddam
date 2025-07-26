@@ -30,6 +30,7 @@ import posthog from 'posthog-js';
 import { useLogger } from '@/lib/axiom/client';
 import { CustomerPortalLink } from '@convex-dev/polar/react';
 import { api } from '@qaddam/backend/convex/_generated/api';
+import { useRouter } from 'next/navigation';
 
 export interface UserMenuItemConfig {
   icon: LucideIcon;
@@ -66,13 +67,25 @@ const ProBadge = () => (
   </span>
 );
 
+const UpgradeBadge = ({ message, onClick }: { message: string; onClick?: () => void }) => (
+  <span
+    className="ml-1 inline-flex items-center rounded bg-gradient-to-r from-orange-500 to-red-400 px-2 py-0.5 text-xs font-semibold text-white shadow cursor-pointer hover:from-orange-600 hover:to-red-500 transition-colors"
+    style={{ verticalAlign: 'middle' }}
+    title={message}
+    aria-label={message}
+    onClick={onClick}
+  >
+    ↗
+  </span>
+);
+
 const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNavFooterProps) => {
   const logger = useLogger();
   const { signOut } = useAuthActions();
   const t = useTranslations('sidebar.user_menu');
   const locale = useLocale();
   const isRTL = locale === 'ar';
-
+  const router = useRouter();
   const defaultMenuItems: UserMenuGroupConfig[] = [
     {
       groupTranslationKey: 'account_section',
@@ -130,7 +143,14 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
           >
             <span className="flex items-center truncate font-medium">
               {user.name}
-              {user.isPro && <ProBadge />}
+              {user.isPro ? (
+                <ProBadge />
+              ) : (
+                <UpgradeBadge 
+                  message={t('upgrade_to_pro')}
+                  onClick={() => router.push('/dashboard/upgrade')}
+                />
+              )}
             </span>
             <span className="text-muted-foreground truncate text-xs">{user.email}</span>
           </div>
@@ -158,7 +178,14 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
             >
               <span className="flex items-center truncate font-medium">
                 {user.name}
-                {user.isPro && <ProBadge />}
+                {user.isPro ? (
+                  <ProBadge />
+                ) : (
+                  <UpgradeBadge 
+                    message={t('upgrade_to_pro')}
+                    onClick={() => logger.info('Navigate to upgrade page for user: ' + user.email)}
+                  />
+                )}
               </span>
               <span className="text-muted-foreground truncate text-xs">{user.email}</span>
             </div>

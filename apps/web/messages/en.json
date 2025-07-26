@@ -123,7 +123,8 @@
       "account": "Account",
       "billing": "Billing",
       "notifications": "Notifications",
-      "sign_out": "Sign Out"
+      "sign_out": "Sign Out",
+      "upgrade_to_pro": "Upgrade to the pro version"
     }
   },
   "auth": {
