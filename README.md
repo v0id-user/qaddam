@@ -2,11 +2,11 @@
 
 ~~**Paste your resume, hack your job search.**~~ Just a Utility to help search process.
 
-Qaddam is an AI-native job search platform designed specifically for developers and engineers. Built by a developer for developers, it eliminates the need to manually browse LinkedIn or Indeed by providing intelligent resume matching and automated job discovery.
+Qaddam is an AI-native job search platform designed specifically for developers and engineers. Built by a developer for developers, it help speed up the process of finding a job by providing intelligent resume matching and automated job discovery.
 
 ## About Qaddam
 
-Qaddam is not just another job board - it's a complete AI-powered job search assistant that:
+Qaddam is just another job board - it's a complete AI-powered job search assistant that:
 
 - **Analyzes your resume** using advanced AI to extract your skills, experience, and qualifications
 - **Matches you with relevant jobs** from multiple sources using intelligent algorithms
@@ -66,7 +66,7 @@ Then, run the development server:
 bun dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the web application.
 Your app will connect to the Convex cloud backend automatically.
 
 
