@@ -234,7 +234,7 @@ const UploadsHistory = ({ onViewResults }: UploadsHistoryProps) => {
                         </span>
                       </div>
                       <div className="space-y-1">
-                        {upload.searchResults.slice(0, 2).map((result) => (
+                        {upload.searchResults.slice(0, 2).map(result => (
                           <div key={result._id} className="text-xs text-blue-700">
                             {t('uploads_history.search_summary.item', {
                               date: formatDate(result.createdAt),

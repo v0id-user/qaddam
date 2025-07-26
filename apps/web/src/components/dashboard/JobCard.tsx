@@ -3,13 +3,13 @@
 import { useTranslations } from 'next-intl';
 import { MapPin, Clock, Briefcase, ExternalLink, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
 import type { JobResult } from '@qaddam/backend/convex/types/jobs';
 import { api } from '@qaddam/backend/convex/_generated/api';
 import { useQuery, useMutation } from 'convex/react';
 import { getJobTypeKey, getJobTypeColor, getMatchScoreColor } from '@/lib/enum-translations';
 import LinkedIn from '@/components/logos/linkedin';
 import Indeed from '@/components/logos/indeed';
+import type { Id } from '@qaddam/backend/convex/_generated/dataModel';
 
 interface JobCardProps {
   job: JobResult;
@@ -55,7 +55,7 @@ const JobCard = ({ job, onClick, isSaved = false, onSaveToggle }: JobCardProps) 
 
   const handleSaveJob = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (onSaveToggle) {
       // Use parent's save toggle handler if provided
       onSaveToggle(job.jobListingId, isSaved);
@@ -63,9 +63,9 @@ const JobCard = ({ job, onClick, isSaved = false, onSaveToggle }: JobCardProps) 
       // Handle save/unsave directly if no parent handler
       try {
         if (isSaved) {
-          await unsaveJobMutation({ jobListingId: job.jobListingId as any });
+          await unsaveJobMutation({ jobListingId: job.jobListingId as Id<'jobListings'> });
         } else {
-          await saveJobMutation({ jobListingId: job.jobListingId as any });
+          await saveJobMutation({ jobListingId: job.jobListingId as Id<'jobListings'> });
         }
       } catch (error) {
         console.error('Error saving/unsaving job:', error);
@@ -268,20 +268,27 @@ const JobCard = ({ job, onClick, isSaved = false, onSaveToggle }: JobCardProps) 
       {/* Actions */}
       <div className="flex gap-4">
         <Button
+          onClick={e => {
+            e.stopPropagation();
+            onClick();
+          }}
           size="sm"
           className="bg-primary text-primary-foreground hover:bg-primary/90 h-8 flex-1 text-xs"
         >
           {t('job_results.view_details')}
-          <ExternalLink className="ml-1 h-3 w-3" />
         </Button>
         <Button
-          onClick={() => window.open(jobListing.sourceUrl || '', '_blank')}
+          onClick={e => {
+            e.stopPropagation();
+            window.open(jobListing.sourceUrl || '', '_blank');
+          }}
           disabled={!jobListing.sourceUrl}
           size="sm"
           variant="outline"
           className="border-primary/20 text-primary hover:bg-primary/5 h-8 flex-1 text-xs"
         >
           {t('job_results.apply_now')}
+          <ExternalLink className="ml-1 h-3 w-3" />
         </Button>
       </div>
     </div>

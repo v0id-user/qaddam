@@ -1,24 +1,37 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useQueryState } from "nuqs";
+import { useQueryState } from 'nuqs';
 import { useState, useCallback, useEffect } from 'react';
-import { Search, MapPin, Building, ChevronDown, Heart, Loader2, ExternalLink, Calendar, DollarSign } from 'lucide-react';
+import {
+  Search,
+  MapPin,
+  Building,
+  ChevronDown,
+  Heart,
+  Loader2,
+  ExternalLink,
+  Calendar,
+  DollarSign,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { api } from "@qaddam/backend/convex/_generated/api";
+import { api } from '@qaddam/backend/convex/_generated/api';
+import type { Doc, Id } from '@qaddam/backend/convex/_generated/dataModel';
+import type { JobResult } from '@qaddam/backend/convex/types/jobs';
 import { toast } from 'react-hot-toast';
 import { useQuery, useMutation } from 'convex/react';
+import JobMatchInsights from '@/components/dashboard/JobMatchInsights';
 
 const FAANG_COMPANIES = [
   'Google',
-  'Meta', 
+  'Meta',
   'Amazon',
   'Netflix',
   'Apple',
   'Microsoft',
   'Tesla',
-  'OpenAI'
+  'OpenAI',
 ];
 
 // Debounce hook
@@ -41,15 +54,21 @@ function useDebounce<T>(value: T, delay: number): T {
 // Highlight search terms in text
 function highlightSearchTerms(text: string, searchTerm: string): string {
   if (!searchTerm || !text) return text;
-  
-  const terms = searchTerm.toLowerCase().split(' ').filter(term => term.length > 2);
+
+  const terms = searchTerm
+    .toLowerCase()
+    .split(' ')
+    .filter(term => term.length > 2);
   let highlightedText = text;
-  
+
   terms.forEach(term => {
     const regex = new RegExp(`(${term})`, 'gi');
-    highlightedText = highlightedText.replace(regex, '<mark class="bg-yellow-200 px-1 rounded">$1</mark>');
+    highlightedText = highlightedText.replace(
+      regex,
+      '<mark class="bg-yellow-200 px-1 rounded">$1</mark>'
+    );
   });
-  
+
   return highlightedText;
 }
 
@@ -58,11 +77,15 @@ export default function JobsPage() {
   const [searchKeyword, setSearchKeyword] = useQueryState('search', { defaultValue: '' });
   const [locationFilter, setLocationFilter] = useQueryState('location', { defaultValue: '' });
   const [companyFilter, setCompanyFilter] = useQueryState('company', { defaultValue: '' });
-  
+
   // Local state for UI
   const [showAllCompanies, setShowAllCompanies] = useState(false);
   const [customCompany, setCustomCompany] = useState('');
   const [savedJobs, setSavedJobs] = useState<Set<string>>(new Set());
+
+  // Job details modal state
+  const [selectedJob, setSelectedJob] = useState<JobResult | null>(null);
+  const [isInsightsOpen, setIsInsightsOpen] = useState(false);
 
   // Debounce search inputs for better UX
   const debouncedSearch = useDebounce(searchKeyword, 500);
@@ -83,41 +106,48 @@ export default function JobsPage() {
 
   // Loading state
   const isLoading = searchResults === undefined;
-  
+
   // Check if user is actively searching/filtering
   const hasActiveFilters = debouncedSearch || debouncedLocation || debouncedCompany;
-  const isSearching = (searchKeyword !== debouncedSearch) || 
-                     (locationFilter !== debouncedLocation) || 
-                     (companyFilter !== debouncedCompany);
+  const isSearching =
+    searchKeyword !== debouncedSearch ||
+    locationFilter !== debouncedLocation ||
+    companyFilter !== debouncedCompany;
 
   // Handle save/unsave job
-  const handleSaveJob = useCallback(async (jobId: string, currentlySaved: boolean) => {
-    try {
-      if (currentlySaved) {
-        // Unsave the job
-        await unsaveJobMutation({ jobListingId: jobId as any });
-        setSavedJobs(prev => {
-          const newSaved = new Set(prev);
-          newSaved.delete(jobId);
-          return newSaved;
-        });
-        toast.success(t('job_results.job_unsaved'));
-      } else {
-        // Save the job
-        await saveJobMutation({ jobListingId: jobId as any });
-        setSavedJobs(prev => new Set(prev).add(jobId));
-        toast.success(t('job_results.job_saved'));
+  const handleSaveJob = useCallback(
+    async (jobId: string, currentlySaved: boolean) => {
+      try {
+        if (currentlySaved) {
+          // Unsave the job
+          await unsaveJobMutation({ jobListingId: jobId as Id<'jobListings'> });
+          setSavedJobs(prev => {
+            const newSaved = new Set(prev);
+            newSaved.delete(jobId);
+            return newSaved;
+          });
+          toast.success(t('job_results.job_unsaved'));
+        } else {
+          // Save the job
+          await saveJobMutation({ jobListingId: jobId as Id<'jobListings'> });
+          setSavedJobs(prev => new Set(prev).add(jobId));
+          toast.success(t('job_results.job_saved'));
+        }
+      } catch (error) {
+        console.error('Error saving/unsaving job:', error);
+        toast.error(t('job_results.errors.save_failed'));
       }
-    } catch (error) {
-      console.error('Error saving/unsaving job:', error);
-      toast.error(t('job_results.errors.save_failed'));
-    }
-  }, [t, saveJobMutation, unsaveJobMutation]);
+    },
+    [t, saveJobMutation, unsaveJobMutation]
+  );
 
-  const handleCompanySelect = useCallback((company: string) => {
-    setCompanyFilter(company);
-    setCustomCompany('');
-  }, [setCompanyFilter]);
+  const handleCompanySelect = useCallback(
+    (company: string) => {
+      setCompanyFilter(company);
+      setCustomCompany('');
+    },
+    [setCompanyFilter]
+  );
 
   const handleCustomCompanySubmit = useCallback(() => {
     if (customCompany.trim()) {
@@ -132,6 +162,36 @@ export default function JobsPage() {
     setCompanyFilter('');
   }, [setSearchKeyword, setLocationFilter, setCompanyFilter]);
 
+  // Handle job details modal
+  const handleJobClick = useCallback((job: Doc<'jobListings'>) => {
+    // Convert job listing to JobResult format for the modal
+    const jobResult: JobResult = {
+      jobListingId: job._id,
+      benefits: [],
+      requirements: [],
+      matchedSkills: [],
+      missingSkills: [],
+      experienceMatch: 'good_match',
+      experienceMatchScore: 0.8,
+      experienceMatchReasons: [],
+      experienceGaps: [],
+      locationMatch: 'location_match',
+      locationMatchScore: 0.9,
+      locationMatchReasons: [],
+      workTypeMatch: true,
+      aiMatchReasons: [],
+      aiConcerns: [],
+      aiRecommendation: 'recommended',
+    };
+    setSelectedJob(jobResult);
+    setIsInsightsOpen(true);
+  }, []);
+
+  const handleCloseInsights = useCallback(() => {
+    setIsInsightsOpen(false);
+    setSelectedJob(null);
+  }, []);
+
   const formatDate = (timestamp: number | undefined) => {
     if (!timestamp) return t('job_results.date_format.unknown');
     const date = new Date(timestamp);
@@ -141,14 +201,15 @@ export default function JobsPage() {
 
     if (diffDays === 1) return t('job_results.date_format.yesterday');
     if (diffDays < 7) return t('job_results.date_format.days_ago', { days: diffDays });
-    if (diffDays < 30) return t('job_results.date_format.weeks_ago', { weeks: Math.floor(diffDays / 7) });
+    if (diffDays < 30)
+      return t('job_results.date_format.weeks_ago', { weeks: Math.floor(diffDays / 7) });
     return date.toLocaleDateString();
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background min-h-screen">
       {/* Header */}
-      <div className="border-b bg-card/50 px-6 py-6">
+      <div className="bg-card/50 border-b px-6 py-6">
         <div className="mx-auto max-w-7xl">
           <h1 className="text-foreground mb-2 text-2xl font-bold md:text-3xl">
             {t('job_results.browse_jobs')}
@@ -160,19 +221,19 @@ export default function JobsPage() {
       </div>
 
       {/* Search and Filters */}
-      <div className="border-b bg-card/30 px-6 py-4 sticky top-0 z-10 backdrop-blur-sm">
+      <div className="bg-card/30 sticky top-0 z-10 border-b px-6 py-4 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl space-y-4">
           {/* Search Bar */}
           <div className="relative">
-            <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <Input
               placeholder={t('job_results.search_placeholder')}
               value={searchKeyword}
-              onChange={(e) => setSearchKeyword(e.target.value)}
-              className="pl-10 pr-4"
+              onChange={e => setSearchKeyword(e.target.value)}
+              className="pr-4 pl-10"
             />
             {isSearching && (
-              <Loader2 className="text-muted-foreground absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin" />
+              <Loader2 className="text-muted-foreground absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 animate-spin" />
             )}
           </div>
 
@@ -180,23 +241,23 @@ export default function JobsPage() {
           <div className="flex flex-col gap-3 sm:flex-row">
             {/* Location Filter */}
             <div className="relative flex-1">
-              <MapPin className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+              <MapPin className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
               <Input
                 placeholder={t('job_results.location_placeholder')}
                 value={locationFilter}
-                onChange={(e) => setLocationFilter(e.target.value)}
-                className="pl-10 pr-4"
+                onChange={e => setLocationFilter(e.target.value)}
+                className="pr-4 pl-10"
               />
             </div>
 
             {/* Company Filter */}
             <div className="relative flex-1">
-              <Building className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+              <Building className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
               <Input
                 placeholder={t('job_results.company_placeholder')}
                 value={companyFilter}
-                onChange={(e) => setCompanyFilter(e.target.value)}
-                className="pl-10 pr-4"
+                onChange={e => setCompanyFilter(e.target.value)}
+                className="pr-4 pl-10"
               />
             </div>
           </div>
@@ -214,15 +275,17 @@ export default function JobsPage() {
                 className="text-primary hover:text-primary/80"
               >
                 {showAllCompanies ? t('job_results.show_less') : t('job_results.show_more')}
-                <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${showAllCompanies ? 'rotate-180' : ''}`} />
+                <ChevronDown
+                  className={`ml-1 h-3 w-3 transition-transform ${showAllCompanies ? 'rotate-180' : ''}`}
+                />
               </Button>
             </div>
-            
+
             <div className="flex flex-wrap gap-2">
-              {FAANG_COMPANIES.slice(0, showAllCompanies ? undefined : 5).map((company) => (
+              {FAANG_COMPANIES.slice(0, showAllCompanies ? undefined : 5).map(company => (
                 <Button
                   key={company}
-                  variant={companyFilter === company ? "default" : "outline"}
+                  variant={companyFilter === company ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => handleCompanySelect(company)}
                   className="text-xs"
@@ -237,8 +300,8 @@ export default function JobsPage() {
               <Input
                 placeholder={t('job_results.custom_company_placeholder')}
                 value={customCompany}
-                onChange={(e) => setCustomCompany(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleCustomCompanySubmit()}
+                onChange={e => setCustomCompany(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleCustomCompanySubmit()}
                 className="max-w-xs text-sm"
               />
               <Button
@@ -255,7 +318,9 @@ export default function JobsPage() {
           {/* Active Filters */}
           {hasActiveFilters && (
             <div className="flex flex-wrap gap-2 pt-2">
-              <span className="text-muted-foreground text-sm">{t('job_results.active_filters')}:</span>
+              <span className="text-muted-foreground text-sm">
+                {t('job_results.active_filters')}:
+              </span>
               {debouncedSearch && (
                 <Button
                   variant="secondary"
@@ -290,7 +355,7 @@ export default function JobsPage() {
                 variant="outline"
                 size="sm"
                 onClick={clearAllFilters}
-                className="h-6 px-2 text-xs ml-2"
+                className="ml-2 h-6 px-2 text-xs"
               >
                 {t('job_results.clear_filters')}
               </Button>
@@ -307,13 +372,13 @@ export default function JobsPage() {
             <p className="text-muted-foreground text-sm">
               {isLoading ? (
                 <>
-                  <Loader2 className="inline mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
                   {t('job_results.loading.title')}
                 </>
               ) : (
-                t('job_results.showing_results', { 
+                t('job_results.showing_results', {
                   count: searchResults?.jobs?.length || 0,
-                  total: searchResults?.totalCount || 0 
+                  total: searchResults?.totalCount || 0,
                 })
               )}
             </p>
@@ -331,12 +396,11 @@ export default function JobsPage() {
 
           {/* No Results */}
           {!isLoading && (!searchResults?.jobs || searchResults.jobs.length === 0) && (
-            <div className="text-center py-12">
+            <div className="py-12 text-center">
               <p className="text-muted-foreground mb-4">
-                {hasActiveFilters 
+                {hasActiveFilters
                   ? t('job_results.errors.no_results')
-                  : t('job_results.errors.no_jobs_available')
-                }
+                  : t('job_results.errors.no_jobs_available')}
               </p>
               {hasActiveFilters && (
                 <Button onClick={clearAllFilters} variant="outline">
@@ -349,43 +413,45 @@ export default function JobsPage() {
           {/* Job Listings - Clean Vertical Layout */}
           {!isLoading && searchResults?.jobs && searchResults.jobs.length > 0 && (
             <div className="space-y-4">
-              {searchResults.jobs.map((job) => (
+              {searchResults.jobs.map(job => (
                 <div key={job._id} className="relative">
                   <div className="group border-border bg-card hover:border-primary/20 cursor-pointer rounded-xl border p-6 shadow-sm transition-all duration-200 hover:shadow-md">
                     {/* Header */}
                     <div className="mb-4 flex items-start justify-between">
                       <div className="flex-1">
-                        <h3 
+                        <h3
                           className="text-foreground group-hover:text-primary mb-2 text-xl font-semibold transition-colors"
                           dangerouslySetInnerHTML={{
-                            __html: highlightSearchTerms(job.name, debouncedSearch)
+                            __html: highlightSearchTerms(job.name, debouncedSearch),
                           }}
                         />
                         <div className="mb-3 flex items-center space-x-4 space-x-reverse">
-                          <p 
-                            className="text-muted-foreground text-base font-medium flex items-center"
+                          <p
+                            className="text-muted-foreground flex items-center text-base font-medium"
                             dangerouslySetInnerHTML={{
-                              __html: highlightSearchTerms(job.sourceName || '', debouncedSearch)
+                              __html: highlightSearchTerms(job.sourceName || '', debouncedSearch),
                             }}
                           />
                           {job.source && (
-                            <span className="text-muted-foreground text-sm px-2 py-1 bg-accent/20 rounded">{job.source}</span>
+                            <span className="text-muted-foreground bg-accent/20 rounded px-2 py-1 text-sm">
+                              {job.source}
+                            </span>
                           )}
                         </div>
-                        
+
                         {/* Job Details */}
-                        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                        <div className="text-muted-foreground flex flex-wrap gap-4 text-sm">
                           {job.location && (
                             <div className="flex items-center space-x-1 space-x-reverse">
                               <MapPin className="h-4 w-4" />
-                              <span 
+                              <span
                                 dangerouslySetInnerHTML={{
-                                  __html: highlightSearchTerms(job.location, debouncedLocation)
+                                  __html: highlightSearchTerms(job.location, debouncedLocation),
                                 }}
                               />
                             </div>
                           )}
-                          
+
                           {job.salary && (
                             <div className="flex items-center space-x-1 space-x-reverse">
                               <DollarSign className="h-4 w-4" />
@@ -394,7 +460,7 @@ export default function JobsPage() {
                               </span>
                             </div>
                           )}
-                          
+
                           <div className="flex items-center space-x-1 space-x-reverse">
                             <Calendar className="h-4 w-4" />
                             <span>{formatDate(job.datePosted)}</span>
@@ -404,7 +470,7 @@ export default function JobsPage() {
 
                       {/* Save Button */}
                       <button
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
                           const isSaved = savedJobs.has(job._id);
                           handleSaveJob(job._id, isSaved);
@@ -414,19 +480,28 @@ export default function JobsPage() {
                             ? 'bg-red-50 text-red-600 hover:bg-red-100'
                             : 'bg-accent/10 text-muted-foreground hover:bg-accent/20'
                         }`}
-                        title={savedJobs.has(job._id) ? t('job_results.unsave_job') : t('job_results.save_job')}
+                        title={
+                          savedJobs.has(job._id)
+                            ? t('job_results.unsave_job')
+                            : t('job_results.save_job')
+                        }
                       >
-                        <Heart className={`h-5 w-5 ${savedJobs.has(job._id) ? 'fill-current' : ''}`} />
+                        <Heart
+                          className={`h-5 w-5 ${savedJobs.has(job._id) ? 'fill-current' : ''}`}
+                        />
                       </button>
                     </div>
 
                     {/* Job Description Preview */}
                     {job.description && (
                       <div className="mb-4">
-                        <p 
-                          className="text-muted-foreground text-sm line-clamp-2"
+                        <p
+                          className="text-muted-foreground line-clamp-2 text-sm"
                           dangerouslySetInnerHTML={{
-                            __html: highlightSearchTerms(job.description.slice(0, 200) + '...', debouncedSearch)
+                            __html: highlightSearchTerms(
+                              job.description.slice(0, 200) + '...',
+                              debouncedSearch
+                            ),
                           }}
                         />
                       </div>
@@ -435,7 +510,17 @@ export default function JobsPage() {
                     {/* Actions */}
                     <div className="flex gap-3">
                       <Button
-                        onClick={(e) => {
+                        onClick={e => {
+                          e.stopPropagation();
+                          handleJobClick(job);
+                        }}
+                        variant="outline"
+                        className="border-primary/20 text-primary hover:bg-primary/5"
+                      >
+                        {t('job_results.view_details')}
+                      </Button>
+                      <Button
+                        onClick={e => {
                           e.stopPropagation();
                           window.open(job.sourceUrl || '', '_blank');
                         }}
@@ -445,12 +530,6 @@ export default function JobsPage() {
                         {t('job_results.apply_now')}
                         <ExternalLink className="ml-2 h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="outline"
-                        className="border-primary/20 text-primary hover:bg-primary/5"
-                      >
-                        {t('job_results.view_details')}
-                      </Button>
                     </div>
                   </div>
                 </div>
@@ -459,6 +538,11 @@ export default function JobsPage() {
           )}
         </div>
       </div>
+
+      {/* Job Match Insights Modal */}
+      {isInsightsOpen && selectedJob && (
+        <JobMatchInsights job={selectedJob} onClose={handleCloseInsights} />
+      )}
     </div>
   );
 }

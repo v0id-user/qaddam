@@ -152,130 +152,156 @@ export const getJobResultsWithAnalysis = query({
 	},
 });
 
-
 export const getJobListings = query({
-  args: {
-    paginationOpts: paginationOptsValidator,
-  },
-  handler: async (ctx, args) => {
-    // Use cursor-based pagination as recommended by Convex, but limit to 50 results maximum
-    const limitedPaginationOpts = {
-      ...args.paginationOpts,
-      numItems: Math.min(args.paginationOpts.numItems, 50),
-    };
-    const results = await ctx.db
-      .query("jobListings")
-      .order("desc")
-      .paginate(limitedPaginationOpts);
-	  
-    return results;
-  },
+	args: {
+		paginationOpts: paginationOptsValidator,
+	},
+	handler: async (ctx, args) => {
+		// Use cursor-based pagination as recommended by Convex, but limit to 50 results maximum
+		const limitedPaginationOpts = {
+			...args.paginationOpts,
+			numItems: Math.min(args.paginationOpts.numItems, 50),
+		};
+		const results = await ctx.db
+			.query("jobListings")
+			.order("desc")
+			.paginate(limitedPaginationOpts);
+
+		return results;
+	},
 });
 
 // Search job listings with filters
 export const searchJobListings = query({
-  args: {
-    searchQuery: v.optional(v.string()),
-    companyName: v.optional(v.string()),
-    location: v.optional(v.string()),
-    limit: v.optional(v.number()),
-  },
-  handler: async (ctx, args): Promise<{ jobs: Doc<"jobListings">[]; totalCount: number }> => {
-    const user = await getAuthUserId(ctx);
-    if (!user) {
-      throw new Error("User not found unauthorized");
-    }
+	args: {
+		searchQuery: v.optional(v.string()),
+		companyName: v.optional(v.string()),
+		location: v.optional(v.string()),
+		limit: v.optional(v.number()),
+	},
+	handler: async (
+		ctx,
+		args,
+	): Promise<{ jobs: Doc<"jobListings">[]; totalCount: number }> => {
+		const user = await getAuthUserId(ctx);
+		if (!user) {
+			throw new Error("User not found unauthorized");
+		}
 
-    const limit = Math.min(args.limit || 20, 50); // Max 50 results
-    let results: Doc<"jobListings">[] = [];
+		const limit = Math.min(args.limit || 20, 50); // Max 50 results
+		let results: Doc<"jobListings">[] = [];
 
-    // If we have a search query, use the search indexes
-    if (args.searchQuery && args.searchQuery.trim()) {
-      const searchTerm = args.searchQuery.trim();
-      
-      // Search in job descriptions with filters
-      const descriptionQuery = ctx.db
-        .query("jobListings")
-        .withSearchIndex("search_description", (q) => {
-          let query = q.search("description", searchTerm);
-          
-          // Apply filters
-          if (args.companyName) {
-            query = query.eq("sourceName", args.companyName);
-          }
-          if (args.location) {
-            query = query.eq("location", args.location);
-          }
-          
-          return query;
-        });
+		// If we have a search query, use the search indexes
+		if (args.searchQuery && args.searchQuery.trim()) {
+			const searchTerm = args.searchQuery.trim();
 
-      // Search in job names/titles with filters
-      const nameQuery = ctx.db
-        .query("jobListings")
-        .withSearchIndex("search_name", (q) => {
-          let query = q.search("name", searchTerm);
-          
-          // Apply filters
-          if (args.companyName) {
-            query = query.eq("sourceName", args.companyName);
-          }
-          if (args.location) {
-            query = query.eq("location", args.location);
-          }
-          
-          return query;
-        });
+			// Search in job descriptions with filters
+			const descriptionQuery = ctx.db
+				.query("jobListings")
+				.withSearchIndex("search_description", (q) => {
+					let query = q.search("description", searchTerm);
 
-      const [descriptionResults, nameResults] = await Promise.all([
-        descriptionQuery.take(limit * 2),
-        nameQuery.take(limit * 2)
-      ]);
+					// Apply filters
+					if (args.companyName) {
+						query = query.eq("sourceName", args.companyName);
+					}
+					if (args.location) {
+						query = query.eq("location", args.location);
+					}
 
-      // Combine and deduplicate results
-      const allResults = [...descriptionResults, ...nameResults];
-      const uniqueResults = allResults.filter(
-        (job, index, self) => index === self.findIndex((j) => j._id === job._id)
-      );
+					return query;
+				});
 
-      results = uniqueResults.slice(0, limit);
-      
-      // If no search results, try fallback text matching
-      if (results.length === 0) {
-        const sampleJobs = await ctx.db.query("jobListings").take(100);
-        const searchTerms = searchTerm.toLowerCase().split(" ").filter(term => term.length > 2);
-        
-        const textMatchingJobs = sampleJobs.filter((job) => {
-          const jobText = `${job.name} ${job.description} ${job.sourceName || ""} ${job.location || ""}`.toLowerCase();
-          const matchesSearch = searchTerms.some(term => jobText.includes(term));
-          const matchesCompany = !args.companyName || 
-            (job.sourceName && job.sourceName.toLowerCase().includes(args.companyName.toLowerCase()));
-          const matchesLocation = !args.location || 
-            (job.location && job.location.toLowerCase().includes(args.location.toLowerCase()));
-          
-          return matchesSearch && matchesCompany && matchesLocation;
-        });
+			// Search in job names/titles with filters
+			const nameQuery = ctx.db
+				.query("jobListings")
+				.withSearchIndex("search_name", (q) => {
+					let query = q.search("name", searchTerm);
 
-        results = textMatchingJobs.slice(0, limit);
-      }
-    } else {
-      // No search query, just apply filters to all jobs
-      const allJobs = await ctx.db.query("jobListings").order("desc").take(limit * 2);
-      
-      // Apply filters in memory
-      results = allJobs.filter(job => {
-        const matchesCompany = !args.companyName || 
-          (job.sourceName && job.sourceName.toLowerCase().includes(args.companyName.toLowerCase()));
-        const matchesLocation = !args.location || 
-          (job.location && job.location.toLowerCase().includes(args.location.toLowerCase()));
-        
-        return matchesCompany && matchesLocation;
-      }).slice(0, limit);
-    }
+					// Apply filters
+					if (args.companyName) {
+						query = query.eq("sourceName", args.companyName);
+					}
+					if (args.location) {
+						query = query.eq("location", args.location);
+					}
 
-    return {
-      jobs: results,
-      totalCount: results.length
-    };
-  },
+					return query;
+				});
+
+			const [descriptionResults, nameResults] = await Promise.all([
+				descriptionQuery.take(limit * 2),
+				nameQuery.take(limit * 2),
+			]);
+
+			// Combine and deduplicate results
+			const allResults = [...descriptionResults, ...nameResults];
+			const uniqueResults = allResults.filter(
+				(job, index, self) =>
+					index === self.findIndex((j) => j._id === job._id),
+			);
+
+			results = uniqueResults.slice(0, limit);
+
+			// If no search results, try fallback text matching
+			if (results.length === 0) {
+				const sampleJobs = await ctx.db.query("jobListings").take(100);
+				const searchTerms = searchTerm
+					.toLowerCase()
+					.split(" ")
+					.filter((term) => term.length > 2);
+
+				const textMatchingJobs = sampleJobs.filter((job) => {
+					const jobText =
+						`${job.name} ${job.description} ${job.sourceName || ""} ${job.location || ""}`.toLowerCase();
+					const matchesSearch = searchTerms.some((term) =>
+						jobText.includes(term),
+					);
+					const matchesCompany =
+						!args.companyName ||
+						(job.sourceName &&
+							job.sourceName
+								.toLowerCase()
+								.includes(args.companyName.toLowerCase()));
+					const matchesLocation =
+						!args.location ||
+						(job.location &&
+							job.location.toLowerCase().includes(args.location.toLowerCase()));
+
+					return matchesSearch && matchesCompany && matchesLocation;
+				});
+
+				results = textMatchingJobs.slice(0, limit);
+			}
+		} else {
+			// No search query, just apply filters to all jobs
+			const allJobs = await ctx.db
+				.query("jobListings")
+				.order("desc")
+				.take(limit * 2);
+
+			// Apply filters in memory
+			results = allJobs
+				.filter((job) => {
+					const matchesCompany =
+						!args.companyName ||
+						(job.sourceName &&
+							job.sourceName
+								.toLowerCase()
+								.includes(args.companyName.toLowerCase()));
+					const matchesLocation =
+						!args.location ||
+						(job.location &&
+							job.location.toLowerCase().includes(args.location.toLowerCase()));
+
+					return matchesCompany && matchesLocation;
+				})
+				.slice(0, limit);
+		}
+
+		return {
+			jobs: results,
+			totalCount: results.length,
+		};
+	},
 });

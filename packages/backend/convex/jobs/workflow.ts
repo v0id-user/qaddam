@@ -142,13 +142,19 @@ export const startJobSearchWorkflow = action({
 
 		// Fire a scheduler to add new jobs listing based on user survey only if user is pro
 		if (me?.isPro) {
-			// await ctx.scheduler.runAfter(
-			// 	5000,
-			// 	internal.listings.action.addNewJobsListingAction,
-			// 	{
-			// 		userId: me?._id!,
-			// 	},
-			// );
+			const { ok, retryAfter } = await rateLimiter.limit(
+				ctx,
+				"freeTrialSignUp",
+			);
+			if (ok) {
+				await ctx.scheduler.runAfter(
+					5000,
+					internal.listings.action.addNewJobsListingAction,
+					{
+						userId: me?._id!,
+					},
+				);
+			}
 		}
 		console.log("Workflow started with ID:", { workflowId });
 		return { workflowTrackingId, workflowId };

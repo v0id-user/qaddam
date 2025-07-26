@@ -1,18 +1,24 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Heart, Loader2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { api } from "@qaddam/backend/convex/_generated/api";
+import { api } from '@qaddam/backend/convex/_generated/api';
 import { toast } from 'react-hot-toast';
 import { useQuery, useMutation } from 'convex/react';
 import JobCard from '@/components/dashboard/JobCard';
+import JobMatchInsights from '@/components/dashboard/JobMatchInsights';
 import type { JobResult } from '@qaddam/backend/convex/types/jobs';
+import type { Id } from '@qaddam/backend/convex/_generated/dataModel';
 
 export default function ProfilePage() {
   const t = useTranslations('dashboard');
   const [selectedJobs, setSelectedJobs] = useState<Set<string>>(new Set());
+
+  // Job details modal state
+  const [selectedJob, setSelectedJob] = useState<JobResult | null>(null);
+  const [isInsightsOpen, setIsInsightsOpen] = useState(false);
 
   // Get saved jobs
   const savedJobsData = useQuery(api.profile.getSavedJobs, {
@@ -24,35 +30,42 @@ export default function ProfilePage() {
   const unsaveJobMutation = useMutation(api.profile.unsaveJob);
 
   const isLoading = savedJobsData === undefined;
-  const savedJobs = savedJobsData?.savedJobs || [];
+  // Use useMemo to avoid changing dependencies on every render (see lint warning)
+  const savedJobs = useMemo(() => savedJobsData?.savedJobs || [], [savedJobsData]);
   const totalCount = savedJobsData?.totalCount || 0;
 
   // Handle removing a single job
-  const handleRemoveJob = useCallback(async (jobListingId: string) => {
-    try {
-      await unsaveJobMutation({ jobListingId: jobListingId as any });
-      toast.success(t('job_results.job_unsaved'));
-    } catch (error) {
-      console.error('Error removing saved job:', error);
-      toast.error(t('job_results.errors.save_failed'));
-    }
-  }, [unsaveJobMutation, t]);
+  const handleRemoveJob = useCallback(
+    async (jobListingId: string) => {
+      try {
+        await unsaveJobMutation({ jobListingId: jobListingId as Id<'jobListings'> });
+        toast.success(t('job_results.job_unsaved'));
+      } catch (error) {
+        console.error('Error removing saved job:', error);
+        toast.error(t('job_results.errors.save_failed'));
+      }
+    },
+    [unsaveJobMutation, t]
+  );
 
   // Handle save toggle from JobCard
-  const handleSaveToggle = useCallback((jobId: string, currentlySaved: boolean) => {
-    if (currentlySaved) {
-      handleRemoveJob(jobId);
-    }
-  }, [handleRemoveJob]);
+  const handleSaveToggle = useCallback(
+    (jobId: string, currentlySaved: boolean) => {
+      if (currentlySaved) {
+        handleRemoveJob(jobId);
+      }
+    },
+    [handleRemoveJob]
+  );
 
   // Handle bulk remove
   const handleBulkRemove = useCallback(async () => {
     if (selectedJobs.size === 0) return;
-    
+
     try {
       await Promise.all(
-        Array.from(selectedJobs).map(jobId => 
-          unsaveJobMutation({ jobListingId: jobId as any })
+        Array.from(selectedJobs).map(jobId =>
+          unsaveJobMutation({ jobListingId: jobId as Id<'jobListings'> })
         )
       );
       setSelectedJobs(new Set());
@@ -87,8 +100,19 @@ export default function ProfilePage() {
     setSelectedJobs(new Set());
   }, []);
 
+  // Handle job details modal
+  const handleJobClick = useCallback((job: JobResult) => {
+    setSelectedJob(job);
+    setIsInsightsOpen(true);
+  }, []);
+
+  const handleCloseInsights = useCallback(() => {
+    setIsInsightsOpen(false);
+    setSelectedJob(null);
+  }, []);
+
   // Convert saved job to JobResult format for JobCard
-  const convertToJobResult = (savedJob: typeof savedJobs[0]): JobResult => {
+  const convertToJobResult = (savedJob: (typeof savedJobs)[0]): JobResult => {
     return {
       jobListingId: savedJob.jobListing._id,
       benefits: [],
@@ -110,9 +134,9 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background min-h-screen">
       {/* Header */}
-      <div className="border-b bg-card/50 px-6 py-6">
+      <div className="bg-card/50 border-b px-6 py-6">
         <div className="mx-auto max-w-7xl">
           <div className="flex items-center justify-between">
             <div>
@@ -123,10 +147,10 @@ export default function ProfilePage() {
                 {t('profile.saved_jobs.subtitle')}
               </p>
             </div>
-            
+
             {!isLoading && totalCount > 0 && (
               <div className="flex items-center space-x-1 space-x-reverse">
-                <Heart className="text-red-500 h-5 w-5 fill-current" />
+                <Heart className="h-5 w-5 fill-current text-red-500" />
                 <span className="text-muted-foreground text-sm">
                   {t('profile.saved_jobs.count', { count: totalCount })}
                 </span>
@@ -138,7 +162,7 @@ export default function ProfilePage() {
 
       {/* Bulk Actions */}
       {!isLoading && savedJobs.length > 0 && (
-        <div className="border-b bg-card/30 px-6 py-4">
+        <div className="bg-card/30 border-b px-6 py-4">
           <div className="mx-auto max-w-7xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3 space-x-reverse">
@@ -147,12 +171,11 @@ export default function ProfilePage() {
                   size="sm"
                   onClick={selectedJobs.size === savedJobs.length ? clearSelection : selectAllJobs}
                 >
-                  {selectedJobs.size === savedJobs.length 
+                  {selectedJobs.size === savedJobs.length
                     ? t('profile.saved_jobs.deselect_all')
-                    : t('profile.saved_jobs.select_all')
-                  }
+                    : t('profile.saved_jobs.select_all')}
                 </Button>
-                
+
                 {selectedJobs.size > 0 && (
                   <span className="text-muted-foreground text-sm">
                     {t('profile.saved_jobs.selected', { count: selectedJobs.size })}
@@ -184,26 +207,24 @@ export default function ProfilePage() {
             <div className="flex items-center justify-center py-12">
               <div className="flex items-center space-x-3 space-x-reverse">
                 <Loader2 className="text-primary h-6 w-6 animate-spin" />
-                <span className="text-muted-foreground">
-                  {t('profile.saved_jobs.loading')}
-                </span>
+                <span className="text-muted-foreground">{t('profile.saved_jobs.loading')}</span>
               </div>
             </div>
           )}
 
           {/* Empty State */}
           {!isLoading && savedJobs.length === 0 && (
-            <div className="text-center py-12">
-              <div className="bg-accent/10 rounded-full p-6 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+            <div className="py-12 text-center">
+              <div className="bg-accent/10 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full p-6">
                 <Heart className="text-muted-foreground h-8 w-8" />
               </div>
-              <h3 className="text-foreground text-lg font-semibold mb-2">
+              <h3 className="text-foreground mb-2 text-lg font-semibold">
                 {t('profile.saved_jobs.empty.title')}
               </h3>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              <p className="text-muted-foreground mx-auto mb-6 max-w-md">
                 {t('profile.saved_jobs.empty.description')}
               </p>
-              <Button onClick={() => window.location.href = '/dashboard/jobs'}>
+              <Button onClick={() => (window.location.href = '/dashboard/jobs')}>
                 {t('profile.saved_jobs.empty.browse_jobs')}
               </Button>
             </div>
@@ -212,7 +233,7 @@ export default function ProfilePage() {
           {/* Saved Jobs Grid */}
           {!isLoading && savedJobs.length > 0 && (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {savedJobs.map((savedJob) => (
+              {savedJobs.map(savedJob => (
                 <div key={savedJob._id} className="relative">
                   {/* Selection Checkbox */}
                   <div className="absolute top-4 left-4 z-10">
@@ -220,25 +241,22 @@ export default function ProfilePage() {
                       type="checkbox"
                       checked={selectedJobs.has(savedJob.jobListing._id)}
                       onChange={() => toggleJobSelection(savedJob.jobListing._id)}
-                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                      className="text-primary focus:ring-primary h-4 w-4 rounded border-gray-300"
                     />
                   </div>
 
                   {/* Job Card */}
                   <JobCard
                     job={convertToJobResult(savedJob)}
-                    onClick={() => {
-                      // TODO: Open job details modal or navigate to job details
-                      console.log('Open job details for:', savedJob.jobListing._id);
-                    }}
+                    onClick={() => handleJobClick(convertToJobResult(savedJob))}
                     isSaved={true}
                     onSaveToggle={handleSaveToggle}
                   />
 
                   {/* Saved Date */}
-                  <div className="mt-2 text-xs text-muted-foreground text-center">
+                  <div className="text-muted-foreground mt-2 text-center text-xs">
                     {t('profile.saved_jobs.saved_on', {
-                      date: new Date(savedJob.savedAt).toLocaleDateString()
+                      date: new Date(savedJob.savedAt).toLocaleDateString(),
                     })}
                   </div>
                 </div>
@@ -247,6 +265,11 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+
+      {/* Job Match Insights Modal */}
+      {isInsightsOpen && selectedJob && (
+        <JobMatchInsights job={selectedJob} onClose={handleCloseInsights} />
+      )}
     </div>
   );
 }

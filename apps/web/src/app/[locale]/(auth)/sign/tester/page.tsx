@@ -185,11 +185,11 @@ const TesterSignPage = () => {
       toastShownRef.current = null;
     }
   }, [plan, t]);
-  
-  if(process.env.NEXT_PUBLIC_ENV !== 'development') {
+
+  if (process.env.NEXT_PUBLIC_ENV !== 'development') {
     router.push('/dashboard');
   }
-  
+
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4">
       {/* Tester Announcement Banner */}
