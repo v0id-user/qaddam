@@ -9,8 +9,8 @@ export const getUserCVUploads = query({
 	handler: async (ctx) => {
 		const userId = await getAuthUserId(ctx);
 		if (!userId) {
-            throw new Error("Not authenticated");
-        };
+			throw new Error("Not authenticated");
+		}
 
 		return await ctx.db
 			.query("cvUploads")
@@ -72,9 +72,9 @@ export const getUserJobSearchResults = query({
 export const getUserJobSearchResultsWithStats = query({
 	handler: async (ctx) => {
 		const userId = await getAuthUserId(ctx);
-		if (!userId){
-            throw new Error("Not authenticated");
-        };
+		if (!userId) {
+			throw new Error("Not authenticated");
+		}
 
 		const searchResults = await ctx.db
 			.query("jobSearchResults")

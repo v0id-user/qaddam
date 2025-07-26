@@ -98,12 +98,17 @@ export const startJobSearchWorkflow = action({
 		args,
 	): Promise<{ workflowTrackingId: string; workflowId: WorkflowId }> => {
 		const me = await ctx.runQuery(api.users.getMe);
+		if (!me) {
+			throw new Error("User not found");
+		}
+
 		console.log("Starting job search workflow with CV:", {
 			cv_storage_id: args.cv_storage_id,
 		});
 
+
 		// Rate limit for free and pro users
-		if (!me?.isPro) {
+		if (!me.isPro) {
 			const { ok, retryAfter } = await rateLimiter.limit(
 				ctx,
 				"freeTrialSignUp",
@@ -122,11 +127,35 @@ export const startJobSearchWorkflow = action({
 			}
 		}
 
+		// Get the usage row for this user/month
+		const usage = await ctx.runQuery(internal.user_usage.getUsage, {
+			userId: me._id!,
+			startDate: me.subscriptionDate!,
+		});
+
+		if (!usage) {
+			throw new Error("Usage row not found");
+		}
+		const maxJobSearches = me.isPro ? 35 : 3;
+		if (usage.jobSearchCount >= maxJobSearches) {
+			throw new Error(
+				me.isPro
+					? "You have reached the maximum number of job searches allowed for this month (35 searches)."
+					: "You have reached the maximum number of job searches allowed for this month (3 searches). Please upgrade to a paid plan to continue using the service."
+			);
+		}
+
+		// Increment job search count for this user/month
+		await ctx.runMutation(internal.user_usage.incrementJobSearchCount, {
+			userId: me._id!,
+			startDate: me.subscriptionDate!,
+		});
+
 		// Create a tracking id for the workflow
 		const workflowTrackingId = await ctx.runMutation(
 			internal.workflow_status.workflowEntryInitial,
 			{
-				userId: me?._id!,
+				userId: me._id!,
 			},
 		);
 
@@ -135,23 +164,20 @@ export const startJobSearchWorkflow = action({
 			internal.jobs.workflow.jobSearchWorkflow,
 			{
 				cv_storage_id: args.cv_storage_id,
-				userId: me?._id!,
+				userId: me._id!,
 				workflowTrackingId,
 			},
 		);
 
 		// Fire a scheduler to add new jobs listing based on user survey only if user is pro
-		if (me?.isPro) {
-			const { ok } = await rateLimiter.limit(
-				ctx,
-				"proJobSearch",
-			);
+		if (me.isPro) {
+			const { ok } = await rateLimiter.limit(ctx, "proJobSearch");
 			if (ok) {
 				await ctx.scheduler.runAfter(
 					5000,
 					internal.listings.action.addNewJobsListingAction,
 					{
-						userId: me?._id!,
+						userId: me._id!,
 					},
 				);
 			}

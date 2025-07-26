@@ -22,10 +22,21 @@ export const getMe = query({
 			.withIndex("by_userId", (q) => q.eq("userId", userId))
 			.first();
 
+		// Subscription date is a string we need to convert to a number
+		const startedAt = subscription?.startedAt as unknown;
+
+		const subscriptionDate =
+			startedAt instanceof Date
+				? startedAt.getTime()
+				: typeof startedAt === "number"
+					? startedAt
+					: null;
+
 		return {
 			...user,
 			isPro,
 			role: userConfig?.role,
+			subscriptionDate: subscriptionDate,
 		};
 	},
 });

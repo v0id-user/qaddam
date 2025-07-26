@@ -5,6 +5,7 @@ import { jobSchemas } from "./schemas/jobs";
 import { uploadSchemas } from "./schemas/uploads";
 import { workflowStageSchemas } from "./schemas/workflowStage";
 import { userConfigSchemas } from "./schemas/user_config";
+import { usageSchemas } from "./schemas/usage";
 
 export default defineSchema({
 	// Authentication tables
@@ -24,4 +25,7 @@ export default defineSchema({
 
 	// User config tables
 	...userConfigSchemas,
+
+	// Usage tables
+	...usageSchemas,
 });
