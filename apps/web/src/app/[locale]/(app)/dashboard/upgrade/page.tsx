@@ -64,7 +64,7 @@ export default function UpgradePage() {
       setIsLoading(true);
       const checkoutResult = await generateCheckoutLink({
         // TODO: This is so bad, we need to fix this, to env variable or something
-        productIds: ['b97a0870-765f-4e94-8cee-f8099a7e1edb'],
+        productIds: ['16fcf411-9973-4973-ad6d-c334eec1ef8a'],
         origin: window.location.origin,
         successUrl: `${window.location.origin}/dashboard?upgrade=success`,
       });
