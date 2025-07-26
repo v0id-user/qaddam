@@ -5,7 +5,6 @@ export const usageSchemas = {
 	usage: defineTable({
 		userId: v.id("users"),
 		jobSearchCount: v.number(),
-		scheduleScrapCount: v.number(),
 		startDate: v.number(),
 		createdAt: v.number(),
 		updatedAt: v.number(),

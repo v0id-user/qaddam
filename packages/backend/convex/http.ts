@@ -2,7 +2,7 @@ import { httpRouter } from "convex/server";
 import { auth } from "./auth";
 import { polar } from "./polar";
 import { internal } from "./_generated/api";
-import { Id } from "./_generated/dataModel";
+import type { Id } from "./_generated/dataModel";
 
 const http = httpRouter();
 

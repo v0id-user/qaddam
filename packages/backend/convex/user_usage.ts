@@ -1,7 +1,7 @@
 import { internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
-import { Doc, Id } from "./_generated/dataModel";
-import { MutationCtx, QueryCtx } from "./_generated/server";
+import type { Doc, Id } from "./_generated/dataModel";
+import type { MutationCtx, QueryCtx } from "./_generated/server";
 
 function getTimestamp(): number {
 	return Date.now();
@@ -34,7 +34,6 @@ export const initUsage = internalMutation({
 		await ctx.db.insert("usage", {
 			userId,
 			jobSearchCount: 0,
-			scheduleScrapCount: 0,
 			startDate,
 			createdAt: now,
 			updatedAt: now,
@@ -52,7 +51,6 @@ export const incrementJobSearchCount = internalMutation({
 			await ctx.db.insert("usage", {
 				userId,
 				jobSearchCount: 1,
-				scheduleScrapCount: 0,
 				startDate,
 				createdAt: now,
 				updatedAt: now,
