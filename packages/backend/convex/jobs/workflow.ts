@@ -142,9 +142,9 @@ export const startJobSearchWorkflow = action({
 
 		// Fire a scheduler to add new jobs listing based on user survey only if user is pro
 		if (me?.isPro) {
-			const { ok, retryAfter } = await rateLimiter.limit(
+			const { ok } = await rateLimiter.limit(
 				ctx,
-				"freeTrialSignUp",
+				"proJobSearch",
 			);
 			if (ok) {
 				await ctx.scheduler.runAfter(
