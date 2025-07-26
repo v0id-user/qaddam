@@ -37,3 +37,11 @@ NEXT_PUBLIC_POSTHOG_HOST=your_posthog_host_here
 NEXT_PUBLIC_AXIOM_TOKEN=your_axiom_token_here
 NEXT_PUBLIC_AXIOM_DATASET=your_axiom_dataset_here
 ```
+
+# Setting up apify 
+- Go to https://console.apify.com/
+- Create a new actor
+- Setup your api keys with these actor:
+    - https://console.apify.com/actors/hKByXkMQaC5Qt9UMN
+    - https://console.apify.com/actors/hMvNSpz3JnHgl5jkh
+They are already hardcoded in packages/backend
