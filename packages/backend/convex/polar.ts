@@ -15,7 +15,7 @@ export const polar = new Polar(components.polar, {
 			userId: user._id,
 			email: user.email,
 		};
-	},
+	}
 });
 
 export const syncProducts = action({
