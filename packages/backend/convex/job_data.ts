@@ -189,7 +189,10 @@ export const searchJobListings = query({
 		}
 
 		if (!user.isPro) {
-			throw new Error("User is not a pro user");
+			return {
+				jobs: [],
+				totalCount: 0,
+			};
 		}
 
 		const limit = Math.min(args.limit || 20, 50); // Max 50 results
