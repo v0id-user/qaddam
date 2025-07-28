@@ -183,9 +183,13 @@ export const searchJobListings = query({
 		ctx,
 		args,
 	): Promise<{ jobs: Doc<"jobListings">[]; totalCount: number }> => {
-		const user = await getAuthUserId(ctx);
+		const user = await ctx.runQuery(api.users.getMe);
 		if (!user) {
 			throw new Error("User not found unauthorized");
+		}
+
+		if (!user.isPro) {
+			throw new Error("User is not a pro user");
 		}
 
 		const limit = Math.min(args.limit || 20, 50); // Max 50 results

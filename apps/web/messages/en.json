@@ -425,7 +425,22 @@
       "clear_filters": "Clear All Filters",
       "load_more": "Load More Jobs",
       "job_saved": "Job saved to favorites!",
-      "job_unsaved": "Job removed from favorites"
+      "job_unsaved": "Job removed from favorites",
+      "non_pro": {
+        "title": "Job Search - Pro Feature",
+        "subtitle": "Unlock powerful job search capabilities with Pro",
+        "description": "Browse and search through thousands of curated job listings with advanced filtering and AI-powered matching.",
+        "features": {
+          "searchable_jobs": "Searchable, filterable job database",
+          "regular_updates": "Regularly updated job listings",
+          "advanced_filters": "Advanced search filters by company, location, and more",
+          "ai_matching": "AI-powered job matching and insights",
+          "save_jobs": "Save and track your favorite opportunities"
+        },
+        "upgrade_button": "Upgrade to Pro",
+        "free_note": "Want to try for free? Check out our open-source version for self-hosting.",
+        "learn_more": "Learn More"
+      }
     },
     "profile": {
       "saved_jobs": {

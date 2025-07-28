@@ -77,6 +77,7 @@ export default function JobsPage() {
   const [searchKeyword, setSearchKeyword] = useQueryState('search', { defaultValue: '' });
   const [locationFilter, setLocationFilter] = useQueryState('location', { defaultValue: '' });
   const [companyFilter, setCompanyFilter] = useQueryState('company', { defaultValue: '' });
+  const me = useQuery(api.users.getMe);
 
   // Local state for UI
   const [showAllCompanies, setShowAllCompanies] = useState(false);
@@ -205,6 +206,101 @@ export default function JobsPage() {
       return t('job_results.date_format.weeks_ago', { weeks: Math.floor(diffDays / 7) });
     return date.toLocaleDateString();
   };
+
+  // This feature is only available for pro users
+  if (!me?.isPro) {
+    return (
+      <div className="bg-background min-h-screen">
+        {/* Header */}
+        <div className="bg-card/50 border-b px-6 py-6">
+          <div className="mx-auto max-w-7xl">
+            <h1 className="text-foreground mb-2 text-2xl font-bold md:text-3xl">
+              {t('job_results.browse_jobs')}
+            </h1>
+            <p className="text-muted-foreground text-sm md:text-base">
+              {t('job_results.browse_subtitle')}
+            </p>
+          </div>
+        </div>
+
+        {/* Non-Pro Content */}
+        <div className="px-6 py-12">
+          <div className="mx-auto max-w-4xl">
+            <div className="bg-card rounded-xl border p-8 text-center shadow-sm">
+              <div className="mb-6">
+                <h2 className="text-foreground mb-3 text-2xl font-bold">
+                  {t('job_results.non_pro.title')}
+                </h2>
+                <p className="text-muted-foreground text-lg">
+                  {t('job_results.non_pro.subtitle')}
+                </p>
+              </div>
+
+              <div className="mb-8">
+                <p className="text-muted-foreground mb-6 text-base">
+                  {t('job_results.non_pro.description')}
+                </p>
+
+                {/* Features List */}
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="bg-accent/10 rounded-lg p-4 text-left">
+                    <h4 className="text-foreground mb-2 font-semibold">
+                      {t('job_results.non_pro.features.searchable_jobs')}
+                    </h4>
+                  </div>
+                  <div className="bg-accent/10 rounded-lg p-4 text-left">
+                    <h4 className="text-foreground mb-2 font-semibold">
+                      {t('job_results.non_pro.features.regular_updates')}
+                    </h4>
+                  </div>
+                  <div className="bg-accent/10 rounded-lg p-4 text-left">
+                    <h4 className="text-foreground mb-2 font-semibold">
+                      {t('job_results.non_pro.features.advanced_filters')}
+                    </h4>
+                  </div>
+                  <div className="bg-accent/10 rounded-lg p-4 text-left">
+                    <h4 className="text-foreground mb-2 font-semibold">
+                      {t('job_results.non_pro.features.ai_matching')}
+                    </h4>
+                  </div>
+                  <div className="bg-accent/10 rounded-lg p-4 text-left md:col-span-2">
+                    <h4 className="text-foreground mb-2 font-semibold">
+                      {t('job_results.non_pro.features.save_jobs')}
+                    </h4>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+                <Button
+                  onClick={() => window.location.href = '/dashboard/upgrade'}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
+                  size="lg"
+                >
+                  {t('job_results.non_pro.upgrade_button')}
+                </Button>
+                <Button
+                  onClick={() => window.open('https://github.com/qaddam/qaddam', '_blank')}
+                  variant="outline"
+                  size="lg"
+                >
+                  {t('job_results.non_pro.learn_more')}
+                </Button>
+              </div>
+
+              {/* Free Note */}
+              <div className="mt-6 pt-6 border-t">
+                <p className="text-muted-foreground text-sm">
+                  {t('job_results.non_pro.free_note')}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background min-h-screen">
