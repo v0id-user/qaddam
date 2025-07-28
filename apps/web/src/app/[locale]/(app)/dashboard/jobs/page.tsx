@@ -260,7 +260,7 @@ export default function JobsPage() {
                   </div>
                   <div className="bg-accent/10 rounded-lg p-4 text-left">
                     <h4 className="text-foreground mb-2 font-semibold">
-                      {t('job_results.non_pro.features.ai_matching')}
+                      {t('job_results.non_pro.features.organized_listings')}
                     </h4>
                   </div>
                   <div className="bg-accent/10 rounded-lg p-4 text-left md:col-span-2">
@@ -281,7 +281,7 @@ export default function JobsPage() {
                   {t('job_results.non_pro.upgrade_button')}
                 </Button>
                 <Button
-                  onClick={() => window.open('https://github.com/qaddam/qaddam', '_blank')}
+                  onClick={() => window.open('https://github.com/v0id-user/qaddam', '_blank')}
                   variant="outline"
                   size="lg"
                 >

@@ -428,13 +428,13 @@
       "job_unsaved": "Job removed from favorites",
       "non_pro": {
         "title": "Job Search - Pro Feature",
-        "subtitle": "Unlock powerful job search capabilities with Pro",
-        "description": "Browse and search through thousands of curated job listings with advanced filtering and AI-powered matching.",
+        "subtitle": "Access our curated job database with Pro",
+        "description": "Browse and search through a regularly updated database of job listings with filtering to make your search a bit easier.",
         "features": {
           "searchable_jobs": "Searchable, filterable job database",
           "regular_updates": "Regularly updated job listings",
-          "advanced_filters": "Advanced search filters by company, location, and more",
-          "ai_matching": "AI-powered job matching and insights",
+          "advanced_filters": "Search filters by company, location, and keywords",
+          "organized_listings": "Organized and curated job listings",
           "save_jobs": "Save and track your favorite opportunities"
         },
         "upgrade_button": "Upgrade to Pro",
