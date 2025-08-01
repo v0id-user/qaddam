@@ -160,7 +160,9 @@
     "make_an_account_to_continue": "أنشئ حسابًا للمتابعة.",
     "sign_up_to_access_pro_features": "سجّل للحصول على ميزات المحترفين.",
     "tester_announcement": "هذه الصفحة للمختبرين فقط. يجب أن تتواصل مع",
-    "tester_announcement_end": "لفهم ما يجب عليك فعله."
+                "tester_announcement_end": "لفهم ما يجب عليك فعله.",
+            "sign_in_disabled": "نحن لا نقبل التسجيلات الآن. شكراً لاهتمامك!",
+            "sign_in_disabled_description": "نحن لا نقبل التسجيلات الآن. شكراً لاهتمامك!"
   },
   "dashboard": {
     "cv_upload": {

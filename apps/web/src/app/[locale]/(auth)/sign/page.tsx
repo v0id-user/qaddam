@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-// import { useAuthActions } from '@convex-dev/auth/react';
+import { useAuthActions } from '@convex-dev/auth/react';
 import { useQueryState } from 'nuqs';
 import { useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
@@ -146,7 +146,7 @@ const TaglineBubble = ({ text, className = '' }: { text: string; className?: str
 
 const SignPage = () => {
   const t = useTranslations('auth');
-  // const { signIn } = useAuthActions();
+  const { signIn } = useAuthActions();
   const [plan] = useQueryState('p');
 
   // Prevent duplicate toasts by using a ref to track if we've already shown it for this plan
@@ -223,8 +223,35 @@ const SignPage = () => {
                 if (plan && plan !== 'free') {
                   target += `?p=${plan}`;
                 }
-                // signIn('google', { redirectTo: target });
-                console.log('signing in is not avaliable ', target);
+                if(process.env.NEXT_PUBLIC_STATUS === "stale"){
+                  toast.custom(() => (
+                    <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gradient-to-br from-white via-gray-50 to-gray-200 p-5 shadow-2xl ring-2 ring-yellow-100/40">
+                      <div className="flex-shrink-0 rounded-full bg-yellow-100 p-2 shadow-inner">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                          <circle cx="12" cy="12" r="10" fill="#F59E42" opacity="0.15" />
+                          <path
+                            d="M12 8v4l2.5 2.5"
+                            stroke="#F59E42"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <circle cx="12" cy="12" r="9" stroke="#F59E42" strokeWidth="1.5" opacity="0.3" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-base font-medium text-gray-800 drop-shadow-sm">
+                          {t('sign_in_disabled')}
+                        </p>
+                        <p className="mt-1 text-xs text-gray-500">{t('sign_in_disabled_description')}</p>
+                      </div>
+                    </div>
+                  ));
+                  return;
+                }
+                signIn('google', { redirectTo: target });
+                // console.log('signing in is not avaliable ', target);
+                
               }}
               className="w-full rounded-xl border border-gray-300 bg-white py-3 text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 hover:shadow-md"
               size="lg"
