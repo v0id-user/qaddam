@@ -12,16 +12,12 @@ Qaddam is just another job board - it's a complete AI-powered job search assista
 - **Matches you with relevant jobs** from multiple sources using intelligent algorithms
 - **Provides personalized insights** on why specific positions match your profile
 - **Aggregates job listings** from various platforms into one searchable, filterable interface
-- **Supports bilingual search** in English and Arabic for the regional market
 - **Offers both self-hosted and managed options** to fit different needs
 
 ### Key Value Propositions
 
 - **AI-Native Approach**: Every step uses AI - from parsing your CV to ranking job matches
-- **Developer-Focused**: Built with engineers in mind, offering technical precision without marketing fluff  
-- **Open Source Freedom**: Free tier allows complete self-hosting with full control
-- **Managed Convenience**: Pro version ($4/month) provides fully managed infrastructure
-- **Time-Saving**: No more manual browsing across multiple job sites
+- **Open Source Freedom**: Allows complete self-hosting with full control
 - **Intelligent Matching**: Get matched with jobs that actually fit your profile
 
 ### Target Users
@@ -29,9 +25,6 @@ Qaddam is just another job board - it's a complete AI-powered job search assista
 - Software developers and engineers looking for new opportunities
 - Technical professionals who want AI-powered job search automation
 - Developers who prefer open-source, transparent solutions
-- Engineers tired of manually checking multiple job platforms
-
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Next.js, Convex, and more.
 
 ## Features
 
@@ -95,7 +88,7 @@ You can self host the project by following the [Self hosting guide](./SELFHOST.m
 
 # How much does it cost to run this project?
 
-It's not much. Most of the cloud providers offer really good free tiers. But apify righfuly so can be little pricey.
+It's not much. Most of the cloud providers offer really good free tiers. But apify righfuly so, can be little pricey.
 Check [COSTS.md](./COSTS.md) for more details.
 
 # Legal stuff
