@@ -112,6 +112,6 @@ However, **all visual assets** (logos, icons, screenshots, etc.) are **not part 
 
 See [ASSETS-LICENSE.md](./ASSETS-LICENSE.md) for details.
 
-Any violation of the license terms will result in a **DMCA takedown** and, if necessary, further legal action.
+Any violation of the license terms will result in a **DMCA takedown**.
 
 > **Note:** This isn’t gatekeeping — it’s about keeping open-source sustainable, especially for tiny small independent projects.
