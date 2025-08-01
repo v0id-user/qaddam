@@ -66,6 +66,14 @@ export const PricingCTAButton = ({
 }: PricingCTAButtonProps) => {
   const router = useRouter();
   const handleClick = () => {
+    // For free plan, redirect to GitHub
+    if (planType === 'free') {
+      trackEvent('landing_cta', { source: 'github' });
+      window.open('https://github.com/v0id-user/qaddam', '_blank');
+      return;
+    }
+
+    // For pro plan, use existing logic
     const isProPlan = planType && planType !== 'free';
     const basePath = email ? '/dashboard' : '/sign';
     const target = isProPlan ? `${basePath}?p=${planType}` : basePath;
