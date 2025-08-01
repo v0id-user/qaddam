@@ -2,11 +2,12 @@
 
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { useAuthActions } from '@convex-dev/auth/react';
+// import { useAuthActions } from '@convex-dev/auth/react';
 import { useQueryState } from 'nuqs';
 import { useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { trackEvent } from '@/analytics/client';
+
 const GoogleIcon = () => (
   <svg
     className="h-5 w-5"
@@ -145,7 +146,7 @@ const TaglineBubble = ({ text, className = '' }: { text: string; className?: str
 
 const SignPage = () => {
   const t = useTranslations('auth');
-  const { signIn } = useAuthActions();
+  // const { signIn } = useAuthActions();
   const [plan] = useQueryState('p');
 
   // Prevent duplicate toasts by using a ref to track if we've already shown it for this plan
@@ -223,6 +224,7 @@ const SignPage = () => {
                   target += `?p=${plan}`;
                 }
                 // signIn('google', { redirectTo: target });
+                console.log('signing in is not avaliable ', target);
               }}
               className="w-full rounded-xl border border-gray-300 bg-white py-3 text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 hover:shadow-md"
               size="lg"
