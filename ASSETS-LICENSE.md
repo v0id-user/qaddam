@@ -1,6 +1,6 @@
 # Qaddam Asset License (Non-Code Media)
 
-While all source code in this repository is licensed under the GNU GPLv3 (see [LICENSE](./LICENSE)), **all media and brand assets are NOT.**
+While all source code in this repository is licensed under the GNU GPLv3 (see [LICENSE](./LICENSE.md)), **all media and brand assets are NOT.**
 
 This includes, but is not limited to:
 
