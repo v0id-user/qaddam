@@ -7,6 +7,7 @@ import { useQueryState } from 'nuqs';
 import { useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { trackEvent } from '@/analytics/client';
+import Link from 'next/link';
 
 const GoogleIcon = () => (
   <svg
@@ -265,13 +266,13 @@ const SignPage = () => {
           <div className="mt-8 text-center text-sm text-gray-500">
             <p>
               {t('terms_text')}{' '}
-              <a href="/terms" className="text-primary hover:underline">
+              <Link href="/terms" className="text-primary hover:underline">
                 {t('terms_of_service')}
-              </a>{' '}
+              </Link>{' '}
               {t('and')}{' '}
-              <a href="/privacy" className="text-primary hover:underline">
+              <Link href="/privacy" className="text-primary hover:underline">
                 {t('privacy_policy')}
-              </a>
+              </Link>
             </p>
           </div>
         </div>
