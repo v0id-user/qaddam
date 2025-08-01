@@ -30,6 +30,11 @@ export const jobSearchWorkflow = workflow.define({
 		saved: boolean;
 		resultId: string;
 	}> => {
+
+		if(process.env.NEXT_PUBLIC_STATUS === "stale"){
+			throw new Error("Job search is not available at the moment. Please try again later.");
+		}
+
 		// Step 1: Parse CV and extract profile (20%)
 		const cvProfile = await step.runAction(
 			internal.jobs.actions.parse.aiParseCV,
