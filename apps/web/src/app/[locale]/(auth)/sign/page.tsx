@@ -265,11 +265,11 @@ const SignPage = () => {
           <div className="mt-8 text-center text-sm text-gray-500">
             <p>
               {t('terms_text')}{' '}
-              <a href="#" className="text-primary hover:underline">
+              <a href="/terms" className="text-primary hover:underline">
                 {t('terms_of_service')}
               </a>{' '}
               {t('and')}{' '}
-              <a href="#" className="text-primary hover:underline">
+              <a href="/privacy" className="text-primary hover:underline">
                 {t('privacy_policy')}
               </a>
             </p>
