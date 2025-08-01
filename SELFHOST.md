@@ -82,15 +82,24 @@ Google Oauth is the only method used for authentication. Follow Convex [guide](h
 # Optional setup | You can partially skip these
 
 ## Setting up Polar
+### Init
 - Go to [Polar Dashboard](https://dashboard.polar.sh/)
 - Create new organization
+
+### Token
 - Go to [Polar Settings](https://polar.sh/dashboard/qaddam/settings)
 - Scroll down to bottom under `Developer`
 - Click `New Token`
 - Follow permissions mentioned in the [convex polar guide](https://www.convex.dev/components/polar)
 - Copy the organization token and add it to your .env in Convex cloud under `POLAR_ORGANIZATION_TOKEN`
 
+### Webhook
+- Go to [Polar Webhooks](https://polar.sh/dashboard/qaddam/settings/webhooks)
+- Click `Add Endpoint`
+- Follow the guide how to copy convex http action webhook url [convex polar guide](https://www.convex.dev/components/polar)
+- Follow permissions mentioned in the [convex polar guide](https://www.convex.dev/components/polar)
+
 ## Setting up Axiom
 - Go to [Axiom Dashboard](https://app.axiom.co/)
 - Go to settings create a new api token and dataset
-- Add dataset under `AXIOM_DATASET` and token under `AXIOM_TOKEN` in your env in Convex cloud
+- Add dataset under `AXIOM_DATASET` and token under `AXIOM_TOKEN` in your .env in Convex cloud
