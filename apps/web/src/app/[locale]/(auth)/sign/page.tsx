@@ -224,7 +224,7 @@ const SignPage = () => {
                 if (plan && plan !== 'free') {
                   target += `?p=${plan}`;
                 }
-                if(process.env.NEXT_PUBLIC_STATUS === "stale"){
+                if (process.env.NEXT_PUBLIC_STATUS === 'stale') {
                   toast.custom(() => (
                     <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gradient-to-br from-white via-gray-50 to-gray-200 p-5 shadow-2xl ring-2 ring-yellow-100/40">
                       <div className="flex-shrink-0 rounded-full bg-yellow-100 p-2 shadow-inner">
@@ -237,14 +237,23 @@ const SignPage = () => {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           />
-                          <circle cx="12" cy="12" r="9" stroke="#F59E42" strokeWidth="1.5" opacity="0.3" />
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="9"
+                            stroke="#F59E42"
+                            strokeWidth="1.5"
+                            opacity="0.3"
+                          />
                         </svg>
                       </div>
                       <div>
                         <p className="text-base font-medium text-gray-800 drop-shadow-sm">
                           {t('sign_in_disabled')}
                         </p>
-                        <p className="mt-1 text-xs text-gray-500">{t('sign_in_disabled_description')}</p>
+                        <p className="mt-1 text-xs text-gray-500">
+                          {t('sign_in_disabled_description')}
+                        </p>
                       </div>
                     </div>
                   ));
@@ -252,7 +261,6 @@ const SignPage = () => {
                 }
                 signIn('google', { redirectTo: target });
                 // console.log('signing in is not avaliable ', target);
-                
               }}
               className="w-full rounded-xl border border-gray-300 bg-white py-3 text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 hover:shadow-md"
               size="lg"

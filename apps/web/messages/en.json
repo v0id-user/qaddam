@@ -148,9 +148,9 @@
     "make_an_account_to_continue": "Make an account to continue.",
     "sign_up_to_access_pro_features": "Sign up to access Pro features.",
     "tester_announcement": "This page is only for testers. You must be contacted by",
-                "tester_announcement_end": "to understand what to do.",
-            "sign_in_disabled": "We don't accept signs right now. Thanks for your interest!",
-            "sign_in_disabled_description": "We don't accept signs right now. Thanks for your interest!"
+    "tester_announcement_end": "to understand what to do.",
+    "sign_in_disabled": "We don't accept signs right now. Thanks for your interest!",
+    "sign_in_disabled_description": "We don't accept signs right now. Thanks for your interest!"
   },
   "dashboard": {
     "cv_upload": {

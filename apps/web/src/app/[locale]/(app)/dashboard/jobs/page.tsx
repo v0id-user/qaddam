@@ -231,9 +231,7 @@ export default function JobsPage() {
                 <h2 className="text-foreground mb-3 text-2xl font-bold">
                   {t('job_results.non_pro.title')}
                 </h2>
-                <p className="text-muted-foreground text-lg">
-                  {t('job_results.non_pro.subtitle')}
-                </p>
+                <p className="text-muted-foreground text-lg">{t('job_results.non_pro.subtitle')}</p>
               </div>
 
               <div className="mb-8">
@@ -274,7 +272,7 @@ export default function JobsPage() {
               {/* Action Buttons */}
               <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
                 <Button
-                  onClick={() => window.location.href = '/dashboard/upgrade'}
+                  onClick={() => (window.location.href = '/dashboard/upgrade')}
                   className="bg-primary text-primary-foreground hover:bg-primary/90"
                   size="lg"
                 >
@@ -290,7 +288,7 @@ export default function JobsPage() {
               </div>
 
               {/* Free Note */}
-              <div className="mt-6 pt-6 border-t">
+              <div className="mt-6 border-t pt-6">
                 <p className="text-muted-foreground text-sm">
                   {t('job_results.non_pro.free_note')}
                 </p>

@@ -30,9 +30,10 @@ export const jobSearchWorkflow = workflow.define({
 		saved: boolean;
 		resultId: string;
 	}> => {
-
-		if(process.env.NEXT_PUBLIC_STATUS === "stale"){
-			throw new Error("Job search is not available at the moment. Please try again later.");
+		if (process.env.NEXT_PUBLIC_STATUS === "stale") {
+			throw new Error(
+				"Job search is not available at the moment. Please try again later.",
+			);
 		}
 
 		// Step 1: Parse CV and extract profile (20%)
@@ -113,7 +114,6 @@ export const startJobSearchWorkflow = action({
 			cv_storage_id: args.cv_storage_id,
 		});
 
-
 		// Rate limit for free and pro users
 		if (!me.isPro) {
 			const { ok, retryAfter } = await rateLimiter.limit(
@@ -148,7 +148,7 @@ export const startJobSearchWorkflow = action({
 			throw new Error(
 				me.isPro
 					? "You have reached the maximum number of job searches allowed for this month (35 searches)."
-					: "You have reached the maximum number of job searches allowed for this month (3 searches). Please upgrade to a paid plan to continue using the service."
+					: "You have reached the maximum number of job searches allowed for this month (3 searches). Please upgrade to a paid plan to continue using the service.",
 			);
 		}
 

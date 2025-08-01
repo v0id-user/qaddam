@@ -16,11 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  MoreVerticalIcon,
-  CreditCardIcon,
-  LogOutIcon,
-} from 'lucide-react';
+import { MoreVerticalIcon, CreditCardIcon, LogOutIcon } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useAuthActions } from '@convex-dev/auth/react';
 import { useTranslations, useLocale } from 'next-intl';
@@ -67,7 +63,7 @@ const ProBadge = () => (
 
 const UpgradeBadge = ({ message, onClick }: { message: string; onClick?: () => void }) => (
   <span
-    className="ml-1 inline-flex items-center rounded bg-gradient-to-r from-orange-500 to-red-400 px-2 py-0.5 text-xs font-semibold text-white shadow cursor-pointer hover:from-orange-600 hover:to-red-500 transition-colors"
+    className="ml-1 inline-flex cursor-pointer items-center rounded bg-gradient-to-r from-orange-500 to-red-400 px-2 py-0.5 text-xs font-semibold text-white shadow transition-colors hover:from-orange-600 hover:to-red-500"
     style={{ verticalAlign: 'middle' }}
     title={message}
     aria-label={message}
@@ -134,7 +130,7 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
               {user.isPro ? (
                 <ProBadge />
               ) : (
-                <UpgradeBadge 
+                <UpgradeBadge
                   message={t('upgrade_to_pro')}
                   onClick={() => router.push('/dashboard/upgrade')}
                 />
@@ -169,7 +165,7 @@ const UserDropDown = ({ user, customMenuItems, showDefaultMenu = true }: SideNav
                 {user.isPro ? (
                   <ProBadge />
                 ) : (
-                  <UpgradeBadge 
+                  <UpgradeBadge
                     message={t('upgrade_to_pro')}
                     onClick={() => logger.info('Navigate to upgrade page for user: ' + user.email)}
                   />
