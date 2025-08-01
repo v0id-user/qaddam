@@ -91,7 +91,7 @@ qaddam/
 
 # Self hosting
 
-You can self host the project by following the [Self hosting guide](./SelfHost.md).
+You can self host the project by following the [Self hosting guide](./SELFHOST.md).
 
 # How much does it cost to run this project?
 
