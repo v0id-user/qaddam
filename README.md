@@ -98,21 +98,20 @@ You can self host the project by following the [Self hosting guide](./SELFHOST.m
 It's not much. Most of the cloud providers offer really good free tiers. But apify righfuly so can be little pricey.
 Check [COSTS.md](./COSTS.md) for more details.
 
-
 # Legal stuff
 
 ## Can I use this commercially?
 
-Yes! — **you can use and sell this as a commercial product**, as long as you comply with the terms of the [GPLv3 License](./LICENSE.md):
+Yes! — **you can use and sell this as a commercial product**, as long as you comply with the terms of the [AGPLv3 License](./LICENSE.md):
 
-* You **must disclose your source code**
-* You **must retain the same license (GPLv3)**
-* You **must clearly state any modifications you make**
+* You **must disclose your full source code**, including any server-side or backend modifications if the software is used over a network
+* You **must retain the same license (AGPLv3)**
+* You **must clearly state any changes or modifications you make**
 
 However, **all visual assets** (logos, icons, screenshots, etc.) are **not part of the open-source license**. They are the property of the original author and **may not be reused, redistributed, or repurposed** in any form.
 
 See [ASSETS-LICENSE.md](./ASSETS-LICENSE.md) for details.
 
-Any violation of the license will result in DMCA.
+Any violation of the license terms will result in a **DMCA takedown** and, if necessary, further legal action.
 
-> **Note:** This isn’t gatekeeping — it’s about keeping open source healthy, even for small projects like mine.
+> **Note:** This isn’t gatekeeping — it’s about keeping open-source sustainable, especially for tiny small independent projects.
