@@ -222,7 +222,7 @@ const SignPage = () => {
                 if (plan && plan !== 'free') {
                   target += `?p=${plan}`;
                 }
-                signIn('google', { redirectTo: target });
+                // signIn('google', { redirectTo: target });
               }}
               className="w-full rounded-xl border border-gray-300 bg-white py-3 text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 hover:shadow-md"
               size="lg"
